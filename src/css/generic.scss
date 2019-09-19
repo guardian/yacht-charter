@@ -1,0 +1,129 @@
+// Uncomment for embeds
+//@import "embed";
+// Uncomment for full screen (including immersive article main media)
+//@import "fullscreen";
+.element-atom,
+.interactive-atom {
+    margin: 0 !important;
+}
+
+
+.interactive-wrapper {
+    margin: 0 !important;
+
+	.axis path,
+	.axis line {
+	  fill: none;
+	  stroke: #767676;
+	  shape-rendering: crispEdges;
+	}
+
+
+	.chartTitle {
+		font-size:1.25rem;
+		line-height:1.375rem;
+		padding-bottom:.45rem;
+		font-weight:600;
+		color:#000;
+	}
+
+	.borderBottom {
+		border-bottom:1px solid #dcdcdc;
+		padding-bottom:.45rem;
+	}
+
+	.chartSans {
+		font-size:0.8rem;
+		line-height:1em;
+		color:#767676;
+		font-family:'Guardian Text Sans Web', 'Agate Sans', sans-serif;
+	}
+
+	.tick text {
+		font-size:0.8rem;
+		line-height:1em;
+		font-family:'Guardian Text Sans Web', 'Agate Sans', sans-serif;
+	}
+
+	.subTitle {
+		font-size:1rem;
+		color:#808080;
+		font-weight:bold;
+		margin-bottom: 10px;
+		font-family:'Guardian Text Sans Web', 'Agate Sans', sans-serif;
+	}
+
+	.footer {
+	margin-top:5px;
+	font-size: 12px;
+	line-height: 16px;
+	color: rgb(118, 118, 118);
+	font-family: 'Guardian Text Sans Web', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
+}
+
+.chartNotes { 
+	font-size:0.9rem; 
+	color:#767676;
+	font-weight: bold;
+	font-family:'Guardian Text Sans Web', 'Agate Sans', sans-serif;
+}
+
+#graphicContainer {
+	position:relative;
+	max-width: 1200px;
+}
+
+	.line {
+		fill: none;
+	}
+
+	.keyText {
+		font-size:0.8em;
+		margin-left:5px;
+	}
+
+	#chartKey div {
+		margin-left:10px;
+	}
+
+	#chartKey div:first-child {
+		margin-left: 0px;
+	}
+
+	.keyDiv {
+		display: inline-block;
+	}
+
+	.keyDiv .keyCircle:first-of-type {
+	    margin-left:0;
+	}
+
+	.keyCircle {
+		width:12px;
+		height:12px;
+		border-radius: 50%;
+		display: inline-block;
+	}
+
+	.annotationTextMobile {
+		font-weight:bold;
+	}
+
+	#footerAnnotations {
+		color:#000;
+	}
+
+	.periodLabel {
+			fill: #cccccc;
+			text-transform: uppercase;
+			font-weight: bold;
+	}
+
+	@media (max-width: 450px) {
+
+		.mobHide {
+		display: none;
+		}
+
+	}
+}

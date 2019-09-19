@@ -1,0 +1,34 @@
+{
+  "env": {
+    "development": {
+      "presets": [
+        "@babel/preset-env"
+      ],
+      "plugins": [
+        "transform-import-bangtext-node",
+        [
+          "@babel/plugin-transform-runtime",
+          {
+            "regenerator": true
+          }
+        ], "@babel/plugin-proposal-optional-chaining"
+      ]
+    },
+    "client": {
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "es2015": {
+              "modules": false
+            }
+          }
+        ]
+      ],
+      "plugins": [
+        "@babel/plugin-external-helpers",
+        "@babel/plugin-proposal-optional-chaining"
+      ]
+    }
+  }
+}

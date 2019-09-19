@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html id="js-context" class="js-off is-not-modern id--signed-out" data-page-path="/test/ng-interactive/2016/oct/20/test">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Test | The Guardian</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+    <style class="webfont" data-cache-name="GuardianEgyptianWeb" data-cache-file-woff2="https://assets.guim.co.uk/fonts/9849697bbb3a749ce02d4b85bf0b3cd8/GuardianEgyptianWeb.woff2.json" data-cache-file-hinted-cleartype-woff2="https://assets.guim.co.uk/fonts/b70c7e4f8f121c72e9733eb752392723/GuardianEgyptianWebCleartypeHinted.woff2.json" data-cache-file-hinted-auto-woff2="https://assets.guim.co.uk/fonts/bd95a11f98e14108b38f9d145562e64b/GuardianEgyptianWebAutoHinted.woff2.json" data-cache-file-woff="https://assets.guim.co.uk/fonts/8e277aad8fbf1f961880d60e8d6c966d/GuardianEgyptianWeb.woff.json" data-cache-file-hinted-cleartype-woff="https://assets.guim.co.uk/fonts/711375cc26a0dd1cb8aa8d010cd0745e/GuardianEgyptianWebCleartypeHinted.woff.json" data-cache-file-hinted-auto-woff="https://assets.guim.co.uk/fonts/d52052e8fb334148809d6839ae7572f0/GuardianEgyptianWebAutoHinted.woff.json" data-cache-file-ttf="https://assets.guim.co.uk/fonts/eaca2474d078b94837415198fc99ec2c/GuardianEgyptianWeb.ttf.json" data-cache-file-hinted-cleartype-ttf="https://assets.guim.co.uk/fonts/be0b91af982199ffaf12626a71f4384d/GuardianEgyptianWebCleartypeHinted.ttf.json" data-cache-file-hinted-auto-ttf="https://assets.guim.co.uk/fonts/6ebaaf8cc07d803b19bfe9d8f4ab4ee7/GuardianEgyptianWebAutoHinted.ttf.json"></style>
+    <style class="webfont" data-cache-name="GuardianTextEgyptianWeb" data-cache-file-woff2="https://assets.guim.co.uk/fonts/ae8a1b17105d9a63b0da12c54a109721/GuardianTextEgyptianWeb.woff2.json" data-cache-file-hinted-cleartype-woff2="https://assets.guim.co.uk/fonts/0774ba7bdfe27ba60aebd56ea0a3f0f0/GuardianTextEgyptianWebCleartypeHinted.woff2.json" data-cache-file-hinted-auto-woff2="https://assets.guim.co.uk/fonts/4d71c7e8429c160aa1c6c9f53ec7e613/GuardianTextEgyptianWebAutoHinted.woff2.json" data-cache-file-woff="https://assets.guim.co.uk/fonts/38605aa9565c7c2dc03a18efa6b898d7/GuardianTextEgyptianWeb.woff.json" data-cache-file-hinted-cleartype-woff="https://assets.guim.co.uk/fonts/44b7865b2632d301403979424d45c8c2/GuardianTextEgyptianWebCleartypeHinted.woff.json" data-cache-file-hinted-auto-woff="https://assets.guim.co.uk/fonts/a486d05b6fb94dacc3d9f301996455b8/GuardianTextEgyptianWebAutoHinted.woff.json" data-cache-file-ttf="https://assets.guim.co.uk/fonts/2319e461664b0f6349bfc8769325d0a1/GuardianTextEgyptianWeb.ttf.json" data-cache-file-hinted-cleartype-ttf="https://assets.guim.co.uk/fonts/58a8adc00565ef6ed333070546b9adbc/GuardianTextEgyptianWebCleartypeHinted.ttf.json" data-cache-file-hinted-auto-ttf="https://assets.guim.co.uk/fonts/71469955ae2f2dd4e2991264499882a9/GuardianTextEgyptianWebAutoHinted.ttf.json"></style>
+    <style class="webfont" data-cache-name="GuardianSansWeb" data-cache-file-woff2="https://assets.guim.co.uk/fonts/1976d273f3aeeab8863d462068fec10b/GuardianSansWeb.woff2.json" data-cache-file-hinted-cleartype-woff2="https://assets.guim.co.uk/fonts/9f1f440f898d80073faad1b814b549c8/GuardianSansWebCleartypeHinted.woff2.json" data-cache-file-hinted-auto-woff2="https://assets.guim.co.uk/fonts/fb16cde451d19d7f41a0207ec2710bb1/GuardianSansWebAutoHinted.woff2.json" data-cache-file-woff="https://assets.guim.co.uk/fonts/472e25e5a5b2b9234d234c5e5bd49db4/GuardianSansWeb.woff.json" data-cache-file-hinted-cleartype-woff="https://assets.guim.co.uk/fonts/608402239772dedc2f96d758c12e1edf/GuardianSansWebCleartypeHinted.woff.json" data-cache-file-hinted-auto-woff="https://assets.guim.co.uk/fonts/0cdbc20e6f8f565a6ad7f67136a19756/GuardianSansWebAutoHinted.woff.json" data-cache-file-ttf="https://assets.guim.co.uk/fonts/749d630536117d1122e5c9443ee79282/GuardianSansWeb.ttf.json" data-cache-file-hinted-cleartype-ttf="https://assets.guim.co.uk/fonts/1cadca7e0fa46c2c7bec6a204c652961/GuardianSansWebCleartypeHinted.ttf.json" data-cache-file-hinted-auto-ttf="https://assets.guim.co.uk/fonts/20ccadb8fabd8bc22d7a438f5d132a03/GuardianSansWebAutoHinted.ttf.json"></style>
+    <style class="webfont" data-cache-name="GuardianTextSansWeb" data-cache-file-woff2="https://assets.guim.co.uk/fonts/355c7e3d0d08d7772e40e50fd5a92b7b/GuardianTextSansWeb.woff2.json" data-cache-file-hinted-cleartype-woff2="https://assets.guim.co.uk/fonts/45dd12431dca23969d215f0c8bd04383/GuardianTextSansWebCleartypeHinted.woff2.json" data-cache-file-hinted-auto-woff2="https://assets.guim.co.uk/fonts/94531b8c1f4a04300bcac55bf64dfa51/GuardianTextSansWebAutoHinted.woff2.json" data-cache-file-woff="https://assets.guim.co.uk/fonts/ba68befce7f864c139c5509fe0514149/GuardianTextSansWeb.woff.json" data-cache-file-hinted-cleartype-woff="https://assets.guim.co.uk/fonts/d740d0559e167201f80bfe778dacd734/GuardianTextSansWebCleartypeHinted.woff.json" data-cache-file-hinted-auto-woff="https://assets.guim.co.uk/fonts/d4f4de00f7207d384a165d3221eb2658/GuardianTextSansWebAutoHinted.woff.json" data-cache-file-ttf="https://assets.guim.co.uk/fonts/101e2fdd1beeed8c554e908bc2f8c210/GuardianTextSansWeb.ttf.json" data-cache-file-hinted-cleartype-ttf="https://assets.guim.co.uk/fonts/010706ef17e1d595d49a2e460e00053e/GuardianTextSansWebCleartypeHinted.ttf.json" data-cache-file-hinted-auto-ttf="https://assets.guim.co.uk/fonts/36406df72cb165bc744722d68ab0b4bd/GuardianTextSansWebAutoHinted.ttf.json"></style>
+    <style>
+        html, body {
+            text-rendering: optimizeSpeed;
+            text-size-adjust: 100%;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+    <script>
+    (function(window, document) {
+        var ua = navigator.userAgent;
+        var fontHinting = function() {
+            var windowsNT = /Windows NT (\d\.\d+)/.exec(ua);
+            var hinting = "Off";
+            try {
+                if (windowsNT) {
+                    var version = parseFloat(windowsNT[1], 10);
+                    if (version >= 5.1 && version <= 6.1)
+                        if (/Chrome/.exec(ua) && version < 6) hinting = "Auto";
+                        else hinting = "Cleartype"
+                }
+            } catch (e) {}
+            return hinting
+        }();
+
+        function loadFontsFromStorage() {
+            try {
+                if ("localStorage" in window) {
+                    var saveFont = function(fontName, fontHash, css) {
+                        for (var i = 0, totalItems = localStorage.length; i < totalItems - 1; i++) {
+                            var key =
+                                localStorage.key(i);
+                            if (key.indexOf(fontStorageKey(fontName)) !== -1) {
+                                localStorage.removeItem(key);
+                                break
+                            }
+                        }
+                        localStorage.setItem(fontStorageKey(fontName, fontHash), JSON.stringify({
+                            value: css
+                        }))
+                    };
+                    var fetchFont = function(url, el, fontName, fontHash) {
+                        var xhr = new XMLHttpRequest;
+                        this["guFont"] = function(fontData) {
+                            return fontData.css
+                        };
+                        xhr.open("GET", url, true);
+                        xhr.onreadystatechange = function() {
+                            if (xhr.readyState === 4 && xhr.status === 200) {
+                                var css = eval(xhr.responseText);
+                                useFont(el, css);
+                                saveFont(fontName, fontHash, css)
+                            }
+                        };
+                        xhr.send()
+                    };
+                    var useFont = function(el, css) {
+                        el.innerHTML = css
+                    };
+                    var fontStorageKey = function(fontName, fontHash) {
+                        fontHash = fontHash === undefined ? "" : fontHash;
+                        return "gu.fonts." + fontName + "." + fontHash
+                    };
+                    var fontFormat = function() {
+                        var formatStorageKey = "gu.fonts.format";
+                        var format = localStorage.getItem(formatStorageKey);
+
+                        function supportsWoff2() {
+                            if ("FontFace" in window) try {
+                                var f = new window.FontFace("t", 'url("data:application/font-woff2,") format("woff2")', {});
+                                f.load()["catch"](function() {});
+                                if (f.status === "loading") return true
+                            } catch (e) {}
+                            if (!/edge\/([0-9]+)/.test(ua.toLowerCase())) {
+                                var browser =
+                                    /(chrome|firefox)\/([0-9]+)/.exec(ua.toLowerCase());
+                                var supportsWoff2$0 = {
+                                    "chrome": 36,
+                                    "firefox": 39
+                                };
+                                return !!browser && supportsWoff2$0[browser[1]] < parseInt(browser[2], 10)
+                            }
+                            return false
+                        }
+                        if (/value/.test(format)) {
+                            format = JSON.parse(format).value;
+                            localStorage.setItem(formatStorageKey, format)
+                        }
+                        if (!format) {
+                            format = supportsWoff2() ? "woff2" : ua.indexOf("android") > -1 ? "ttf" : "woff";
+                            localStorage.setItem(formatStorageKey, format)
+                        }
+                        return format
+                    }();
+                    var fonts = document.querySelectorAll(".webfont");
+                    var hinting = fontHinting ===
+                        "Off" ? "" : "hinted-" + fontHinting + "-";
+                    var urlAttribute = "data-cache-file-" + hinting + fontFormat;
+                    for (var i = 0, j = fonts.length; i < j; ++i) {
+                        var font = fonts[i];
+                        var fontURL = font.getAttribute(urlAttribute);
+                        var fontInfo = fontURL.match(/fonts\/([^/]*?)\/?([^/]*)\.(woff2|woff|ttf).json$/);
+                        var fontName = fontInfo[2];
+                        var fontHash = fontInfo[1];
+                        var fontData = localStorage.getItem(fontStorageKey(fontName, fontHash));
+                        if (fontData) useFont(font, JSON.parse(fontData).value);
+                        else fetchFont(fontURL, font, fontName, fontHash)
+                    }
+                    return true
+                }
+            } catch (e) {}
+            return false
+        }
+
+        function loadFontsAsynchronously() {
+            try {
+                var scripts = document.getElementsByTagName("script");
+                var thisScript = scripts[scripts.length - 1];
+                var fonts = document.createElement("link");
+                fonts.rel = "stylesheet";
+                fonts.className = "webfonts";
+                fonts.href = window.guardian.config.stylesheets.fonts["hinting" + fontHinting].kerningOn;
+                window.setTimeout(function() {
+                    thisScript.parentNode.insertBefore(fonts, thisScript)
+                })
+            } catch (e) {}
+        }
+
+        function fontSmoothingEnabled() {
+            try {
+                var saveFontSmoothing = function(state) {
+                    state = state ? "on" : "off";
+                    document.cookie =
+                        "GU_fonts_smoothing\x3d " + state + "; domain\x3d" + location.hostname + "; path\x3d/; max-age\x3d" + 60 * 60 * 24 * 30
+                };
+                if (document.cookie.indexOf("GU_fonts_smoothing") !== -1 && window.location.hash !== "#check-smoothing") return document.cookie.indexOf("GU_fonts_smoothing\x3don") !== -1;
+                if (/Windows NT (\d\.\d+)/.exec(ua) && !/MSIE|Trident/.exec(ua)) {
+                    try {
+                        var canvasNode = document.createElement("canvas");
+                        canvasNode.width = "35";
+                        canvasNode.height = "35";
+                        canvasNode.style.display = "none";
+                        document.documentElement.appendChild(canvasNode);
+                        var ctx = canvasNode.getContext("2d");
+                        ctx.textBaseline = "top";
+                        ctx.font = "32px Arial";
+                        ctx.fillStyle = "black";
+                        ctx.strokeStyle = "black";
+                        ctx.fillText("@", 0, 0);
+                        for (var x = 0; x <= 16; x++)
+                            for (var y = 0; y <= 16; y++) {
+                                var alpha = ctx.getImageData(x, y, 1, 1).data[3];
+                                if (alpha > 0 && alpha < 255) {
+                                    saveFontSmoothing(true);
+                                    return true
+                                }
+                            }
+                    } catch (e) {}
+                    saveFontSmoothing(false);
+                    return false
+                } else return true
+            } catch (e$1) {}
+        }
+        var fontCookie = "GU_fonts\x3doff; domain\x3d" + location.hostname + "; path\x3d/";
+
+        function disableFonts() {
+            document.cookie = fontCookie +
+                "; max-age\x3d" + 60 * 60 * 24 * 365
+        }
+
+        function enableFonts() {
+            document.cookie = fontCookie + "; expires\x3dThu, 01 Jan 1970 00:00:00 GMT"
+        }
+
+        function checkUserFontDisabling() {
+            if (window.location.hash === "#fonts-off") disableFonts();
+            else if (window.location.hash === "#fonts-on" || window.location.hash === "#check-smoothing") enableFonts()
+        }
+        var fontsEnabled = document.cookie.indexOf("GU_fonts\x3doff") === -1;
+
+        function loadFonts() {
+            checkUserFontDisabling();
+            if (fontsEnabled)
+                if (fontSmoothingEnabled()) loadFontsFromStorage() || loadFontsAsynchronously();
+                else disableFonts()
+        }
+        loadFonts()
+    })(window, document);
+    </script>
+</head>
+
+<body>
+    <figure class="element element-atom">
+        <figure class="interactive interactive-atom">
+            <link rel="stylesheet" type="text/css" href="main.css" />
+            <%= html %>
+                <script>
+                <%= js %>
+                </script>
+        </figure>
+    </figure>
+</body>
+
+</html>
