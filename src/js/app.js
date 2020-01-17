@@ -17,6 +17,9 @@ function getURLParams(paramName) {
 
 }
 
-const key = (getURLParams("key")) ? getURLParams("key") : "1evrvPdWq4ysFW5JrdtJLDG3hVPNjPDnBqNJtT-WZnRo"
+const key = (getURLParams("key")) ? getURLParams("key") : "1AsgU8YQCKI6DuzJ8Y1qh4-Y7YRuFZZQr8K-4gmbtffU"
+
+//animated = "1evrvPdWq4ysFW5JrdtJLDG3hVPNjPDnBqNJtT-WZnRo"
+//scatterplot = "1AsgU8YQCKI6DuzJ8Y1qh4-Y7YRuFZZQr8K-4gmbtffU"
 
 new ChartBuilder(key)
