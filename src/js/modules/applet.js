@@ -5,11 +5,12 @@ import loadJson from "../../components/load-json/"
 import Ractive from "ractive"
 import AnimatedBarChart from "../../assets/modules/animated"
 import ScatterPlot from "../../assets/modules/scatterplot"
+import StackedBarChart from "../../assets/modules/stackedbarchart"
 
 export class ChartBuilder {
 
   constructor(key) {
-    const type = "scatterplot"
+    const type = "stackedbarchart"
     let configure = this._configure.bind(this)
     if (key != null) {
       loadJson(`https://interactive.guim.co.uk/docsdata/${key}.json`)
@@ -34,6 +35,9 @@ export class ChartBuilder {
       break
     case "scatterplot":
       app = new ScatterPlot(data, d3)
+      break
+    case "stackedbarchart":
+      app = new StackedBarChart(data, d3)
       break
     default:
       console.log("no valid type selected")

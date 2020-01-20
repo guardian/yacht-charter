@@ -142,7 +142,7 @@ class AnimatedBarChart {
     })
     setup = false
 
-    function animate(t) {
+    function animate() {
       var newYear = (start + 1) + timer
       drawChart(newYear)
       yearText.text(newYear)
