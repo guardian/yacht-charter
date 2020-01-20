@@ -1,0 +1,136 @@
+.interactive-wrapper {
+
+	border-top: 1px solid #dcdcdc;
+    border-bottom: 1px solid #dcdcdc;
+    padding-top: 20px;
+    padding-bottom: 5px;
+
+	.axis path,
+	.axis line {
+	  fill: none;
+	  stroke: #767676;
+	  shape-rendering: crispEdges;
+	}
+
+	.figureTitle {
+		font-size: 20px;
+	    line-height: 28px;
+	    font-weight: 600;
+	    -webkit-font-smoothing: antialiased;
+	    color: #333333;
+	    font-family: "GH Guardian Headline", Georgia, serif;
+	    margin-bottom: 2px;
+	}
+
+	a {
+		color:#ab0613;
+		text-decoration: none !important;
+		border-bottom: 0.0625rem solid #dcdcdc;
+		-webkit-transition: border-color 0.15s ease-out;
+		transition: border-color 0.15s ease-out;
+	}
+
+	a:hover {
+		border-color: #ab0613;
+	}
+
+	.subTitle {
+		font-size: 16px;
+	    line-height: 20px;
+	    color: #333333;
+	    font-family: "Guardian Egyptian Web", Georgia, serif;
+	}
+
+	.footer {
+		margin-top:5px;
+		font-size: 12px;
+		line-height: 16px;
+		color: rgb(118, 118, 118);
+		font-family: 'Guardian Text Sans Web', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
+	}
+
+	.notes {
+		font-family: 'Guardian Text Sans Web',Arial;
+		font-size:16px;
+		color:#767676;
+	}
+
+	.chartSans {
+		font-size:12px;
+		color:#767676;
+		font-family:'Guardian Text Sans Web', 'Agate Sans', sans-serif;
+	}
+
+	.tick text {
+		font-size:0.8rem;
+		line-height:1em;
+		font-family:'Guardian Text Sans Web', 'Agate Sans', sans-serif;
+	}
+
+	.keyText {
+		font-size:0.8em;
+		margin-left:5px;
+	}
+
+	#chartKey div {
+		margin-left:10px;
+	}
+
+	#chartKey div:first-child {
+		margin-left: 0px;
+	}
+
+	.keyDiv {
+		display: inline-block;
+	}
+
+	.keyDiv .keyCircle:first-of-type {
+	    margin-left:0;
+	}
+
+	.keyCircle {
+		width:12px;
+		height:12px;
+		border-radius: 50%;
+		display: inline-block;
+	}
+
+	.annotationTextMobile {
+		font-weight:bold;
+	}
+
+	#footerAnnotations {
+		color:#000;
+	}
+
+	.periodLabel {
+			fill: #cccccc;
+			text-transform: uppercase;
+			font-weight: bold;
+	}
+
+	.barPart:hover {
+		opacity:0.7;
+	} 
+
+	.tooltip {
+		font-size:16px;
+		pointer-events: none;	
+		border: 1px #000 solid;
+		padding:2px 5px 2px 5px;
+		color:#000;
+	}
+
+	.line {
+		fill: none;
+	}
+
+	@media (max-width: 450px) {
+
+		.mobHide {
+		display: none;
+		}
+
+	}
+
+}
