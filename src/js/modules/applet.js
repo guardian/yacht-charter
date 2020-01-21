@@ -7,14 +7,15 @@ import AnimatedBarChart from "../../assets/modules/animated"
 import ScatterPlot from "../../assets/modules/scatterplot"
 import StackedBarChart from "../../assets/modules/stackedbarchart"
 import AnnotatedBarChart from "../../assets/modules/annotatedbarchart"
+import TreeMap from "../../assets/modules/treemap"
 
 export class ChartBuilder {
 
   constructor(key) {
-    const type = "annotatedbarchart"
+    const type = "treemap"
     let configure = this._configure.bind(this)
     if (key != null) {
-      loadJson(`https://interactive.guim.co.uk/docsdata/${key}.json`)
+      loadJson(`https://interactive.guim.co.uk/docsdata-test/${key}.json`)
         .then((data) => {
           ajax(`<%= path %>/assets/templates/${type}.html`).then((templateHtml) => {
             new Ractive({
@@ -42,6 +43,9 @@ export class ChartBuilder {
       break
     case "annotatedbarchart":
       app = new AnnotatedBarChart(data, d3)
+      break
+    case "treemap":
+      app = new TreeMap(data.sheets.data, d3)
       break
     default:
       console.log("no valid type selected")
