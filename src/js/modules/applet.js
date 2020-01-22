@@ -50,7 +50,12 @@ export class ChartBuilder {
     default:
       console.log("no valid type selected")
     }
-    this._loader(`<%= path %>/assets/modules/${type}.js`, app, document.body)
+
+    var tag = document.createElement("script")
+    tag.onload = app
+    tag.onreadystatechange = app
+    document.body.appendChild(tag)
+    //this._loader(`<%= path %>/assets/modules/${type}.js`, app, document.body)
   }
 
   _loader(url, code, location) {

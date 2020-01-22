@@ -1,6 +1,5 @@
 export default class TreeMap {
   constructor(data, d3) {
-    console.log(data)
 
     var width = 960,
       height = 500,
@@ -11,8 +10,6 @@ export default class TreeMap {
       .padding(1)
       .round(true)
 
-    console.log(data)
-
     // var svg = d3.select("#graphicContainer").append("svg")
     //   .attr("width", width)
     //   .attr("height", height)
@@ -20,7 +17,8 @@ export default class TreeMap {
     //   .attr("transform", "translate(-.5,-.5)")
     //todo move caption based on depth
     // like if y = 0 and x < width of parent caption
-    const svg = d3.create("svg")
+    const svg = d3.select("#graphicContainer")
+      .append("svg")
       .attr("viewBox", [0, 0, width, height])
       .style("font", "10px sans-serif")
 
@@ -30,33 +28,32 @@ export default class TreeMap {
       })
       .parentId(function (d) {
         return d.categoryParent
-      })
-      (data)
+      })(data)
       .sum(function (d) {
-        return d.size
+        return d.categorySize
       })
       .sort(function (a, b) {
         return b.height - a.height || b.value - a.value
       })
 
+    treemap(root)
+
+    console.log(root.leaves())
+
     const leaf = svg.selectAll("g")
       .data(root.leaves())
       .join("g")
-      .attr("transform", d => `translate(${d.x0},${d.y0})`)
+      .attr("transform", function (d) {
+        return "translate(" + d.x0 + "," + d.y0 + ")"
+      })
 
     leaf.append("title")
-      .text(d => `${d.ancestors().reverse().map(d => d.data.name).join("/")}\n${d.value}`)
-
-    treemap(root)
+      .text(d => d.data.categoryName)
 
     var cell = svg.selectAll("a")
       .data(root.leaves())
       .enter().append("a")
       .attr("target", "_blank")
-      .attr("xlink:href", function (d) {
-        var p = d.data.path.split("/")
-        return "https://github.com/" + p.slice(0, 2).join("/") + "/blob/v" + version[p[1]] + "/src/" + p.slice(2).join("/")
-      })
       .attr("transform", function (d) {
         return "translate(" + d.x0 + "," + d.y0 + ")"
       })
@@ -71,9 +68,8 @@ export default class TreeMap {
       .attr("height", function (d) {
         return d.y1 - d.y0
       })
-      .attr("fill", function (d) {
-        var a = d.ancestors()
-        return color(a[a.length - 2].id)
+      .attr("fill", function () {
+        return color
       })
 
     cell.append("clipPath")
@@ -94,19 +90,19 @@ export default class TreeMap {
       .attr("x", 4)
       .attr("y", 13)
       .text(function (d) {
-        return d.data.path.substring(d.data.path.lastIndexOf("/") + 1, d.data.path.lastIndexOf("."))
+        return d.categoryName
       })
 
-    label.append("tspan")
-      .attr("x", 4)
-      .attr("y", 25)
-      .text(function (d) {
-        return format(d.value)
-      })
+    // label.append("tspan")
+    //   .attr("x", 4)
+    //   .attr("y", 25)
+    //   .text(function (d) {
+    //     return d.value
+    //   })
 
     cell.append("title")
       .text(function (d) {
-        return d.id + "\n" + format(d.value)
+        return d.categoryName
       })
   }
 }
