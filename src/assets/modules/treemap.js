@@ -1,22 +1,15 @@
 export default class TreeMap {
   constructor(data, d3) {
 
-    var width = 960,
-      height = 500,
-      color = "#bada55"
+    var width = document.querySelector("#graphicContainer").getBoundingClientRect().width
+    var height = width * 0.5
+    var color = "#bada55"
 
     var treemap = d3.treemap()
       .size([width, height])
       .padding(1)
       .round(true)
 
-    // var svg = d3.select("#graphicContainer").append("svg")
-    //   .attr("width", width)
-    //   .attr("height", height)
-    //   .append("g")
-    //   .attr("transform", "translate(-.5,-.5)")
-    //todo move caption based on depth
-    // like if y = 0 and x < width of parent caption
     const svg = d3.select("#graphicContainer")
       .append("svg")
       .attr("viewBox", [0, 0, width, height])
@@ -90,19 +83,19 @@ export default class TreeMap {
       .attr("x", 4)
       .attr("y", 13)
       .text(function (d) {
-        return d.categoryName
+        return d.id
       })
 
-    // label.append("tspan")
-    //   .attr("x", 4)
-    //   .attr("y", 25)
-    //   .text(function (d) {
-    //     return d.value
-    //   })
-
-    cell.append("title")
+    label.append("tspan")
+      .attr("x", 4)
+      .attr("y", 25)
       .text(function (d) {
-        return d.categoryName
+        return d.value
       })
+
+    // cell.append("title")
+    //   .text(function (d) {
+    //     return d.id
+    //   })
   }
 }
