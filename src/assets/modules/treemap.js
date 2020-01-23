@@ -1,9 +1,10 @@
+import makeTooltip from "./tooltip"
+
 export default class TreeMap {
   constructor(data, d3) {
 
     var width = document.querySelector("#graphicContainer").getBoundingClientRect().width
-    var height = width * 0.5
-    var color = "#bada55"
+    var height = width * 1
 
     var treemap = d3.treemap()
       .size([width, height])
@@ -61,9 +62,27 @@ export default class TreeMap {
       .attr("height", function (d) {
         return d.y1 - d.y0
       })
-      .attr("fill", function () {
+      .attr("fill", function (d) {
+        var color = "#bada55"
+        var node = d
+        if (node.data.categoryColorOverride == null ||
+          node.data.categoryColorOverride == "") {
+
+          while (node.parent != null &&
+            node.data.categoryColorOverride == null ||
+            node.data.categoryColorOverride == "") {
+            // inheret parent category color
+            color = node.parent.data.categoryColorOverride
+            node = node.parent
+          }
+
+        } else {
+          color = node.data.categoryColorOverride
+        }
+
         return color
       })
+    makeTooltip("rect", root.leaves(), d3)
 
     cell.append("clipPath")
       .attr("id", function (d) {
