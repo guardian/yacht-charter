@@ -4,7 +4,8 @@ export default class TreeMap {
   constructor(data, d3) {
 
     var width = document.querySelector("#graphicContainer").getBoundingClientRect().width
-    var height = width * 1
+    //golden ratio
+    var height = width * 0.61803398875
 
     var treemap = d3.treemap()
       .size([width, height])
@@ -94,22 +95,34 @@ export default class TreeMap {
       })
 
     var label = cell.append("text")
+      .attr("id", function (d) {
+        return "text-" + d.id
+      })
       .attr("clip-path", function (d) {
         return "url(#clip-" + d.id + ")"
       })
 
-    label.append("tspan")
+    label
       .attr("x", 4)
       .attr("y", 13)
       .text(function (d) {
         return d.id
       })
+      .attr("opacity", function () {
+        let textWidth = this.parentNode
+          .getBBox()
+          .width
+        let rectWidth = d3.select(this.parentNode)
+          .select("rect")
+          .node()
+          .getBBox()
+          .width
 
-    label.append("tspan")
-      .attr("x", 4)
-      .attr("y", 25)
-      .text(function (d) {
-        return d.value
+        if (textWidth > rectWidth) {
+          return 0
+        } else {
+          return 1
+        }
       })
 
     // cell.append("title")
