@@ -473,7 +473,5 @@ export default class StackedBarChart {
         .style("opacity", 0)
 
     })
-
-
   }
 }

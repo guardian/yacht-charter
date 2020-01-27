@@ -1,4 +1,5 @@
 import makeTooltip from "./tooltip"
+import createCats from "./key"
 
 export default class TreeMap {
   constructor(data, d3) {
@@ -33,7 +34,28 @@ export default class TreeMap {
 
     treemap(root)
 
-    console.log(root.leaves())
+    console.log(root)
+
+    let nonLeafs = root.descendants().filter(
+      treeNode => {
+        return treeNode.count().value != 1 && treeNode.id != "root"
+      }
+    )
+
+
+    let keyNames = nonLeafs.map(
+      nonLeafNode => {
+        return nonLeafNode.data.categoryName
+      }
+    )
+
+    let keyColors = nonLeafs.map(
+      nonLeafNode => {
+        return nonLeafNode.data.categoryColorOverride
+      }
+    )
+
+    createCats(d3, keyNames, keyColors)
 
     const leaf = svg.selectAll("g")
       .data(root.leaves())
@@ -108,26 +130,61 @@ export default class TreeMap {
       .text(function (d) {
         return d.id
       })
-      .attr("opacity", function () {
-        let textWidth = this.parentNode
-          .getBBox()
-          .width
-        let rectWidth = d3.select(this.parentNode)
-          .select("rect")
-          .node()
-          .getBBox()
-          .width
 
-        if (textWidth > rectWidth) {
-          return 0
-        } else {
-          return 1
-        }
-      })
+    this._wrap(label, d3)
+
+    label.attr("opacity", function () {
+      let textWidth = this.parentNode
+        .getBBox()
+        .width
+      let rectWidth = d3.select(this.parentNode)
+        .select("rect")
+        .node()
+        .getBBox()
+        .width
+
+      if (textWidth > rectWidth) {
+        return 0
+      } else {
+        return 1
+      }
+    })
 
     // cell.append("title")
     //   .text(function (d) {
     //     return d.id
     //   })
+  }
+
+  _wrap(text, d3) {
+    text.each(function () {
+      let rectWidth = d3.select(this.parentNode)
+        .select("rect")
+        .node()
+        .getBBox()
+        .width
+      var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word = words.pop(),
+        line = [],
+        y = text.attr("y"),
+        dy = 0, //parseFloat(text.attr("dy")),
+        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em")
+
+      var lineNumber = 0
+      while (word != null) {
+        const lineHeight = 1.1
+        line.push(word)
+        tspan.text(line.join(" "))
+        if (tspan.node().getComputedTextLength() > rectWidth) {
+          line.pop()
+          tspan.text(line.join(" "))
+          line = [word]
+          tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", lineNumber * lineHeight + dy + "em").text(word)
+        }
+        lineNumber += 1
+        word = words.pop()
+      }
+    })
   }
 }
