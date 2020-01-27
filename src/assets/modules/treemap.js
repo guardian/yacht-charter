@@ -143,7 +143,16 @@ export default class TreeMap {
         .getBBox()
         .width
 
-      if (textWidth > rectWidth) {
+      let textHeight = this.parentNode
+        .getBBox()
+        .height
+      let rectHeight = d3.select(this.parentNode)
+        .select("rect")
+        .node()
+        .getBBox()
+        .height
+
+      if (textWidth > rectWidth || textHeight > rectHeight) {
         return 0
       } else {
         return 1
@@ -177,12 +186,12 @@ export default class TreeMap {
         line.push(word)
         tspan.text(line.join(" "))
         if (tspan.node().getComputedTextLength() > rectWidth) {
+          lineNumber += 1
           line.pop()
           tspan.text(line.join(" "))
           line = [word]
           tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", lineNumber * lineHeight + dy + "em").text(word)
         }
-        lineNumber += 1
         word = words.pop()
       }
     })
