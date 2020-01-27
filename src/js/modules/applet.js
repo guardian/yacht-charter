@@ -21,7 +21,7 @@ export class ChartBuilder {
             new Ractive({
               target: "#app",
               template: templateHtml,
-              data: data.sheets.template
+              data: data.sheets.template[0]
             })
             configure(data, document.querySelector("#app"), type)
           })

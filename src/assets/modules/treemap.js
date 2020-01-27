@@ -18,13 +18,31 @@ export default class TreeMap {
       .attr("viewBox", [0, 0, width, height])
       .style("font", "10px sans-serif")
 
+    // insert a single root node
+    const dataWithRoot = [{
+        categoryName: "root",
+        categoryParent: "",
+      },
+      ...data
+    ]
+
     var root = d3.stratify()
       .id(function (d) {
         return d.categoryName
       })
       .parentId(function (d) {
-        return d.categoryParent
-      })(data)
+        if (d.categoryName != "root") {
+          // Point any node without a parent to our single root node needed for
+          // the d3 treemap method.
+          if (d.categoryParent == null || d.categoryParent == "") {
+            return "root"
+          } else {
+            return d.categoryParent
+          }
+        } else {
+          return null
+        }
+      })(dataWithRoot)
       .sum(function (d) {
         return d.categorySize
       })
@@ -86,6 +104,7 @@ export default class TreeMap {
         return d.y1 - d.y0
       })
       .attr("fill", function (d) {
+        //default color if overrides are set incorrectly
         var color = "#bada55"
         var node = d
         if (node.data.categoryColorOverride == null ||
@@ -94,7 +113,7 @@ export default class TreeMap {
           while (node.parent != null &&
             node.data.categoryColorOverride == null ||
             node.data.categoryColorOverride == "") {
-            // inheret parent category color
+            // inherit parent category color
             color = node.parent.data.categoryColorOverride
             node = node.parent
           }
@@ -158,11 +177,6 @@ export default class TreeMap {
         return 1
       }
     })
-
-    // cell.append("title")
-    //   .text(function (d) {
-    //     return d.id
-    //   })
   }
 
   _wrap(text, d3) {
@@ -171,14 +185,14 @@ export default class TreeMap {
         .select("rect")
         .node()
         .getBBox()
-        .width
+        .width - 8 // padding
       var text = d3.select(this),
         words = text.text().split(/\s+/).reverse(),
         word = words.pop(),
         line = [],
         y = text.attr("y"),
-        dy = 0, //parseFloat(text.attr("dy")),
-        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em")
+        dy = 0,
+        tspan = text.text(null).append("tspan").attr("x", 4).attr("y", y).attr("dy", dy + "em")
 
       var lineNumber = 0
       while (word != null) {
@@ -190,7 +204,7 @@ export default class TreeMap {
           line.pop()
           tspan.text(line.join(" "))
           line = [word]
-          tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", lineNumber * lineHeight + dy + "em").text(word)
+          tspan = text.append("tspan").attr("x", 4).attr("y", y).attr("dy", lineNumber * lineHeight + dy + "em").text(word)
         }
         word = words.pop()
       }
