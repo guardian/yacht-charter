@@ -8,7 +8,10 @@ export default class TreeMap {
     //golden ratio
     var height = width * 0.61803398875
 
-    var treemap = d3.treemap()
+    let xScale = d3.scaleLinear().rangeRound([0, width])
+    let yScale = d3.scaleLinear().rangeRound([0, height])
+
+    let treemap = d3.treemap()
       .size([width, height])
       .padding(1)
       .round(true)
@@ -75,6 +78,11 @@ export default class TreeMap {
 
     createCats(d3, keyNames, keyColors)
 
+    svg.append("g")
+      .call(this._render, root, d3)
+  }
+
+  _render(svg, root, d3) {
     const leaf = svg.selectAll("g")
       .data(root.leaves())
       .join("g")
@@ -124,7 +132,6 @@ export default class TreeMap {
 
         return color
       })
-    makeTooltip("rect", root.leaves(), d3)
 
     cell.append("clipPath")
       .attr("id", function (d) {
@@ -142,8 +149,6 @@ export default class TreeMap {
       .attr("clip-path", function (d) {
         return "url(#clip-" + d.id + ")"
       })
-
-    makeTooltip("clip-path", root.leaves(), d3)
 
     label
       .attr("x", 4)
@@ -179,6 +184,8 @@ export default class TreeMap {
         return 1
       }
     })
+
+    makeTooltip("rect", root.leaves(), d3)
   }
 
   _wrap(text, d3) {
@@ -211,5 +218,39 @@ export default class TreeMap {
         word = words.pop()
       }
     })
+  }
+
+  // When zooming in, draw the new nodes on top, and fade them in.
+  _zoomin(d, svg, x, y) {
+    const group0 = group.attr("pointer-events", "none")
+    const group1 = group = svg.append("g").call(render, d)
+
+    x.domain([d.x0, d.x1])
+    y.domain([d.y0, d.y1])
+
+    svg.transition()
+      .duration(750)
+      .call(t => group0.transition(t).remove()
+        .call(position, d.parent))
+      .call(t => group1.transition(t)
+        .attrTween("opacity", () => d3.interpolate(0, 1))
+        .call(position, d))
+  }
+
+  // When zooming out, draw the old nodes on top, and fade them out.
+  _zoomout(d, svg, x, y) {
+    const group0 = group.attr("pointer-events", "none")
+    const group1 = group = svg.insert("g", "*").call(render, d.parent)
+
+    x.domain([d.parent.x0, d.parent.x1])
+    y.domain([d.parent.y0, d.parent.y1])
+
+    svg.transition()
+      .duration(750)
+      .call(t => group0.transition(t).remove()
+        .attrTween("opacity", () => d3.interpolate(1, 0))
+        .call(position, d))
+      .call(t => group1.transition(t)
+        .call(position, d.parent))
   }
 }

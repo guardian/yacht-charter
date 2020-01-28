@@ -25,16 +25,16 @@ export default function makeTooltip(el, data, d3) {
     let boundingRect = this.getBoundingClientRect()
     console.log(boundingRect)
     let xCoordinate = (boundingRect.left - rootBoundingRect.left)
-    let yCoordinate = (boundingRect.top - rootBoundingRect.top + 25)
+    let yCoordinate = (boundingRect.top - rootBoundingRect.top + 20)
     let half = width / 2
 
     console.log(xCoordinate)
     console.log(yCoordinate)
 
     if (xCoordinate < half) {
-      tooltip.style("left", (xCoordinate + 25) + "px")
+      tooltip.style("left", (xCoordinate + 50) + "px")
     } else {
-      tooltip.style("left", (xCoordinate - 25) + "px")
+      tooltip.style("left", (xCoordinate - 50) + "px")
     }
 
     // tooltip.style("left", (d3.mouse(this)[0] + tipWidth/2) + "px");
