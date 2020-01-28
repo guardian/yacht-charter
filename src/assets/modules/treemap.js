@@ -143,6 +143,8 @@ export default class TreeMap {
         return "url(#clip-" + d.id + ")"
       })
 
+    makeTooltip("clip-path", root.leaves(), d3)
+
     label
       .attr("x", 4)
       .attr("y", 13)
