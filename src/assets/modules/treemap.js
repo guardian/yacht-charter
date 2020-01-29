@@ -4,22 +4,20 @@ import createCats from "./key"
 export default class TreeMap {
   constructor(data, d3) {
 
-    var width = document.querySelector("#graphicContainer").getBoundingClientRect().width
+    this.width = document.querySelector("#graphicContainer").getBoundingClientRect().width
     //golden ratio
-    var height = width * 0.61803398875
-
-    let xScale = d3.scaleLinear().rangeRound([0, width])
-    let yScale = d3.scaleLinear().rangeRound([0, height])
+    this.height = this.width * 0.61803398875
 
     let treemap = d3.treemap()
-      .size([width, height])
+      .size([this.width, this.height])
       .padding(1)
       .round(true)
 
     const svg = d3.select("#graphicContainer")
       .append("svg")
-      .attr("viewBox", [0, 0, width, height])
+      .attr("viewBox", [0, 0, this.width, this.height])
       .style("font", "10px sans-serif")
+
 
     // insert a single root node
     const dataWithRoot = [{
@@ -55,8 +53,6 @@ export default class TreeMap {
 
     treemap(root)
 
-    console.log(root)
-
     let nonLeafs = root.descendants().filter(
       treeNode => {
         return treeNode.count().value != 1 && treeNode.id != "root"
@@ -78,30 +74,36 @@ export default class TreeMap {
 
     createCats(d3, keyNames, keyColors)
 
-    svg.append("g")
-      .call(this._render, root, d3)
+    this._render(svg, root, d3)
+    makeTooltip("rect", root.leaves(), d3)
   }
 
   _render(svg, root, d3) {
-    const leaf = svg.selectAll("g")
-      .data(root.leaves())
-      .join("g")
+    // set state
+    this.root = root
+    var newData = root.leaves()
+
+    const group = svg.selectAll("g")
+      .data(newData, d => d.data.categoryName)
+
+    //clear old data
+    group.select("title").exit().remove()
+    group.select("rect").exit().remove()
+    group.select("clipPath").exit().remove()
+    group.select("text").exit().remove()
+    group.exit().remove()
+
+    let leaves = group.enter()
+      .append("g")
       .attr("transform", function (d) {
         return "translate(" + d.x0 + "," + d.y0 + ")"
       })
 
-    leaf.append("title")
+
+    leaves.append("title")
       .text(d => d.data.categoryName)
 
-    var cell = svg.selectAll("a")
-      .data(root.leaves())
-      .enter().append("a")
-      .attr("target", "_blank")
-      .attr("transform", function (d) {
-        return "translate(" + d.x0 + "," + d.y0 + ")"
-      })
-
-    cell.append("rect")
+    leaves.append("rect")
       .attr("id", function (d) {
         return d.id
       })
@@ -133,7 +135,21 @@ export default class TreeMap {
         return color
       })
 
-    cell.append("clipPath")
+    leaves.select("rect")
+      .attr("cursor", "pointer")
+      .on("click", d => {
+        if (d.id !== this.root.id) {
+          var newRoot = d
+
+          while (newRoot.parent.id != this.root.id) {
+            newRoot = newRoot.parent
+          }
+
+          this._render(svg, newRoot, d3)
+        }
+      })
+
+    leaves.enter().append("clipPath")
       .attr("id", function (d) {
         return "clip-" + d.id
       })
@@ -142,7 +158,7 @@ export default class TreeMap {
         return "#" + d.id
       })
 
-    var label = cell.append("text")
+    let label = leaves.append("text")
       .attr("id", function (d) {
         return "text-" + d.id
       })
@@ -154,7 +170,7 @@ export default class TreeMap {
       .attr("x", 4)
       .attr("y", 13)
       .text(function (d) {
-        return d.id
+        return d.data.categoryName
       })
 
     this._wrap(label, d3)
@@ -184,8 +200,6 @@ export default class TreeMap {
         return 1
       }
     })
-
-    makeTooltip("rect", root.leaves(), d3)
   }
 
   _wrap(text, d3) {
@@ -218,39 +232,5 @@ export default class TreeMap {
         word = words.pop()
       }
     })
-  }
-
-  // When zooming in, draw the new nodes on top, and fade them in.
-  _zoomin(d, svg, x, y) {
-    const group0 = group.attr("pointer-events", "none")
-    const group1 = group = svg.append("g").call(render, d)
-
-    x.domain([d.x0, d.x1])
-    y.domain([d.y0, d.y1])
-
-    svg.transition()
-      .duration(750)
-      .call(t => group0.transition(t).remove()
-        .call(position, d.parent))
-      .call(t => group1.transition(t)
-        .attrTween("opacity", () => d3.interpolate(0, 1))
-        .call(position, d))
-  }
-
-  // When zooming out, draw the old nodes on top, and fade them out.
-  _zoomout(d, svg, x, y) {
-    const group0 = group.attr("pointer-events", "none")
-    const group1 = group = svg.insert("g", "*").call(render, d.parent)
-
-    x.domain([d.parent.x0, d.parent.x1])
-    y.domain([d.parent.y0, d.parent.y1])
-
-    svg.transition()
-      .duration(750)
-      .call(t => group0.transition(t).remove()
-        .attrTween("opacity", () => d3.interpolate(1, 0))
-        .call(position, d))
-      .call(t => group1.transition(t)
-        .call(position, d.parent))
   }
 }

@@ -5,8 +5,6 @@
  * in the same order as {categories}
  */
 export default function createCats(d3, categories, colours) {
-  console.log(categories)
-  console.log(colours)
   const defaultColours = ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6"]
   if (colours == null || colours.size == 0) {
     colours = defaultColours
@@ -94,7 +92,6 @@ export default function createCats(d3, categories, colours) {
 
   html += "<div class=\"colour_blind_key\">"
 
-  console.log(keys)
   for (i = 0; i < keys.length; i++) {
     // colourDomain.push(keys[i])
     // colourRange.push(self.colours[i])
