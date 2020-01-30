@@ -50,7 +50,7 @@ export default class TreeMap {
       .sort(function (a, b) {
         return b.height - a.height || b.value - a.value
       })
-
+    this.root = root
     treemap(root)
 
     let nonLeafs = root.descendants().filter(
@@ -84,7 +84,20 @@ export default class TreeMap {
     var newData = root.leaves()
 
     const group = svg.selectAll("g")
-      .data(newData, d => d.data.categoryName)
+      .data(newData, d => {
+        d.id + root.depth
+      })
+
+    //set scale functions
+    this.scaleX = d3.scaleLinear()
+      .range([0, this.width])
+      .domain([root.x0, root.x1])
+
+    console.log(this.scaleX(1))
+
+    this.scaleY = d3.scaleLinear()
+      .range([0, this.height])
+      .domain([root.y0, root.y1])
 
     //clear old data
     group.select("title").exit().remove()
@@ -95,8 +108,15 @@ export default class TreeMap {
 
     let leaves = group.enter()
       .append("g")
-      .attr("transform", function (d) {
-        return "translate(" + d.x0 + "," + d.y0 + ")"
+      .attr("transform", d => {
+        console.log(d)
+        if (d.id === "root") {
+          return `translate(${d.x0},${d.y0})`
+        } else {
+          console.log("scaling")
+          console.log(`translate(${this.scaleX(d.x0)},${this.scaleY(d.y0)})`)
+          return `translate(${this.scaleX(d.x0)},${this.scaleY(d.y0)})`
+        }
       })
 
 
@@ -107,11 +127,19 @@ export default class TreeMap {
       .attr("id", function (d) {
         return d.id
       })
-      .attr("width", function (d) {
-        return d.x1 - d.x0
+      .attr("width", d => {
+        if (d.id === "root") {
+          return this.width
+        } else {
+          return this.scaleX(d.x1) - this.scaleX(d.x0)
+        }
       })
-      .attr("height", function (d) {
-        return d.y1 - d.y0
+      .attr("height", d => {
+        if (d.id === "root") {
+          return 0
+        } else {
+          return this.scaleY(d.y1) - this.scaleY(d.y0)
+        }
       })
       .attr("fill", function (d) {
         //default color if overrides are set incorrectly
@@ -138,15 +166,7 @@ export default class TreeMap {
     leaves.select("rect")
       .attr("cursor", "pointer")
       .on("click", d => {
-        if (d.id !== this.root.id) {
-          var newRoot = d
-
-          while (newRoot.parent.id != this.root.id) {
-            newRoot = newRoot.parent
-          }
-
-          this._render(svg, newRoot, d3)
-        }
+        this._zoomTo(d, svg, d3)
       })
 
     leaves.enter().append("clipPath")
@@ -232,5 +252,17 @@ export default class TreeMap {
         word = words.pop()
       }
     })
+  }
+
+  _zoomTo(newRootDatum, svg, d3) {
+    if (newRootDatum.id !== this.root.id) {
+      var newRoot = newRootDatum
+
+      while (newRoot.parent.id != this.root.id) {
+        newRoot = newRoot.parent
+      }
+
+      this._render(svg, newRoot, d3)
+    }
   }
 }
