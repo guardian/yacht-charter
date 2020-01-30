@@ -1,83 +1,71 @@
 import * as d3 from "d3"
-import { $, $$, round, numberWithCommas, wait, getDimensions } from '../modules/util'
-import ajax from '../modules/ajax';
+import ajax from "../modules/ajax"
 import noUiSlider from "nouislider"
+import loadJson from "../../components/load-json/"
+import Ractive from "ractive"
+import AnimatedBarChart from "../../assets/modules/animated"
+import ScatterPlot from "../../assets/modules/scatterplot"
+import StackedBarChart from "../../assets/modules/stackedbarchart"
+import AnnotatedBarChart from "../../assets/modules/annotatedbarchart"
+import TreeMap from "../../assets/modules/treemap"
 
-export class Chartbuilder {
+export class ChartBuilder {
 
-	constructor(data) {
-
-		var self = this
-
-		this.chart = document.querySelector("#app")
-
-		this.database = data
-
-		this.type = self.database.settings[0].type
-
-		ajax(`<%= path %>/assets/templates/${self.type}.html`).then((template) => {
-
-			const html = self.mustache(template, self.database.template)
-
-			self.chart.innerHTML = html
-
-			self.configure()
-
-		})
-		
-	}
-
-    configure() {
-
-    	var self = this
-
-		var app = () => chartbuilder.init(self.database, self.chart, d3, noUiSlider)
-
-		this.loader(`<%= path %>/assets/modules/${self.type}.js`, app, document.body);
-
-	}
-
-    mustache(l, a, m, c) {
-
-        var self = this
-
-        function h(a, b) {
-            b = b.pop ? b : b.split(".");
-            a = a[b.shift()] || "";
-            return 0 in b ? h(a, b) : a
-        }
-        var k = self.mustache,
-            e = "";
-        a = Array.isArray(a) ? a : a ? [a] : [];
-        a = c ? 0 in a ? [] : [1] : a;
-        for (c = 0; c < a.length; c++) {
-            var d = "",
-                f = 0,
-                n, b = "object" == typeof a[c] ? a[c] : {},
-                b = Object.assign({}, m, b);
-            b[""] = {
-                "": a[c]
-            };
-            l.replace(/([\s\S]*?)({{((\/)|(\^)|#)(.*?)}}|$)/g, function(a, c, l, m, p, q, g) {
-                f ? d += f && !p || 1 < f ? a : c : (e += c.replace(/{{{(.*?)}}}|{{(!?)(&?)(>?)(.*?)}}/g, function(a, c, e, f, g, d) {
-                    return c ? h(b, c) : f ? h(b, d) : g ? k(h(b, d), b) : e ? "" : (new Option(h(b, d))).innerHTML
-                }), n = q);
-                p ? --f || (g = h(b, g), e = /^f/.test(typeof g) ? e + g.call(b, d, function(a) {
-                    return k(a, b)
-                }) : e + k(d, g, b, n), d = "") : ++f
+  constructor(key) {
+    const type = "treemap"
+    let configure = this._configure.bind(this)
+    if (key != null) {
+      loadJson(`https://interactive.guim.co.uk/docsdata-test/${key}.json`)
+        .then((data) => {
+          ajax(`<%= path %>/assets/templates/${type}.html`).then((templateHtml) => {
+            new Ractive({
+              target: "#app",
+              template: templateHtml,
+              data: data.sheets.template[0]
             })
-        }
-        return e
+            configure(data, document.querySelector("#app"), type)
+          })
+        })
+    }
+  }
+
+  _configure(data, chart, type) {
+    var app
+    switch (type) {
+    case "animated":
+      app = new AnimatedBarChart(data.sheets, chart, d3, noUiSlider)
+      break
+    case "scatterplot":
+      app = new ScatterPlot(data, d3)
+      break
+    case "stackedbarchart":
+      app = new StackedBarChart(data, d3)
+      break
+    case "annotatedbarchart":
+      app = new AnnotatedBarChart(data, d3)
+      break
+    case "treemap":
+      app = new TreeMap(data.sheets.data, d3)
+      break
+    default:
+      console.log("no valid type selected")
     }
 
-	loader(url, code, location){
+    var tag = document.createElement("script")
+    tag.onload = app
+    tag.onreadystatechange = app
+    document.body.appendChild(tag)
+    //this._loader(`<%= path %>/assets/modules/${type}.js`, app, document.body)
+  }
 
-	    var tag = document.createElement('script');
-	    tag.src = url;
-	    tag.onload = code;
-	    tag.onreadystatechange = code;
-	    location.appendChild(tag);
+  _loader(url, code, location) {
 
-	}
+    var tag = document.createElement("script")
+    tag.src = url
+    tag.onload = code
+    tag.onreadystatechange = code
+    location.appendChild(tag)
+
+  }
 
 }

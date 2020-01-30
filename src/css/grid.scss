@@ -1,0 +1,86 @@
+.row {
+margin-bottom:20px; 
+}
+
+.row:after {
+content: " "; /* Older browser do not support empty content */
+visibility: hidden;
+display: block;
+height: 0;
+clear: both;
+}
+
+.col10 {
+float:left;
+width:9%;
+margin-right:1%; 
+}
+
+.col20 {
+float:left;
+width:19%;
+margin-right:1%; 
+}
+
+.col30 {
+float:left;
+width:29%;
+margin-right:1%; 
+}
+
+.col33 {
+float:left;
+width:33.33%;
+margin-right:1%; 
+}
+
+.col40 {
+float:left;
+width:39%;
+margin-right:1%; 
+}
+
+.col50 {
+float:left;
+width:49%;
+margin-right:1%; 
+}
+
+.col60 {
+float:left;
+width:49%;
+margin-right:1%; 
+}
+
+.col66 {
+float:left;
+width:66.66%;
+margin-right:1%; 
+}
+
+.col70 {
+float:left;
+width:69%;
+margin-right:1%; 
+}
+
+.col80 {
+float:left;
+width:79%;
+margin-right:1%; 
+}
+
+.col90 {
+float:left;
+width:79%;
+margin-right:1%; 
+}
+
+@media (max-width: 750px) {
+.col50, .col10, .col20, .col30, .col70 {
+width:100%;
+margin:0;
+}
+
+}
+
