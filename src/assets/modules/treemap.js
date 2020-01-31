@@ -1,4 +1,4 @@
-import makeTooltip from "./tooltip"
+import tooltips from "./tooltip"
 
 export default class TreeMap {
   constructor(data, d3) {
@@ -7,10 +7,54 @@ export default class TreeMap {
     //golden ratio
     this.height = this.width * 0.61803398875
 
+    let alpScale = d3.scale.linear()
+      .domain([0, 6000000])
+      .range(["#e57373", "#ef5350"])
+
+    let libScale = d3.scale.linear()
+      .domain([0, 7000000])
+      .range(["#81d4fa", "#03a9f4"])
+
+    let natScale = d3.scale.linear()
+      .domain([0, 4000000])
+      .range(["#80cbc4", "#26a69a"])
+
+    let greenScale = d3.scale.linear()
+      .domain([0, 4000000])
+      .range(["#aed581", "#33691e"])
+
+    let otherScale = d3.scale.linear()
+      .domain([0, 4000000])
+      .range(["rgb(203,201,226)", "rgb(84,39,143)"])
+
     let keyedData = data.map(d => {
       d.key = d.categoryName.replace(/[()#. ]/g, "")
       d.display = d.categoryName
       d.value = +d.categorySize
+
+
+
+      switch (d.categoryParent) {
+      case ("Australian Labor Party"):
+        d.colorScale = alpScale
+        break
+      case ("Liberal Party of Australia"):
+        d.colorScale = libScale
+        break
+      case ("Australian Greens"):
+        d.colorScale = greenScale
+        break
+      case ("National Party of Australia"):
+        d.colorScale = natScale
+        break
+      case ("Other"):
+        d.colorScale = otherScale
+        break
+      default:
+        d.colorScale = otherScale
+        break
+      }
+
       return d
     })
 
@@ -21,26 +65,27 @@ export default class TreeMap {
     categoryMap = categoryMap
       .map(d => {
         d.display = d.values[0].categoryParent
+        d.colorScale = d.values[0].colorScale
         return d
       })
-    console.log(categoryMap)
 
     for (const category in categoryMap) {
       categoryMap[category].values = d3.nest()
         .key(function (d) {
-          console.log(d.donationBranch.replace(/[()#. ]/g, ""))
           return d.donationBranch.replace(/[()#. ]/g, "")
         }).entries(categoryMap[category].values)
       categoryMap[category].values = categoryMap[category].values
         .map(d => {
           d.display = d.values[0].donationBranch
+          d.colorScale = d.values[0].colorScale
           return d
         })
     }
 
-    //console.log(categoryMap)
-
+    tooltips.prepareTooltip(d3)
     this._main(categoryMap, d3)
+
+
   }
 
   _main(data, d3) {
@@ -67,8 +112,6 @@ export default class TreeMap {
     var width = opts.width - margin.left - margin.right,
       height = opts.height - margin.top - margin.bottom - theight,
       transitioning
-
-    var color = d3.scale.category20c()
 
     var x = d3.scale.linear()
       .domain([0, width])
@@ -113,7 +156,8 @@ export default class TreeMap {
     if (data instanceof Array) {
       root = {
         key: rname,
-        values: data
+        values: data,
+        display: "Total Donations"
       }
     } else {
       root = data
@@ -124,6 +168,7 @@ export default class TreeMap {
     layout(root)
     console.log(root)
     display(root)
+    // tooltips.bindTooltip(".children", root._children, d3)
 
     if (window.parent !== window) {
       var myheight = document.documentElement.scrollHeight || document.body.scrollHeight
@@ -204,10 +249,7 @@ export default class TreeMap {
       children.append("rect")
         .attr("class", "child")
         .call(rect)
-        .append("title")
-        .text(function (d) {
-          return d.key + " (" + formatNumber(d.value) + ")"
-        })
+
       children.append("text")
         .attr("class", "ctext")
         .text(function (d) {
@@ -236,8 +278,14 @@ export default class TreeMap {
 
       g.selectAll("rect")
         .style("fill", function (d) {
-          return color(d.key)
+          return d.colorScale(d.value)
         })
+
+      if (d._children) {
+        tooltips.bindTooltip(children, d._children, d3)
+      }
+
+
 
       function transition(d) {
         if (transitioning || !d) return
@@ -269,7 +317,6 @@ export default class TreeMap {
         t2.selectAll(".ctext").call(text2).style("fill-opacity", 1)
         t1.selectAll("rect").call(rect)
         t2.selectAll("rect").call(rect)
-
         // Remove the old node when the transition is finished.
         t1.remove().each("end", function () {
           svg.style("shape-rendering", "crispEdges")
@@ -325,8 +372,8 @@ export default class TreeMap {
 
     function name(d) {
       return d.parent ?
-        name(d.parent) + " / " + d.display + " (" + formatNumber(d.value) + ")" :
-        d.display + " (" + formatNumber(d.value) + ")"
+        name(d.parent) + " / " + d.display + " " + formatNumber(d.value) + "" :
+        d.display + " " + formatNumber(d.value) + ""
     }
   }
 

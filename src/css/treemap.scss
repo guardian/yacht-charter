@@ -1,0 +1,56 @@
+@import "charts";
+@import "mq";
+@import "fonts";
+@import "palette";
+// Uncomment for embeds
+@import "embed";
+// Uncomment for full screen (including immersive article main media)
+//@import "fullscreen";
+#outer-wrapper {
+.grandparent text {
+  // font-weight: bold;
+}
+
+text {
+  text-shadow: 0px 0px 3px white;
+}
+
+rect.children text {
+  text-shadow: 0px 0px 3px white;
+}
+
+rect {
+  fill: none;
+  stroke: #fff;
+}
+
+tspan {
+  pointer-events: none;
+}
+
+rect.parent,
+.grandparent rect {
+  stroke-width: 3px;
+}
+
+rect.parent {
+    pointer-events: none;
+}
+
+.grandparent rect {
+  fill: lightgrey;
+}
+
+.grandparent:hover rect {
+  fill: gold;
+}
+
+.children rect.parent,
+.grandparent rect {
+  cursor: pointer;
+}
+
+.children rect.parent {
+  fill-opacity: 0;
+}
+}
