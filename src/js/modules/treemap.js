@@ -1,11 +1,19 @@
 import tooltips from "./tooltip"
 
 export default class TreeMap {
-  constructor(data, d3) {
+  constructor(data, d3, isMobile) {
 
     this.width = document.querySelector("#graphicContainer").getBoundingClientRect().width
     //golden ratio
-    this.height = this.width * 0.61803398875
+    if (isMobile) {
+      this.height = this.width * 1.2
+    } else {
+      this.height = this.width * 0.61803398875
+    }
+
+    //nuke old chart
+    d3.select("#graphicContainer svg").remove()
+    d3.select("#tooltip").remove()
 
     let alpScale = d3.scale.linear()
       .domain([0, 6000000])
@@ -99,8 +107,6 @@ export default class TreeMap {
       rootname: "TOP",
       format: "$,d",
       title: "",
-      width: this.width,
-      height: this.height
     }
     var root,
       formatNumber = d3.format(opts.format),
@@ -109,8 +115,8 @@ export default class TreeMap {
       theight = 36 + 16
 
     // d3.slect("#graphicContainer").width(opts.width).height(opts.height)
-    var width = opts.width - margin.left - margin.right,
-      height = opts.height - margin.top - margin.bottom - theight,
+    var width = this.width - margin.left - margin.right,
+      height = this.height - margin.top - margin.bottom - theight,
       transitioning
 
     var x = d3.scale.linear()
