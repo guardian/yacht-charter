@@ -7,42 +7,65 @@ export default class TreeMap {
     //golden ratio
     this.height = this.width * 0.61803398875
 
-    var root = d3.nest()
+    let keyedData = data.map(d => {
+      d.key = d.categoryName.replace(/[()#. ]/g, "")
+      d.display = d.categoryName
+      d.value = +d.categorySize
+      return d
+    })
+
+    let categoryMap = d3.nest()
       .key(function (d) {
         return d.categoryParent
+      }).entries(keyedData)
+    categoryMap = categoryMap
+      .map(d => {
+        d.display = d.values[0].categoryParent
+        return d
       })
-      .map(data)
-    console.log(root)
-    this._main(root, d3)
+    console.log(categoryMap)
+
+    for (const category in categoryMap) {
+      categoryMap[category].values = d3.nest()
+        .key(function (d) {
+          console.log(d.donationBranch.replace(/[()#. ]/g, ""))
+          return d.donationBranch.replace(/[()#. ]/g, "")
+        }).entries(categoryMap[category].values)
+      categoryMap[category].values = categoryMap[category].values
+        .map(d => {
+          d.display = d.values[0].donationBranch
+          return d
+        })
+    }
+
+    //console.log(categoryMap)
+
+    this._main(categoryMap, d3)
   }
 
   _main(data, d3) {
-    // TODO:  get defaults from sheets
-    var defaults = {
+    var opts = {
       margin: {
-        top: 100,
+        top: 24,
         right: 0,
         bottom: 0,
         left: 0
       },
-      rootname: "root",
-      format: ",d",
+      rootname: "TOP",
+      format: "$,d",
       title: "",
-      width: 960,
-      height: 500
+      width: this.width,
+      height: this.height
     }
-
     var root,
-      opts = defaults,
       formatNumber = d3.format(opts.format),
+      rname = opts.rootname,
       margin = opts.margin,
       theight = 36 + 16
 
-    d3.select("#graphicContainer")
-      .attr("width", this.width)
-      .attr("height", this.height)
-    var width = this.width - margin.left - margin.right,
-      height = this.height - margin.top - margin.bottom - theight,
+    // d3.slect("#graphicContainer").width(opts.width).height(opts.height)
+    var width = opts.width - margin.left - margin.right,
+      height = opts.height - margin.top - margin.bottom - theight,
       transitioning
 
     var color = d3.scale.category20c()
@@ -60,7 +83,7 @@ export default class TreeMap {
         return depth ? null : d._children
       })
       .sort(function (a, b) {
-        return a.data.categorySize - b.data.categorySize
+        return a.value - b.value
       })
       .ratio(height / width * 0.5 * (1 + Math.sqrt(5)))
       .round(false)
@@ -87,7 +110,14 @@ export default class TreeMap {
       .attr("y", 6 - margin.top)
       .attr("dy", ".75em")
 
-    root = data
+    if (data instanceof Array) {
+      root = {
+        key: rname,
+        values: data
+      }
+    } else {
+      root = data
+    }
 
     initialize(root)
     accumulate(root)
@@ -145,7 +175,6 @@ export default class TreeMap {
     }
 
     function display(d) {
-      console.log(d)
       grandparent
         .datum(d.parent)
         .on("click", transition)
@@ -182,7 +211,7 @@ export default class TreeMap {
       children.append("text")
         .attr("class", "ctext")
         .text(function (d) {
-          return d.key
+          return d.display
         })
         .call(text2)
 
@@ -196,7 +225,7 @@ export default class TreeMap {
 
       t.append("tspan")
         .text(function (d) {
-          return d.categoryName
+          return d.display
         })
       t.append("tspan")
         .attr("dy", "1.0em")
@@ -296,8 +325,8 @@ export default class TreeMap {
 
     function name(d) {
       return d.parent ?
-        name(d.parent) + " / " + d.key + " (" + formatNumber(d.value) + ")" :
-        d.key + " (" + formatNumber(d.value) + ")"
+        name(d.parent) + " / " + d.display + " (" + formatNumber(d.value) + ")" :
+        d.display + " (" + formatNumber(d.value) + ")"
     }
   }
 
