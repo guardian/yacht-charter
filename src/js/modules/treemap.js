@@ -172,7 +172,6 @@ export default class TreeMap {
     initialize(root)
     accumulate(root)
     layout(root)
-    console.log(root)
     display(root)
     // tooltips.bindTooltip(".children", root._children, d3)
 
@@ -382,35 +381,4 @@ export default class TreeMap {
         d.display + " " + formatNumber(d.value) + ""
     }
   }
-
-  // _wrap(text, d3) {
-  //   text.each(function () {
-  //     let rectWidth = d3.select(this.parentNode)
-  //       .select("rect")
-  //       .node()
-  //       .getBBox()
-  //       .width - 8 // padding
-  //     var text = d3.select(this),
-  //       words = text.text().split(/\s+/).reverse(),
-  //       word = words.pop(),
-  //       line = [],
-  //       y = text.attr("y"),
-  //       dy = 0,
-  //       tspan = text.text(null).append("tspan").attr("x", 4).attr("y", y).attr("dy", dy + "em")
-  //
-  //     var lineNumber = 0
-  //     while (word != null) {
-  //       const lineHeight = 1.1
-  //       line.push(word)
-  //       tspan.text(line.join(" "))
-  //       if (tspan.node().getComputedTextLength() > rectWidth) {
-  //         lineNumber += 1
-  //         line.pop()
-  //         tspan.text(line.join(" "))
-  //         line = [word]
-  //         tspan = text.append("tspan").attr("x", 4).attr("y", y).attr("dy", lineNumber * lineHeight + dy + "em").text(word)
-  //       }
-  //       word = words.pop()
-  //     }
-  //   })
 }

@@ -5,8 +5,8 @@ import {
 
 function getURLParams(paramName) {
   var params = ""
-  if (window.frameElement) {
-    window.location.search.substring(1).split("&")
+  if (top !== self) {
+    params = window.location.search.substring(1).split("&")
   } else {
     params = window.parent.location.search.substring(1).split("&")
   }
@@ -21,7 +21,7 @@ function getURLParams(paramName) {
 
 }
 
-const key = (getURLParams("key")) ? getURLParams("key") : "1COfrldSAXYIRwOrcKOBU0-h3jGths9psaR3kgdnXgrU"
+const key = getURLParams("key")
 
 //animated = "1evrvPdWq4ysFW5JrdtJLDG3hVPNjPDnBqNJtT-WZnRo"
 //scatterplot = "1AsgU8YQCKI6DuzJ8Y1qh4-Y7YRuFZZQr8K-4gmbtffU"
