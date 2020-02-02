@@ -10,7 +10,7 @@ export class ChartBuilder {
     const type = "treemap"
     let configure = this._configure.bind(this)
     if (key != null) {
-      loadJson(`https://interactive.guim.co.uk/docsdata-test/${key}.json`)
+      loadJson(`https://interactive.guim.co.uk/docsdata/${key}.json`)
         .then((data) => {
           ajax(`<%= path %>/assets/templates/${type}.html`).then((templateHtml) => {
             new Ractive({
