@@ -5,7 +5,7 @@ import {
 
 function getURLParams(paramName) {
   var params = ""
-  if (top !== self) {
+  if (window.frameElement) {
     window.location.search.substring(1).split("&")
   } else {
     params = window.parent.location.search.substring(1).split("&")
