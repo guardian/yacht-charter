@@ -276,9 +276,9 @@ export default class TreeMap {
         })
       t.append("tspan")
         .attr("dy", "1.0em")
-        .text(function (d) {
-          return formatNumber(d.value)
-        })
+      // .text(function (d) {
+      //   return formatNumber(d.value)
+      // })
       t.call(text)
 
       g.selectAll("rect")
@@ -287,7 +287,7 @@ export default class TreeMap {
         })
 
       if (d._children) {
-        tooltips.bindTooltip(children, d._children, d3)
+        tooltips.bindTooltip(children, d._children, d3, formatNumber)
       }
 
 
@@ -344,7 +344,7 @@ export default class TreeMap {
           return y(d.y) + 6
         })
         .style("opacity", function (d) {
-          return this.getComputedTextLength() < x(d.x + d.dx) - x(d.x) ? 1 : 0
+          return this.getComputedTextLength() + 6 < x(d.x + d.dx) - x(d.x) ? 1 : 0
         })
     }
 
@@ -376,7 +376,7 @@ export default class TreeMap {
     }
 
     function name(d) {
-      return d.parent ? "< back" : d.display + " " + formatNumber(d.value)
+      return d.parent ? "< back - " + d.display + " " + formatNumber(d.value) : d.display + " " + formatNumber(d.value)
       // return d.parent ?
       //   name(d.parent) + " / " + d.display + " " + formatNumber(d.value) + "" :
       //   d.display + " " + formatNumber(d.value) + ""

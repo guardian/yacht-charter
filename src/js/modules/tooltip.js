@@ -9,7 +9,7 @@ const tooltips = {
       .style("opacity", 0)
   },
 
-  bindTooltip(els, data, d3) {
+  bindTooltip(els, data, d3, formatNumber) {
     let rootBoundingRect = document.querySelector("#graphicContainer")
       .getBoundingClientRect()
     let width = rootBoundingRect.width
@@ -19,7 +19,7 @@ const tooltips = {
     let tooltip = d3.select("#tooltip")
 
     els.on("mouseover", function (d) {
-      let text = `<b>${d.display}</b>`
+      let text = `<b>${d.display + " " + formatNumber(d.value)}</b>`
       console.log(text)
       tooltip.transition()
         .duration(200)
