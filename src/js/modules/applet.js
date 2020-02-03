@@ -3,11 +3,6 @@ import ajax from "../modules/ajax"
 import noUiSlider from "nouislider"
 import loadJson from "../../components/load-json/"
 import Ractive from "ractive"
-import AnimatedBarChart from "../../assets/modules/animated"
-import ScatterPlot from "../../assets/modules/scatterplot"
-import StackedBarChart from "../../assets/modules/stackedbarchart"
-import AnnotatedBarChart from "../../assets/modules/annotatedbarchart"
-import TreeMap from "../../assets/modules/treemap"
 
 export class ChartBuilder {
 
@@ -33,19 +28,35 @@ export class ChartBuilder {
     var app
     switch (type) {
     case "animated":
-      app = new AnimatedBarChart(data.sheets, chart, d3, noUiSlider)
+      import("./charts/animated")
+        .then((AnimatedBarChart) => {
+          app = new AnimatedBarChart(data.sheets, chart, d3, noUiSlider)
+        })
       break
     case "scatterplot":
-      app = new ScatterPlot(data, d3)
+      import("./charts/scatterplot")
+        .then((ScatterPlot) => {
+          app = new ScatterPlot(data, d3)
+        })
       break
     case "stackedbarchart":
-      app = new StackedBarChart(data, d3)
+      import("./charts/stackedbarchart")
+        .then((StackedBarChart) => {
+          app = new StackedBarChart(data, d3)
+        })
       break
     case "annotatedbarchart":
-      app = new AnnotatedBarChart(data, d3)
+      import("./charts/annotatedbarchart")
+        .then((AnnotatedBarChart) => {
+          app = new AnnotatedBarChart(data, d3)
+        })
       break
     case "treemap":
-      app = new TreeMap(data.sheets.data, d3)
+      import("./charts/treemap")
+        .then((TreeMap) => {
+          console.log(TreeMap)
+          app = new TreeMap(data.sheets.data, d3)
+        })
       break
     default:
       console.log("no valid type selected")
