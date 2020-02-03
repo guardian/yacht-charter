@@ -43,16 +43,16 @@ export default class TreeMap {
 
 
       switch (d.categoryParent) {
-      case ("Australian Labor Party"):
+      case ("Labor"):
         d.colorScale = alpScale
         break
-      case ("Liberal Party of Australia"):
+      case ("Liberal"):
         d.colorScale = libScale
         break
-      case ("Australian Greens"):
+      case ("Greens"):
         d.colorScale = greenScale
         break
-      case ("National Party of Australia"):
+      case ("National"):
         d.colorScale = natScale
         break
       case ("Other"):
@@ -376,9 +376,10 @@ export default class TreeMap {
     }
 
     function name(d) {
-      return d.parent ?
-        name(d.parent) + " / " + d.display + " " + formatNumber(d.value) + "" :
-        d.display + " " + formatNumber(d.value) + ""
+      return d.parent ? "< back" : d.display + " " + formatNumber(d.value)
+      // return d.parent ?
+      //   name(d.parent) + " / " + d.display + " " + formatNumber(d.value) + "" :
+      //   d.display + " " + formatNumber(d.value) + ""
     }
   }
 }
