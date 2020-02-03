@@ -148,6 +148,7 @@ export default class TreeMap {
 
     var grandparent = svg.append("g")
       .attr("class", "grandparent")
+      .style("cursor", "pointer")
 
     grandparent.append("rect")
       .attr("y", -margin.top)
@@ -250,6 +251,7 @@ export default class TreeMap {
           return d._children || [d]
         })
         .enter().append("g")
+        .style("cursor", "pointer")
 
       children.append("rect")
         .attr("class", "child")
