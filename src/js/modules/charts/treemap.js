@@ -1,14 +1,22 @@
 import makeTooltip from "./tooltip"
-import createCats from "./key"
 
 export default class TreeMap {
-  constructor(data, d3) {
+  constructor(data, d3, isMobile) {
 
     this.width = document.querySelector("#graphicContainer").getBoundingClientRect().width
-    //golden ratio
-    this.height = this.width * 0.61803398875
 
-    let treemap = d3.treemap()
+    if (isMobile) {
+      this.height = this.width * 1.23610097750
+    } else {
+
+      this.height = this.width * 0.61803398875
+    }
+
+    //nuke old chart
+    d3.select("#graphicContainer svg").remove()
+    d3.select("#tooltip").remove()
+
+    this.treemap = d3.treemap()
       .size([this.width, this.height])
       .padding(1)
       .round(true)
@@ -16,9 +24,15 @@ export default class TreeMap {
     const svg = d3.select("#graphicContainer")
       .append("svg")
       .attr("viewBox", [0, 0, this.width, this.height])
-      .style("font", "10px sans-serif")
 
 
+    var root = _constructStratifiedData(data)
+
+    this._render(svg, root, d3)
+    makeTooltip("rect", root.leaves(), d3)
+  }
+
+  _constructStratifiedData(data) {
     // insert a single root node
     const dataWithRoot = [{
         categoryName: "root",
@@ -27,7 +41,7 @@ export default class TreeMap {
       ...data
     ]
 
-    var root = d3.stratify()
+    d3.stratify()
       .id(function (d) {
         return d.categoryName
       })
@@ -51,41 +65,17 @@ export default class TreeMap {
         return b.height - a.height || b.value - a.value
       })
     this.root = root
-    treemap(root)
-
-    let nonLeafs = root.descendants().filter(
-      treeNode => {
-        return treeNode.count().value != 1 && treeNode.id != "root"
-      }
-    )
-
-
-    let keyNames = nonLeafs.map(
-      nonLeafNode => {
-        return nonLeafNode.data.categoryName
-      }
-    )
-
-    let keyColors = nonLeafs.map(
-      nonLeafNode => {
-        return nonLeafNode.data.categoryColorOverride
-      }
-    )
-
-    createCats(d3, keyNames, keyColors)
-
-    this._render(svg, root, d3)
-    makeTooltip("rect", root.leaves(), d3)
   }
 
   _render(svg, root, d3) {
     // set state
     this.root = root
+    this.treemap(root)
     var newData = root.leaves()
 
-    const group = svg.selectAll("g")
+    const group = svg.insert("g", "parent")
       .data(newData, d => {
-        d.id + root.depth
+        d.id
       })
 
     //set scale functions
@@ -93,18 +83,9 @@ export default class TreeMap {
       .range([0, this.width])
       .domain([root.x0, root.x1])
 
-    console.log(this.scaleX(1))
-
     this.scaleY = d3.scaleLinear()
       .range([0, this.height])
       .domain([root.y0, root.y1])
-
-    //clear old data
-    group.select("title").exit().remove()
-    group.select("rect").exit().remove()
-    group.select("clipPath").exit().remove()
-    group.select("text").exit().remove()
-    group.exit().remove()
 
     let leaves = group.enter()
       .append("g")
@@ -220,6 +201,8 @@ export default class TreeMap {
         return 1
       }
     })
+
+    return group
   }
 
   _wrap(text, d3) {
@@ -265,4 +248,44 @@ export default class TreeMap {
       this._render(svg, newRoot, d3)
     }
   }
+
+  //   _transition(d) {
+  //     if (transitioning || !d) return
+  //     transitioning = true
+  //
+  //     var g2 = display(d),
+  //       t1 = g1.transition().duration(750),
+  //       t2 = g2.transition().duration(750)
+  //
+  //     // Update the domain only after entering new elements.
+  //     x.domain([d.x, d.x + d.dx])
+  //     y.domain([d.y, d.y + d.dy])
+  //
+  //     // Enable anti-aliasing during the transition.
+  //     svg.style("shape-rendering", null)
+  //
+  //     // Draw child nodes on top of parent nodes.
+  //     svg.selectAll(".depth").sort(function (a, b) {
+  //       return a.depth - b.depth
+  //     })
+  //
+  //     // Fade-in entering text.
+  //     g2.selectAll("text").style("fill-opacity", 0)
+  //
+  //     // Transition to the new view.
+  //     t1.selectAll(".ptext").call(text).style("fill-opacity", 0)
+  //     t1.selectAll(".ctext").call(text2).style("fill-opacity", 0)
+  //     t2.selectAll(".ptext").call(text).style("fill-opacity", 1)
+  //     t2.selectAll(".ctext").call(text2).style("fill-opacity", 1)
+  //     t1.selectAll("rect").call(rect)
+  //     t2.selectAll("rect").call(rect)
+  //     // Remove the old node when the transition is finished.
+  //     t1.remove().each("end", function () {
+  //       svg.style("shape-rendering", "crispEdges")
+  //       transitioning = false
+  //     })
+  //   }
+  //
+  //   return g
+  // }
 }

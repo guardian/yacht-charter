@@ -54,11 +54,11 @@
     "webpack-stream": "5.0.0"
   },
   "dependencies": {
-    "d3": "^5.15.0",
+    "d3v3": "^1.0.3",
     "fs": "0.0.1-security",
     "gulp-rename": "^1.2.2",
     "gulp-replace": "^0.6.1",
-    "handlebars": "^4.7.1",
+    "handlebars": "^4.7.2",
     "html-webpack-plugin": "^3.2.0",
     "lodash": "^4.17.15",
     "mustache": "^2.3.0",

@@ -12,7 +12,7 @@
 	  shape-rendering: crispEdges;
 	}
 
-	.figureTitle {
+	.chartTitle {
 		font-size: 20px;
 	    line-height: 28px;
 	    font-weight: 600;
@@ -111,13 +111,14 @@
 
 	.barPart:hover {
 		opacity:0.7;
-	} 
+	}
 
 	.tooltip {
 		font-size:16px;
-		pointer-events: none;	
+		pointer-events: none;
 		border: 1px #000 solid;
-		padding:2px 5px 2px 5px;
+		padding:5px;
+		line-height: 16px;
 		color:#000;
 	}
 
