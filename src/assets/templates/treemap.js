@@ -41,29 +41,6 @@ export default class TreeMap {
       d.display = d.categoryName
       d.value = +d.categorySize
 
-
-
-      switch (d.categoryParent) {
-      case ("Labor"):
-        d.colorScale = alpScale
-        break
-      case ("Liberal"):
-        d.colorScale = libScale
-        break
-      case ("Greens"):
-        d.colorScale = greenScale
-        break
-      case ("National"):
-        d.colorScale = natScale
-        break
-      case ("Other"):
-        d.colorScale = otherScale
-        break
-      default:
-        d.colorScale = otherScale
-        break
-      }
-
       return d
     })
 

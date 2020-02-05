@@ -1,4 +1,3 @@
-import * as d3 from "d3v3"
 import ajax from "../modules/ajax"
 import loadJson from "../../components/load-json/"
 import Ractive from "ractive"
@@ -17,13 +16,13 @@ export class ChartBuilder {
               template: templateHtml,
               data: data.sheets.template[0]
             })
-            configure(data, type, d3)
+            configure(data, type)
           })
         })
     }
   }
 
-  _configure(data, type, d3) {
+  _configure(data, type) {
     var lastWidth = document.querySelector("#graphicContainer").getBoundingClientRect()
     var to = null
     var isMobile = this._isMobile()
@@ -39,7 +38,7 @@ export class ChartBuilder {
     }
 
     var app
-
+    let loadPackage = this._loadPackage.bind(this)
     console.log(isMobile)
     window.addEventListener("resize", function () {
       var thisWidth = document.querySelector("#graphicContainer").getBoundingClientRect()
@@ -56,11 +55,11 @@ export class ChartBuilder {
             isMobile = false
           }
 
-          app = this._loadPackage(data, type, d3, isMobile)
+          app = loadPackage(data, type, isMobile)
         }, 100)
       }
     })
-    app = this._loadPackage(data, type, d3, isMobile)
+    app = loadPackage(data, type, isMobile)
     var tag = document.createElement("script")
     tag.onload = app
     tag.onreadystatechange = app
@@ -68,37 +67,43 @@ export class ChartBuilder {
     //this._loader(`<%= path %>/assets/modules/${type}.js`, app, document.body)
   }
 
-  _loadPackage(data, type, d3, isMobile) {
+  _loadPackage(data, type, isMobile) {
+    // we still need this switch as dynamic imports don't seem to
+    // take non-static args
     switch (type) {
     case "animated":
       import("./charts/animated")
-        .then((AnimatedBarChart) => {
-          return new AnimatedBarChart(data.sheets, chart, d3, noUiSlider)
+        .then((importedChartModule) => {
+          console.log(importedChartModule)
+          return new importedChartModule.default(data.sheets, chart, d3, noUiSlider)
         })
       break
     case "scatterplot":
       import("./charts/scatterplot")
-        .then((ScatterPlot) => {
-          return new ScatterPlot(data, d3)
+        .then((importedChartModule) => {
+          console.log(importedChartModule)
+          return new importedChartModule.default(data, d3)
         })
       break
     case "stackedbarchart":
       import("./charts/stackedbarchart")
-        .then((StackedBarChart) => {
-          return new StackedBarChart(data, d3)
+        .then((importedChartModule) => {
+          console.log(importedChartModule)
+          return new importedChartModule.default(data, d3)
         })
       break
     case "annotatedbarchart":
       import("./charts/annotatedbarchart")
-        .then((AnnotatedBarChart) => {
-          return new AnnotatedBarChart(data, d3)
+        .then((importedChartModule) => {
+          console.log(importedChartModule)
+          return new importedChartModule.default(data, d3)
         })
       break
     case "treemap":
       import("./charts/treemap")
-        .then((TreeMap) => {
-          console.log(TreeMap)
-          return new TreeMap(data.sheets.data, d3)
+        .then((importedChartModule) => {
+          console.log(importedChartModule)
+          return new importedChartModule.default(data.sheets.data)
         })
       break
     default:
