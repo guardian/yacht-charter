@@ -93,20 +93,23 @@ export default class TreeMap {
 
   _render(svg, root) {
     // set state
+
+    console.log("rendering")
+    console.log(root)
     this.root = root
+    root.depth = 0
     this.treemap(root)
     var newData = root.leaves()
-    console.log(newData)
+
 
     //set scale functions
-    this.scaleX = d3.scaleLinear()
+    let scaleX = d3.scaleLinear()
       .range([0, this.width])
       .domain([root.x0, root.x1])
 
-    this.scaleY = d3.scaleLinear()
+    let scaleY = d3.scaleLinear()
       .range([0, this.height])
       .domain([root.y0, root.y1])
-
 
     let leaves = svg.append("g")
       .attr("class", "parent")
@@ -115,13 +118,10 @@ export default class TreeMap {
       .enter()
       .append("g")
       .attr("transform", d => {
-        console.log(d)
         if (d.id === "root") {
           return `translate(${d.x0},${d.y0})`
         } else {
-          console.log("scaling")
-          console.log(`translate(${this.scaleX(d.x0)},${this.scaleY(d.y0)})`)
-          return `translate(${this.scaleX(d.x0)},${this.scaleY(d.y0)})`
+          return `translate(${scaleX(d.x0)},${scaleY(d.y0)})`
         }
       })
 
@@ -136,20 +136,21 @@ export default class TreeMap {
         return d.id
       })
       .attr("width", d => {
+        console.log(d)
         if (d.id === "root") {
           return d.x1 - d.x0
         } else {
-          return this.scaleX(d.x1) - this.scaleX(d.x0)
+          return scaleX(d.x1) - scaleX(d.x0)
         }
       })
       .attr("height", d => {
         if (d.id === "root") {
           return d.y1 - d.y0
         } else {
-          return this.scaleY(d.y1) - this.scaleY(d.y0)
+          return scaleY(d.y1) - scaleY(d.y0)
         }
       })
-      .attr("fill", function (d) {
+      .attr("fill", function () {
         //default color if overrides are set incorrectly
         var color = "#bada55"
         // var node = d
@@ -229,7 +230,7 @@ export default class TreeMap {
         }
       })
 
-      makeTooltip.bindTooltip(leaves, tooltipData, d3, "$,d")
+      makeTooltip.bindTooltip(leaves, tooltipData, d3, d3.format("$,d"))
 
       if (textWidth > rectWidth || textHeight > rectHeight) {
         return 0
@@ -242,7 +243,6 @@ export default class TreeMap {
 
   _wrap(text) {
     text.each(function () {
-      console.log(this.parentNode)
       let rectWidth = d3.select(this.parentNode)
         .select("rect")
         .node()
@@ -277,25 +277,56 @@ export default class TreeMap {
     if (newRootDatum.id !== this.root.id) {
       var newRoot = newRootDatum
 
-      while (newRoot.parent.id != this.root.parent.id) {
+      console.log(newRoot)
+      while (this.root.parent != null &&
+        newRoot.parent != null &&
+        newRoot.parent.id !== this.root.parent.id) {
         newRoot = newRoot.parent
       }
+      console.log(newRoot)
 
-      this._transition(newRoot, svg)
+      this._transition(svg, newRoot, svg.select(".parent"))
     }
   }
 
-  _transition(d, g1) {
+  _transition(svg, d, g1) {
     if (this.transitioning || !d) return
     this.transitioning = true
 
-    var g2 = this._render(d),
-      t1 = g1.transition().duration(750),
-      t2 = g2.transition().duration(750)
+    let transitionIn = d3.transition()
+      .attrTween("opacity", function () {
+        return d3.interpolateNumber(0, 1)
+      })
+      .duration(3000)
+
+    let transitionOut = d3.transition()
+      .attrTween("opacity", function () {
+        console.log("calling tween")
+        return d3.interpolateNumber(1, 0)
+      })
+      .duration(3000)
+      .on("end", () => {
+        this.transitioning = false
+      })
+
+    var g2 = this._render(svg, d, 0)
+    g2.attr("opacity", 0)
+      .style("fill-opacity", 0)
+
+    g1.transition(transitionOut)
+      .remove()
+      .each(() => {
+        this.transitioning = false
+      })
+
+    g2.transition(transitionIn)
+    // t2 = g2.transition().duration(750)
+    // //   .attr("opacity", 1)
+    // //   .remove()
 
     // Update the domain only after entering new elements.
-    this.scaleX.domain([d.x, d.x + d.dx])
-    this.scaleY.domain([d.y, d.y + d.dy])
+    // this.scaleX.domain([d.x, d.x + d.dx])
+    // this.scaleY.domain([d.y, d.y + d.dy])
 
     // Enable anti-aliasing during the transition.
     //svg.style("shape-rendering", null)
@@ -306,17 +337,17 @@ export default class TreeMap {
     // })
 
     // Fade-in entering text.
-    g2.selectAll("text").style("fill-opacity", 0)
+    //g2.selectAll("text").style("fill-opacity", 0)
 
     // Transition to the new view.
     // t2.selectAll(".ptext").call(text).style("fill-opacity", 1)
     // t2.selectAll(".ctext").call(text2).style("fill-opacity", 1)
-    t1.selectAll("rect")
-    t2.selectAll("rect")
-    // Remove the old node when the transition is finished.
-    t1.remove().each("end", function () {
-      //svg.style("shape-rendering", "crispEdges")
-      this.transitioning = false
-    })
+    // t1.selectAll("rect")
+    // t2.selectAll("rect")
+    // // Remove the old node when the transition is finished.
+    // t1.remove().each(function () {
+    //   //svg.style("shape-rendering", "crispEdges")
+    //   this.transitioning = false
+    // })
   }
 }
