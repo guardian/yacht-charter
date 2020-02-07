@@ -5,11 +5,11 @@ import Ractive from "ractive"
 export class ChartBuilder {
 
   constructor(key) {
-    const type = "treemap"
     let configure = this._configure.bind(this)
     if (key != null) {
       loadJson(`https://interactive.guim.co.uk/docsdata/${key}.json`)
         .then((data) => {
+          const type = data.sheets.chartId[0].type
           ajax(`<%= path %>/assets/templates/${type}.html`).then((templateHtml) => {
             new Ractive({
               target: "#app",
@@ -68,14 +68,12 @@ export class ChartBuilder {
   }
 
   _loadPackage(data, type, isMobile) {
-    // we still need this switch as dynamic imports don't seem to
-    // take non-static args
     switch (type) {
     case "animated":
       import("./charts/animated")
         .then((importedChartModule) => {
           console.log(importedChartModule)
-          return new importedChartModule.default(data.sheets, chart, d3, noUiSlider)
+          return new importedChartModule.default(data.sheets)
         })
       break
     case "scatterplot":
@@ -103,7 +101,7 @@ export class ChartBuilder {
       import("./charts/treemap")
         .then((importedChartModule) => {
           console.log(importedChartModule)
-          return new importedChartModule.default(data.sheets.data)
+          return new importedChartModule.default(data.sheets.data, data.sheets.colours, data.sheets.settings)
         })
       break
     default:
