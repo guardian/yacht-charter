@@ -2,8 +2,13 @@ import * as d3 from "d3"
 import noUiSlider from "nouislider"
 
 class AnimatedBarChart {
+  constructor() {
+    this.interval = null
 
-  constructor(data) {
+    //return this
+  }
+
+  render(data) {
 
     var self = this
 
@@ -134,7 +139,11 @@ class AnimatedBarChart {
         }
       })
     }
-    var interval = d3.interval(animate, 2000)
+    if (this.interval !== null) {
+      this.interval.restart(animate, 2000)
+    } else {
+      this.interval = d3.interval(animate, 2000)
+    }
     var playButton = d3.select("#play-pause")
     slider.noUiSlider.on("update", function () {
       var newYear = Math.round(slider.noUiSlider.get())
@@ -161,10 +170,10 @@ class AnimatedBarChart {
 
     function playPause(status) {
       if (status == "pause") {
-        interval.stop()
+        this.interval.stop()
         playButton.text("play")
       } else if (status == "play") {
-        interval = d3.interval(animate, 2000)
+        this.interval.restart(animate, 2000)
         playButton.text("pause")
       }
     }
