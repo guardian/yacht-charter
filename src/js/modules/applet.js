@@ -105,7 +105,7 @@ export class ChartBuilder {
             isMobile = false
           }
           reRenderChart(data, type, isMobile, instance)
-        }, 100)
+        }, 1000)
       }
     })
     var tag = document.createElement("script")

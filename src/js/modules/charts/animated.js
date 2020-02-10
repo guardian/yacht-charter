@@ -140,10 +140,10 @@ class AnimatedBarChart {
       })
     }
     if (this.interval !== null) {
-      this.interval.restart(animate, 2000)
-    } else {
-      this.interval = d3.interval(animate, 2000)
+      this.interval.stop()
     }
+
+    this.interval = d3.interval(animate, 2000)
     var playButton = d3.select("#play-pause")
     slider.noUiSlider.on("update", function () {
       var newYear = Math.round(slider.noUiSlider.get())
@@ -168,12 +168,15 @@ class AnimatedBarChart {
       }
     }
 
+    let interval = this.interval
+    let self = this
+
     function playPause(status) {
       if (status == "pause") {
-        this.interval.stop()
+        interval.stop()
         playButton.text("play")
       } else if (status == "play") {
-        this.interval.restart(animate, 2000)
+        self.interval = d3.interval(animate, 2000)
         playButton.text("pause")
       }
     }
