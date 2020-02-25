@@ -4,8 +4,12 @@ import {
 
 
 function getURLParams(paramName) {
-
-  const params = window.parent.location.search.substring(1).split("&")
+  var params = ""
+  if (top !== self) {
+    params = window.location.search.substring(1).split("&")
+  } else {
+    params = window.parent.location.search.substring(1).split("&")
+  }
 
   for (let i = 0; i < params.length; i++) {
     let val = params[i].split("=")
@@ -17,9 +21,9 @@ function getURLParams(paramName) {
 
 }
 
-const key = (getURLParams("key")) ? getURLParams("key") : "1COfrldSAXYIRwOrcKOBU0-h3jGths9psaR3kgdnXgrU"
+const key = getURLParams("key") ? getURLParams("key") : "1wsga1Ja8HalQvwQNisnd1twXLbTYCOjVuyH-RrcZZnA"
 
-//animated = "1evrvPdWq4ysFW5JrdtJLDG3hVPNjPDnBqNJtT-WZnRo"
+//animated = "1wsga1Ja8HalQvwQNisnd1twXLbTYCOjVuyH-RrcZZnA"
 //scatterplot = "1AsgU8YQCKI6DuzJ8Y1qh4-Y7YRuFZZQr8K-4gmbtffU"
 //stackedbarchart = "1qcFgkC1KraIA1n1fNSJxDGBWiKMEdfnAEuwFgHKXGg4"
 //annotatedbarchart = "1yHONV9cWG0V1Yg2EY2prdxx00Z0AgGqO-6Wr6HQTux0"

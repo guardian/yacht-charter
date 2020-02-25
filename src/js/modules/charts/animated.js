@@ -1,10 +1,20 @@
-class AnimatedBarChart {
+import * as d3 from "d3"
+import noUiSlider from "nouislider"
 
-  constructor(data, el, d3, noUiSlider) {
+class AnimatedBarChart {
+  constructor() {
+    this.interval = null
+
+    //return this
+  }
+
+  render(data) {
 
     var self = this
 
     var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+
+    let el = document.querySelector("#graphicContainer")
 
     this.config = {
 
@@ -33,11 +43,13 @@ class AnimatedBarChart {
 
     }
 
-    this._create(data, this.config, d3, noUiSlider)
+    let setup = d3.select("#graphicContainer").select("svg").empty()
+
+    this._create(data, this.config, setup)
 
   }
 
-  _create(data, config, d3, noUiSlider, setup = true) {
+  _create(data, config, setup = true) {
 
     var database = data.data
 
@@ -55,22 +67,21 @@ class AnimatedBarChart {
 
     var values = data.settings[0].values
 
-    var group = data.settings[0].group
-
     var topRange = data.settings[0].topRange
 
-    database.forEach(function (d, i) {
-      d[values] = +d[values]
-      d[group] = +d[group]
+    database.forEach(function (d) {
+      d.value = +d.value
+      d.step = +d.step
     })
 
-    var domain = Array.from(new Set(database.map((item) => item[category])))
+    var domain = Array.from(new Set(database.map((item) => item.category)))
 
-    var min = d3.min(database, d => d[group])
+    var min = d3.min(database, d => d.step)
+    console.log(min)
 
     var start = min
 
-    var max = d3.max(database, d => d[group])
+    var max = d3.max(database, d => d.step)
 
     var total = max - min
 
@@ -88,29 +99,29 @@ class AnimatedBarChart {
 
     var color = d3.scaleOrdinal().range(d3.schemeCategory10) //https://github.com/d3/d3-scale-chromatic/blob/master/README.md#categorical
 
-    x.domain([0, d3.max(database, (d) => d[values])])
+    x.domain([0, d3.max(database, (d) => d.value)])
 
     color.domain(domain)
 
     function drawChart(cat) {
 
-      var filteredData = database.filter((d) => d[group] === cat)
-      filteredData.sort((a, b) => b[values] - a[values])
+      var filteredData = database.filter((d) => d.step === cat)
+      filteredData.sort((a, b) => b.value - a.value)
       filteredData = filteredData.slice(0, topRange)
-      filteredData.sort((a, b) => a[values] - b[values])
-      y.domain(filteredData.map((d) => d[category])).padding(0.1)
-      var bars = svg.selectAll(".bar").data(filteredData, (d) => d[category])
-      var labels = svg.selectAll(".label").data(filteredData, (d) => d[category])
+      filteredData.sort((a, b) => a.value - b.value)
+      y.domain(filteredData.map((d) => d.category)).padding(0.1)
+      var bars = svg.selectAll(".bar").data(filteredData, (d) => d.category)
+      var labels = svg.selectAll(".label").data(filteredData, (d) => d.category)
       var t = d3.transition("blah").duration(750)
       //Exit
       bars.exit().transition(t).style("opacity", "0").attr("y", (height + margin.top + margin.bottom)).remove()
       labels.exit().transition(t).style("opacity", "0").attr("y", (height + margin.top + margin.bottom)).remove()
       //Update
-      bars.transition(t).attr("width", (d) => x(d[values])).attr("y", (d) => y(d[category]))
-      labels.transition(t).attr("y", (d) => y(d[category]) + (y.bandwidth() / 2) + 5).attr("x", 20).text((d) => d[category] + " - " + (d[values] / 1000).toFixed(1) + "k")
+      bars.transition(t).attr("width", (d) => x(d.value)).attr("y", (d) => y(d.category))
+      labels.transition(t).attr("y", (d) => y(d.category) + (y.bandwidth() / 2) + 5).attr("x", 20).text((d) => d.category + " - " + (d.value / 1000).toFixed(1) + "k")
       //Enter
-      bars.enter().append("rect").attr("class", "bar").attr("title", (d) => d[category]).attr("x", 0).attr("y", height + margin.top + margin.bottom).attr("opacity", 1).attr("height", y.bandwidth()).attr("fill", (d) => color(d[category])).attr("width", (d) => x(d[values])).transition(t).attr("width", (d) => x(d[values])).attr("y", (d) => y(d[category]))
-      labels.enter().append("text").attr("class", "label").attr("x", 20).attr("y", height + margin.top + margin.bottom + 20).attr("opacity", 1).transition(t).attr("y", (d) => y(d[category]) + (y.bandwidth() / 2) + 5).text((d) => d[category] + " - " + (d[values] / 1000).toFixed(1) + "k")
+      bars.enter().append("rect").attr("class", "bar").attr("title", (d) => d.category).attr("x", 0).attr("y", height + margin.top + margin.bottom).attr("opacity", 1).attr("height", y.bandwidth()).attr("fill", (d) => color(d.category)).attr("width", (d) => x(d.value)).transition(t).attr("width", (d) => x(d.value)).attr("y", (d) => y(d.category))
+      labels.enter().append("text").attr("class", "label").attr("x", 20).attr("y", height + margin.top + margin.bottom + 20).attr("opacity", 1).transition(t).attr("y", (d) => y(d.category) + (y.bandwidth() / 2) + 5).text((d) => d.category + " - " + (d.value / 1000).toFixed(1) + "k")
     }
 
     var yearText = d3.select("#yearText")
@@ -128,7 +139,11 @@ class AnimatedBarChart {
         }
       })
     }
-    var interval = d3.interval(animate, 2000)
+    if (this.interval !== null) {
+      this.interval.stop()
+    }
+
+    this.interval = d3.interval(animate, 2000)
     var playButton = d3.select("#play-pause")
     slider.noUiSlider.on("update", function () {
       var newYear = Math.round(slider.noUiSlider.get())
@@ -153,12 +168,15 @@ class AnimatedBarChart {
       }
     }
 
+    let interval = this.interval
+    let self = this
+
     function playPause(status) {
       if (status == "pause") {
         interval.stop()
         playButton.text("play")
       } else if (status == "play") {
-        interval = d3.interval(animate, 2000)
+        self.interval = d3.interval(animate, 2000)
         playButton.text("pause")
       }
     }
