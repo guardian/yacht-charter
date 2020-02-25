@@ -4,10 +4,10 @@ import Ractive from "ractive"
 
 export class ChartBuilder {
 
-  constructor(key) {
+  constructor(key, location) {
     let configure = this._configure.bind(this)
     if (key != null) {
-      loadJson(`https://interactive.guim.co.uk/docsdata/${key}.json`)
+      loadJson(`https://interactive.guim.co.uk/${location}/${key}.json`)
         .then((data) => {
           const type = data.sheets.chartId[0].type
           ajax(`<%= path %>/assets/templates/${type}.html`).then((templateHtml) => {
@@ -75,6 +75,12 @@ export class ChartBuilder {
         .then((importedChartModule) => {
           let instance = new importedChartModule.default(data.sheets.data, data.sheets.colours, data.sheets.settings)
           this._addListener(instance, data, type)
+        })
+      break
+    case "linechart":
+      import("./charts/linechart")
+        .then((importedChartModule) => {
+          let instance = new importedChartModule.default(data)
         })
       break
     default:
@@ -145,6 +151,12 @@ export class ChartBuilder {
         .then((importedChartModule) => {
 
           return new importedChartModule.default(data.sheets.data, data.sheets.colours, data.sheets.settings)
+        })
+      break
+    case "linechart":
+      import("./charts/linechart")
+        .then((importedChartModule) => {
+          let instance = new importedChartModule.default()
         })
       break
     default:
