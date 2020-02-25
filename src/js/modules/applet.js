@@ -1,32 +1,28 @@
-import * as d3 from "d3v3"
 import ajax from "../modules/ajax"
 import loadJson from "../../components/load-json/"
 import Ractive from "ractive"
-import TreeMap from "./treemap"
 
 export class ChartBuilder {
 
   constructor(key) {
-    const type = "treemap"
     let configure = this._configure.bind(this)
     if (key != null) {
       loadJson(`https://interactive.guim.co.uk/docsdata/${key}.json`)
         .then((data) => {
+          const type = data.sheets.chartId[0].type
           ajax(`<%= path %>/assets/templates/${type}.html`).then((templateHtml) => {
             new Ractive({
               target: "#app",
               template: templateHtml,
               data: data.sheets.template[0]
             })
-            configure(data)
+            configure(data, type)
           })
         })
     }
   }
 
-  _configure(data) {
-    var lastWidth = document.querySelector("#graphicContainer").getBoundingClientRect()
-    var to = null
+  _configure(data, type) {
     var isMobile = this._isMobile()
 
     var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
@@ -38,6 +34,61 @@ export class ChartBuilder {
     if (windowWidth >= 610) {
       isMobile = false
     }
+
+    const app = this._initialiseChart(data, type, isMobile)
+    //this._loader(`<%= path %>/assets/modules/${type}.js`, app, document.body)
+  }
+
+  _initialiseChart(data, type, isMobile) {
+    switch (type) {
+    case "animated":
+      import("./charts/animated")
+        .then((importedChartModule) => {
+          let instance = new importedChartModule.default()
+          instance.render(data.sheets)
+          this._addListener(instance, data, type)
+        })
+      break
+    case "scatterplot":
+      import("./charts/scatterplot")
+        .then((importedChartModule) => {
+          let instance = new importedChartModule.default(data, d3)
+          this._addListener(instance, data, type)
+        })
+      break
+    case "stackedbarchart":
+      import("./charts/stackedbarchart")
+        .then((importedChartModule) => {
+          let instance = new importedChartModule.default(data, d3)
+          this._addListener(instance, data, type)
+        })
+      break
+    case "annotatedbarchart":
+      import("./charts/annotatedbarchart")
+        .then((importedChartModule) => {
+          let instance = new importedChartModule.default(data, d3)
+          this._addListener(instance, data, type)
+        })
+      break
+    case "treemap":
+      import("./charts/treemap")
+        .then((importedChartModule) => {
+          let instance = new importedChartModule.default(data.sheets.data, data.sheets.colours, data.sheets.settings)
+          this._addListener(instance, data, type)
+        })
+      break
+    default:
+      console.log("no valid type selected")
+    }
+  }
+
+  _addListener(instance, data, type) {
+    var isMobile = this._isMobile()
+    var lastWidth = document.querySelector("#graphicContainer").getBoundingClientRect()
+    var to = null
+    var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+    console.log(instance)
+    let reRenderChart = this._reRenderChart.bind(this)
     console.log(isMobile)
     window.addEventListener("resize", function () {
       var thisWidth = document.querySelector("#graphicContainer").getBoundingClientRect()
@@ -53,17 +104,52 @@ export class ChartBuilder {
           if (windowWidth >= 610) {
             isMobile = false
           }
-
-          new TreeMap(data.sheets.data, d3, isMobile)
-        }, 100)
+          reRenderChart(data, type, isMobile, instance)
+        }, 1000)
       }
     })
-    var app = new TreeMap(data.sheets.data, d3, isMobile)
     var tag = document.createElement("script")
-    tag.onload = app
-    tag.onreadystatechange = app
+    tag.onload = instance
+    tag.onreadystatechange = instance
     document.body.appendChild(tag)
-    //this._loader(`<%= path %>/assets/modules/${type}.js`, app, document.body)
+  }
+
+  _reRenderChart(data, type, isMobile, instance) {
+    switch (type) {
+    case "animated":
+      instance.render(data.sheets)
+      break
+    case "scatterplot":
+      import("./charts/scatterplot")
+        .then((importedChartModule) => {
+
+          return new importedChartModule.default(data, d3)
+        })
+      break
+    case "stackedbarchart":
+      import("./charts/stackedbarchart")
+        .then((importedChartModule) => {
+
+          return new importedChartModule.default(data, d3)
+        })
+      break
+    case "annotatedbarchart":
+      import("./charts/annotatedbarchart")
+        .then((importedChartModule) => {
+
+          return new importedChartModule.default(data, d3)
+        })
+      break
+    case "treemap":
+      import("./charts/treemap")
+        .then((importedChartModule) => {
+
+          return new importedChartModule.default(data.sheets.data, data.sheets.colours, data.sheets.settings)
+        })
+      break
+    default:
+      console.log("no valid type selected")
+    }
   }
 
   _isMobile() {

@@ -4,10 +4,11 @@ export default class TreeMap {
   constructor(data, d3, isMobile) {
 
     this.width = document.querySelector("#graphicContainer").getBoundingClientRect().width
-    //golden ratio
+
     if (isMobile) {
-      this.height = this.width * 1.2
+      this.height = this.width * 1.23610097750
     } else {
+
       this.height = this.width * 0.61803398875
     }
 
@@ -39,29 +40,6 @@ export default class TreeMap {
       d.key = d.categoryName.replace(/[()#. ]/g, "")
       d.display = d.categoryName
       d.value = +d.categorySize
-
-
-
-      switch (d.categoryParent) {
-      case ("Labor"):
-        d.colorScale = alpScale
-        break
-      case ("Liberal"):
-        d.colorScale = libScale
-        break
-      case ("Greens"):
-        d.colorScale = greenScale
-        break
-      case ("National"):
-        d.colorScale = natScale
-        break
-      case ("Other"):
-        d.colorScale = otherScale
-        break
-      default:
-        d.colorScale = otherScale
-        break
-      }
 
       return d
     })
@@ -148,6 +126,7 @@ export default class TreeMap {
 
     var grandparent = svg.append("g")
       .attr("class", "grandparent")
+      .style("cursor", "pointer")
 
     grandparent.append("rect")
       .attr("y", -margin.top)
@@ -250,6 +229,7 @@ export default class TreeMap {
           return d._children || [d]
         })
         .enter().append("g")
+        .style("cursor", "pointer")
 
       children.append("rect")
         .attr("class", "child")

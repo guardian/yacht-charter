@@ -11,7 +11,8 @@
           {
             "regenerator": true
           }
-        ], "@babel/plugin-proposal-optional-chaining"
+        ], "@babel/plugin-proposal-optional-chaining",
+        "@babel/plugin-syntax-dynamic-import"
       ]
     },
     "client": {
@@ -19,15 +20,16 @@
         [
           "@babel/preset-env",
           {
-            "es2015": {
-              "modules": false
+            "es2016": {
+
             }
           }
         ]
       ],
       "plugins": [
         "@babel/plugin-external-helpers",
-        "@babel/plugin-proposal-optional-chaining"
+        "@babel/plugin-proposal-optional-chaining",
+        "@babel/plugin-syntax-dynamic-import"
       ]
     }
   }
