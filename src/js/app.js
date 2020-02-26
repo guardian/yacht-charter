@@ -23,7 +23,10 @@ function getURLParams(paramName) {
 
 const key = getURLParams("key") ? getURLParams("key") : "total-emissions-year-to-date"
 
-const location = getURLParams("location") ? getURLParams("location") : "yacht-charter"
+const location = getURLParams("location") ? getURLParams("location") : "docsdata"
+
+console.log("key", key)
+console.log("location", location)
 
 //animated = "1wsga1Ja8HalQvwQNisnd1twXLbTYCOjVuyH-RrcZZnA"
 //scatterplot = "1AsgU8YQCKI6DuzJ8Y1qh4-Y7YRuFZZQr8K-4gmbtffU"
