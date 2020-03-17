@@ -21,9 +21,9 @@ function getURLParams(paramName) {
 
 }
 
-const key = getURLParams("key") ? getURLParams("key") : "total-emissions-year-to-date"
+const key = getURLParams("key") ? getURLParams("key") : "1aaxWJBVD653P8yLeQUtERhGe8JXXTOqMnZFmCcI2mT8"
 
-const location = getURLParams("location") ? getURLParams("location") : "yacht-charter"
+const location = getURLParams("location") ? getURLParams("location") : "docsdata"
 
 //animated = "1wsga1Ja8HalQvwQNisnd1twXLbTYCOjVuyH-RrcZZnA"
 //scatterplot = "1AsgU8YQCKI6DuzJ8Y1qh4-Y7YRuFZZQr8K-4gmbtffU"
@@ -31,5 +31,6 @@ const location = getURLParams("location") ? getURLParams("location") : "yacht-ch
 //annotatedbarchart = "1yHONV9cWG0V1Yg2EY2prdxx00Z0AgGqO-6Wr6HQTux0"
 //treemap = "1-N-6UNFyYSCRHP18gy_u6pfzaosqomD1pzzHBZoss9E"
 //linechart = "total-emissions-year-to-date"
+//horizontalbar = "1aaxWJBVD653P8yLeQUtERhGe8JXXTOqMnZFmCcI2mT8"
 
 new ChartBuilder(key, location)

@@ -46,35 +46,35 @@ export class ChartBuilder {
         .then((importedChartModule) => {
           let instance = new importedChartModule.default()
           instance.render(data.sheets)
-          this._addListener(instance, data, type)
+          this._addListener(instance, data, type, importedChartModule)
         })
       break
     case "scatterplot":
       import("./charts/scatterplot")
         .then((importedChartModule) => {
           let instance = new importedChartModule.default(data, d3)
-          this._addListener(instance, data, type)
+          this._addListener(instance, data, type, importedChartModule)
         })
       break
     case "stackedbarchart":
       import("./charts/stackedbarchart")
         .then((importedChartModule) => {
           let instance = new importedChartModule.default(data, d3)
-          this._addListener(instance, data, type)
+          this._addListener(instance, data, type, importedChartModule)
         })
       break
     case "annotatedbarchart":
       import("./charts/annotatedbarchart")
         .then((importedChartModule) => {
           let instance = new importedChartModule.default(data, d3)
-          this._addListener(instance, data, type)
+          this._addListener(instance, data, type, importedChartModule)
         })
       break
     case "treemap":
       import("./charts/treemap")
         .then((importedChartModule) => {
           let instance = new importedChartModule.default(data.sheets.data, data.sheets.colours, data.sheets.settings)
-          this._addListener(instance, data, type)
+          this._addListener(instance, data, type, importedChartModule)
         })
       break
     case "linechart":
@@ -83,12 +83,17 @@ export class ChartBuilder {
           let instance = new importedChartModule.default(data)
         })
       break
+    case "horizontalbar":
+      import("./charts/horizontalbar")
+        .then((importedChartModule) => {
+          let instance = new importedChartModule.default(data)
+        })
     default:
       console.log("no valid type selected")
     }
   }
 
-  _addListener(instance, data, type) {
+  _addListener(instance, data, type, importedChartModule) {
     var isMobile = this._isMobile()
     var lastWidth = document.querySelector("#graphicContainer").getBoundingClientRect()
     var to = null
@@ -110,7 +115,7 @@ export class ChartBuilder {
           if (windowWidth >= 610) {
             isMobile = false
           }
-          reRenderChart(data, type, isMobile, instance)
+          reRenderChart(data, type, isMobile, instance, importedChartModule)
         }, 1000)
       }
     })
@@ -120,47 +125,21 @@ export class ChartBuilder {
     document.body.appendChild(tag)
   }
 
-  _reRenderChart(data, type, isMobile, instance) {
+  _reRenderChart(data, type, isMobile, instance, importedChartModule) {
     switch (type) {
     case "animated":
       instance.render(data.sheets)
       break
-    case "scatterplot":
-      import("./charts/scatterplot")
-        .then((importedChartModule) => {
-
-          return new importedChartModule.default(data, d3)
-        })
-      break
-    case "stackedbarchart":
-      import("./charts/stackedbarchart")
-        .then((importedChartModule) => {
-
-          return new importedChartModule.default(data, d3)
-        })
-      break
-    case "annotatedbarchart":
-      import("./charts/annotatedbarchart")
-        .then((importedChartModule) => {
-
-          return new importedChartModule.default(data, d3)
-        })
-      break
     case "treemap":
-      import("./charts/treemap")
-        .then((importedChartModule) => {
-
-          return new importedChartModule.default(data.sheets.data, data.sheets.colours, data.sheets.settings)
-        })
+      return new importedChartModule.default(data.sheets.data, data.sheets.colours, data.sheets.settings)
       break
     case "linechart":
-      import("./charts/linechart")
-        .then((importedChartModule) => {
-          let instance = new importedChartModule.default()
-        })
+      return new importedChartModule.default()
       break
+    case "horizontalbar":
+      return new importedChartModule.default(data)
     default:
-      console.log("no valid type selected")
+      return new importedChartModule.default(data, d3)
     }
   }
 
