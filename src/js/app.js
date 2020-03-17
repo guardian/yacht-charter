@@ -21,9 +21,9 @@ function getURLParams(paramName) {
 
 }
 
-const key = getURLParams("key") ? getURLParams("key") : "1aaxWJBVD653P8yLeQUtERhGe8JXXTOqMnZFmCcI2mT8"
+const key = getURLParams("key") ? getURLParams("key") : "total-emissions-year-to-date"
 
-const location = getURLParams("location") ? getURLParams("location") : "docsdata"
+const location = getURLParams("location") ? getURLParams("location") : "yacht-charter-data"
 
 //animated = "1wsga1Ja8HalQvwQNisnd1twXLbTYCOjVuyH-RrcZZnA"
 //scatterplot = "1AsgU8YQCKI6DuzJ8Y1qh4-Y7YRuFZZQr8K-4gmbtffU"

@@ -80,6 +80,7 @@ export default class horizontalBar {
     }
 
     var width = document.querySelector("#graphicContainer").getBoundingClientRect().width
+    console.log(width)
     var height = data.length * 70
     var margin
 
