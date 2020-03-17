@@ -59,7 +59,7 @@ export class ChartBuilder {
     case "stackedbarchart":
       import("./charts/stackedbarchart")
         .then((importedChartModule) => {
-          let instance = new importedChartModule.default(data, d3)
+          let instance = new importedChartModule.default(data)
           this._addListener(instance, data, type)
         })
       break
@@ -81,6 +81,7 @@ export class ChartBuilder {
       import("./charts/linechart")
         .then((importedChartModule) => {
           let instance = new importedChartModule.default(data)
+          this._addListener(instance, data, type)
         })
       break
     default:
@@ -156,7 +157,7 @@ export class ChartBuilder {
     case "linechart":
       import("./charts/linechart")
         .then((importedChartModule) => {
-          let instance = new importedChartModule.default()
+          let instance = new importedChartModule.default(data)
         })
       break
     default:
