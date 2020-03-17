@@ -1,8 +1,10 @@
+import * as d3 from "d3"
+
 export default class StackedBarChart {
-  constructor(results, d3) {
+  constructor(results) {
     console.log(results)
     var data = results.sheets.data
-    var details = results.sheets.details
+    var details = results.sheets.template
     var labels = results.sheets.labels
     var userKey = results.sheets.key
     var optionalKeys = []
@@ -16,7 +18,7 @@ export default class StackedBarChart {
       })
     }
 
-    console.log(optionalKeys)
+    console.log(details)
 
     function numberFormat(num) {
       if (num > 0) {
@@ -83,7 +85,6 @@ export default class StackedBarChart {
     }
 
     // Check if time format defined by user
-
 
     if (typeof details[0]["dateFormat"] != undefined) {
       dateParse = d3.timeParse(details[0]["dateFormat"])

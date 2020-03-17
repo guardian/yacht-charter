@@ -59,8 +59,14 @@ export class ChartBuilder {
     case "stackedbarchart":
       import("./charts/stackedbarchart")
         .then((importedChartModule) => {
+          <<
+          << << < HEAD
           let instance = new importedChartModule.default(data, d3)
-          this._addListener(instance, data, type, importedChartModule)
+          this._addListener(instance, data, type, importedChartModule) ===
+            === =
+            let instance = new importedChartModule.default(data)
+          this._addListener(instance, data, type) >>>
+            >>> > 1678 d09b961d50bf08e8d90bca393d4482c0b073
         })
       break
     case "annotatedbarchart":
@@ -81,6 +87,7 @@ export class ChartBuilder {
       import("./charts/linechart")
         .then((importedChartModule) => {
           let instance = new importedChartModule.default(data)
+          this._addListener(instance, data, type)
         })
       break
     case "horizontalbar":
@@ -131,15 +138,15 @@ export class ChartBuilder {
       instance.render(data.sheets)
       break
     case "treemap":
-      return new importedChartModule.default(data.sheets.data, data.sheets.colours, data.sheets.settings)
+      let instance = new importedChartModule.default(data.sheets.data, data.sheets.colours, data.sheets.settings)
       break
     case "linechart":
-      return new importedChartModule.default()
+      let instance = new importedChartModule.default(data)
       break
     case "horizontalbar":
-      return new importedChartModule.default(data)
+      let instance = new importedChartModule.default(data)
     default:
-      return new importedChartModule.default(data, d3)
+      let instance = new importedChartModule.default(data, d3)
     }
   }
 

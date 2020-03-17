@@ -1,11 +1,9 @@
 import * as d3 from "d3"
 
-
 export default class LineChart {
   constructor(results) {
     console.log(results)
     let clone = JSON.parse(JSON.stringify(results))
-
     var data = clone["sheets"]["data"]
     var template = clone["sheets"]["template"]
     var labels = clone["sheets"]["labels"]
@@ -101,7 +99,6 @@ export default class LineChart {
       breaks = template[0]["breaks"]
     }
 
-
     var colors = ["#4daacf", "#5db88b", "#a2b13e", "#8a6929", "#b05cc6", "#c8a466", "#c35f95", "#ce592e", "#d23d5e", "#d89a34", "#7277ca", "#527b39", "#59b74b", "#c76c65", "#8a6929"]
 
     width = width - margin.left - margin.right,
@@ -132,11 +129,28 @@ export default class LineChart {
     }
     console.log(xVar, keys)
 
-    var x = d3.scaleTime()
-      .rangeRound([0, width])
+    var x;
 
-    var y = d3.scaleLinear()
+    if (typeof data[0][xVar] == "string") {
+        x = d3.scaleTime().rangeRound([0, width])
+    }
+
+    else {
+      x = d3.scaleLinear().rangeRound([0, width])
+    }  
+
+    var y;
+
+    if (template[0]["yScaleType"]) {
+      y = d3[template[0]["yScaleType"]]().range([height, 0]).nice()
+    }  
+
+    else {
+      y = d3.scaleLinear()
       .rangeRound([height, 0])
+    }
+
+    console.log(y)
 
     var color = d3.scaleOrdinal()
       .range(colors)
@@ -197,32 +211,37 @@ export default class LineChart {
 
     // console.log(data)
 
-    keys.forEach(function (key) {
+    if(isMobile) {
+         keys.forEach(function (key) {
 
-      var keyDiv = chartKey.append("div")
-        .attr("class", "keyDiv")
+        var keyDiv = chartKey.append("div")
+          .attr("class", "keyDiv")
 
-      keyDiv.append("span")
-        .attr("class", "keyCircle")
-        .style("background-color", function () {
-          if (optionalKey.hasOwnProperty(key)) {
-            return optionalKey[key]
-          } else {
-            return color(key)
-          }
-        })
+        keyDiv.append("span")
+          .attr("class", "keyCircle")
+          .style("background-color", function () {
+            if (optionalKey.hasOwnProperty(key)) {
+              return optionalKey[key]
+            } else {
+              return color(key)
+            }
+          })
 
-      keyDiv.append("span")
-        .attr("class", "keyText")
-        .text(key)
+        keyDiv.append("span")
+          .attr("class", "keyText")
+          .text(key)
 
-    })
+      })
+    }
+
+   
 
     console.log(template[0]["dateFormat"])
     var parseTime = d3.timeParse(template[0]["dateFormat"])
     var parsePeriods = d3.timeParse(template[0]["periodDateFormat"])
 
     data.forEach(function (d) {
+      console.log(typeof d[xVar])
       if (typeof d[xVar] == "string") {
         d[xVar] = parseTime(d[xVar])
       }
@@ -281,7 +300,7 @@ export default class LineChart {
     x.domain(d3.extent(data, function (d) {
       return d[xVar]
     }))
-    y.domain([min, d3.max(allValues)])
+    y.domain([min, 100000])
 
     var xAxis
     var yAxis
@@ -290,12 +309,12 @@ export default class LineChart {
       xAxis = d3.axisBottom(x).ticks(5)
       yAxis = d3.axisLeft(y).tickFormat(function (d) {
         return numberFormat(d)
-      }).ticks(5)
+      }).ticks(3)
     } else {
       xAxis = d3.axisBottom(x)
       yAxis = d3.axisLeft(y).tickFormat(function (d) {
         return numberFormat(d)
-      })
+      }).ticks(3)
     }
 
     d3.selectAll(".periodLine").remove()
@@ -414,11 +433,12 @@ export default class LineChart {
 
     keys.forEach(function (key) {
 
+      console.log(keyData[key])
+
       features.append("path")
         .datum(keyData[key])
         .attr("fill", "none")
         .attr("stroke", function (d) {
-          console.log(d)
           if (optionalKey.hasOwnProperty(key)) {
             return optionalKey[key]
           } else {
@@ -430,6 +450,58 @@ export default class LineChart {
         .attr("stroke-linecap", "round")
         .attr("stroke-width", 1.5)
         .attr("d", lineGenerators[key])
+
+
+        var tempLabelData = keyData[key].filter(d => d != null)
+        console.log(tempLabelData)
+        var end = tempLabelData.length - 1
+        console.log(tempLabelData[tempLabelData.length - 1].index)
+
+         features.append("circle")
+          .attr("cy", function (d) {
+            return y(tempLabelData[tempLabelData.length - 1][key])
+          })
+          .attr("fill", function (d) {
+          if (optionalKey.hasOwnProperty(key)) {
+            return optionalKey[key]
+          } else {
+            return color(key)
+          }
+
+          })
+          .attr("cx", function (d) {
+            return x(tempLabelData[tempLabelData.length - 1].index)
+          })
+          .attr("r", 4)
+          .style("opacity", 1)
+
+        var lineLabelAlign = "start";
+        var lineLabelOffset = 0;  
+
+        if (x(tempLabelData[tempLabelData.length - 1].index) > width - 20) {
+          lineLabelAlign = "end";
+          lineLabelOffset = -10;
+        }
+
+
+
+        if (!isMobile) {
+            features.append("text")
+            .attr("class", "annotationText")
+            .attr("y", function (d) {
+              return y(tempLabelData[tempLabelData.length - 1][key]) + 4 + lineLabelOffset
+            })
+          .attr("x", function (d) {
+            return x(tempLabelData[tempLabelData.length - 1].index) + 5
+          })
+          .style("opacity", 1)
+          .attr("text-anchor", lineLabelAlign)
+          .text(function (d) {
+            return key
+          })
+        }
+    
+
 
     })
 
