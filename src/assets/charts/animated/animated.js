@@ -1,6 +1,3 @@
-import * as d3 from "d3"
-import noUiSlider from "nouislider"
-
 class AnimatedBarChart {
   constructor() {
     this.interval = null
@@ -8,7 +5,7 @@ class AnimatedBarChart {
     //return this
   }
 
-  render(data) {
+  render(data, d3) {
 
     var self = this
 
@@ -49,7 +46,7 @@ class AnimatedBarChart {
 
   }
 
-  _create(data, config, setup = true) {
+  _create(data, config, setup = true, d3, noUiSlider) {
 
     var database = data.data
 

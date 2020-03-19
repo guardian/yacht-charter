@@ -25,6 +25,10 @@ import ws from "webpack-stream"
 const debug = require("gulp-debug")
 const UglifyJSPlugin = require("uglifyjs-webpack-plugin")
 const HtmlWebpackPlugin = require("html-webpack-plugin") //installed via npm
+var merge = require("merge-stream")
+var pathLib = require("path")
+
+
 
 const browser = browserSync.create()
 
@@ -50,6 +54,8 @@ function logError(plugin, err) {
     console.error(err.codeFrame)
   }
 }
+
+
 
 let webpackPlugins = [
   new webpack.LoaderOptionsPlugin({
@@ -103,7 +109,6 @@ function buildJS(filename) {
       })
       .pipe(replace("<%= path %>", path))
       .pipe(gulp.dest(buildDir))
-
   }
 }
 
@@ -173,9 +178,65 @@ gulp.task("build:html", cb => {
   }
 })
 
-gulp.task("build:assets", () => {
-  return gulp.src("src/assets/**/*").pipe(gulp.dest(`${buildDir}/assets`))
+gulp.task("build:assets.nonjs", () => {
+  return gulp.src(["src/assets/**/*", "!src/assets/**/*.js"])
+    .pipe(gulp.dest(`${buildDir}/assets`))
 })
+
+// gulp.task("build:assets.js", () => {
+//   return gulp.src("src/assets/**/*.js")
+//     .pipe(ws({
+//       watch: false,
+//       mode: isDeploy ? "production" : "development",
+//       module: {
+//         rules: [{
+//           test: /\.js$/,
+//           exclude: /node_modules/,
+//           use: "babel-loader"
+//         }]
+//       },
+//       devtool: "source-map",
+//       plugins: webpackPlugins
+//     }, webpack))
+//     .pipe(gulp.dest(`${buildDir}/assets/`))
+// })
+
+var assetsPath = "src/assets/charts"
+
+function getFolders(dir) {
+  return fs.readdirSync(dir)
+    .filter(function (file) {
+      return fs.statSync(pathLib.join(dir, file)).isDirectory()
+    })
+}
+
+gulp.task("build:assets.js", function (done) {
+  var folders = getFolders(assetsPath)
+  if (folders.length === 0) return done() // nothing to do!
+  var tasks = folders.map(function (folder) {
+    return gulp.src(pathLib.join(assetsPath, folder, "/**/*.js"))
+      .pipe(ws({
+        watch: false,
+        mode: isDeploy ? "production" : "development",
+        module: {
+          rules: [{
+            test: /\.js$/,
+            exclude: /node_modules/,
+            use: "babel-loader"
+          }]
+        },
+        devtool: "source-map",
+        plugins: webpackPlugins
+      }, webpack))
+      .pipe(gulp.dest(`${buildDir}/assets/${folder}.js`))
+
+  })
+
+  return merge(tasks)
+})
+
+gulp.task("build:assets", ["build:assets.nonjs", "build:assets.js"])
+
 
 gulp.task("_build", ["clean"], cb => {
   runSequence(["build:css", "build:js", "build:html", "build:assets"], cb)

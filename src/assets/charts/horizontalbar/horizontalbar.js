@@ -1,7 +1,5 @@
-import * as d3 from "d3"
-
 export default class horizontalBar {
-  constructor(results) {
+  constructor(results, d3) {
     const container = d3.select("#graphicContainer svg")
     container.remove()
     console.log(results)

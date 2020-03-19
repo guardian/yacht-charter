@@ -1,8 +1,7 @@
 import makeTooltip from "./tooltip"
-import * as d3 from "d3"
 
 export default class TreeMap {
-  constructor(data, isMobile) {
+  constructor(data, isMobile, d3) {
 
     this.width = document.querySelector("#graphicContainer").getBoundingClientRect().width
 

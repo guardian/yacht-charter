@@ -1,5 +1,7 @@
 import ajax from "../modules/ajax"
 import loadJson from "../../components/load-json/"
+import * as d3 from "d3"
+import noUiSlider from "nouislider"
 import Ractive from "ractive"
 
 export class ChartBuilder {
@@ -23,72 +25,61 @@ export class ChartBuilder {
   }
 
   _configure(data, type) {
-    var isMobile = this._isMobile()
-
-    var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-
-    if (windowWidth < 610) {
-      isMobile = true
-    }
-
-    if (windowWidth >= 610) {
-      isMobile = false
-    }
-
-    const app = this._initialiseChart(data, type, isMobile)
-    //this._loader(`<%= path %>/assets/modules/${type}.js`, app, document.body)
+    this._initialiseChart(data, type)
   }
 
-  _initialiseChart(data, type, isMobile) {
+  _initialiseChart(data, type) {
     switch (type) {
     case "animated":
-      import("./charts/animated")
+      ajax(`<%= path %>/assets/charts/${type}.js`)
         .then((importedChartModule) => {
           let instance = new importedChartModule.default()
-          instance.render(data.sheets)
+          instance.render(data.sheets, d3)
           this._addListener(instance, data, type, importedChartModule)
         })
       break
     case "scatterplot":
-      import("./charts/scatterplot")
+      ajax(`<%= path %>/assets/charts/${type}.js`)
         .then((importedChartModule) => {
           let instance = new importedChartModule.default(data, d3)
           this._addListener(instance, data, type, importedChartModule)
         })
       break
     case "stackedbarchart":
-      import("./charts/stackedbarchart")
+      ajax(`<%= path %>/assets/charts/${type}.js`)
         .then((importedChartModule) => {
-          let instance = new importedChartModule.default(data)
+          let instance = new importedChartModule.default(data, d3)
           this._addListener(instance, data, type)
         })
       break
     case "annotatedbarchart":
-      import("./charts/annotatedbarchart")
+      ajax(`<%= path %>/assets/charts/${type}.js`)
         .then((importedChartModule) => {
           let instance = new importedChartModule.default(data, d3)
           this._addListener(instance, data, type, importedChartModule)
         })
       break
     case "treemap":
-      import("./charts/treemap")
+      ajax(`<%= path %>/assets/charts/${type}.js`)
         .then((importedChartModule) => {
           let instance = new importedChartModule.default(data.sheets.data, data.sheets.colours, data.sheets.settings)
           this._addListener(instance, data, type, importedChartModule)
         })
       break
     case "linechart":
-      import("./charts/linechart")
+      ajax(`<%= path %>/assets/charts/${type}.js`)
         .then((importedChartModule) => {
-          let instance = new importedChartModule.default(data)
+          let instance = new importedChartModule.LineChart(data, d3)
           this._addListener(instance, data, type, importedChartModule)
         })
       break
     case "horizontalbar":
-      import("./charts/horizontalbar")
+      ajax(`<%= path %>/assets/charts/${type}.js`)
         .then((importedChartModule) => {
-          let instance = new importedChartModule.default(data)
+          let instance = new importedChartModule.default(data, d3)
+          this._addListener(instance, data, type, importedChartModule)
         })
+      break
     default:
       console.log("no valid type selected")
     }
@@ -129,16 +120,11 @@ export class ChartBuilder {
   _reRenderChart(data, type, isMobile, instance, importedChartModule) {
     switch (type) {
     case "animated":
-      instance.render(data.sheets)
+      instance.render(data.sheets, d3, noUiSlider)
       break
     case "treemap":
       instance = new importedChartModule.default(data.sheets.data, data.sheets.colours, data.sheets.settings)
       break
-    case "linechart":
-      instance = new importedChartModule.default(data)
-      break
-    case "horizontalbar":
-      instance = new importedChartModule.default(data)
     default:
       instance = new importedChartModule.default(data, d3)
     }

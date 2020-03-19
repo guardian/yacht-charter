@@ -61,6 +61,7 @@
     "handlebars": "^4.7.2",
     "html-webpack-plugin": "^3.2.0",
     "lodash": "^4.17.15",
+    "merge-stream": "^2.0.0",
     "mustache": "^2.3.0",
     "natives": "^1.1.6",
     "nouislider": "^14.0.2",
@@ -68,7 +69,6 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "require-uncached": "^1.0.3",
-    "requirejs": "^2.3.6",
     "unfetch": "^3.1.2"
   }
 }

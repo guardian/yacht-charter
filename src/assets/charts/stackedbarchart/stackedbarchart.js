@@ -1,7 +1,5 @@
-import * as d3 from "d3"
-
 export default class StackedBarChart {
-  constructor(results) {
+  constructor(results, d3) {
     console.log(results)
     var data = results.sheets.data
     var details = results.sheets.template

@@ -1,7 +1,5 @@
-import * as d3 from "d3"
-
 export default class LineChart {
-  constructor(results) {
+  constructor(results, d3) {
     console.log(results)
     let clone = JSON.parse(JSON.stringify(results))
     var data = clone["sheets"]["data"]
@@ -129,25 +127,21 @@ export default class LineChart {
     }
     console.log(xVar, keys)
 
-    var x;
+    var x
 
     if (typeof data[0][xVar] == "string") {
-        x = d3.scaleTime().rangeRound([0, width])
+      x = d3.scaleTime().rangeRound([0, width])
+    } else {
+      x = d3.scaleLinear().rangeRound([0, width])
     }
 
-    else {
-      x = d3.scaleLinear().rangeRound([0, width])
-    }  
-
-    var y;
+    var y
 
     if (template[0]["yScaleType"]) {
       y = d3[template[0]["yScaleType"]]().range([height, 0]).nice()
-    }  
-
-    else {
+    } else {
       y = d3.scaleLinear()
-      .rangeRound([height, 0])
+        .rangeRound([height, 0])
     }
 
     console.log(y)
@@ -211,8 +205,8 @@ export default class LineChart {
 
     // console.log(data)
 
-    if(isMobile) {
-         keys.forEach(function (key) {
+    if (isMobile) {
+      keys.forEach(function (key) {
 
         var keyDiv = chartKey.append("div")
           .attr("class", "keyDiv")
@@ -234,7 +228,7 @@ export default class LineChart {
       })
     }
 
-   
+
 
     console.log(template[0]["dateFormat"])
     var parseTime = d3.timeParse(template[0]["dateFormat"])
@@ -452,45 +446,45 @@ export default class LineChart {
         .attr("d", lineGenerators[key])
 
 
-        var tempLabelData = keyData[key].filter(d => d != null)
-        console.log(tempLabelData)
-        var end = tempLabelData.length - 1
-        console.log(tempLabelData[tempLabelData.length - 1].index)
+      var tempLabelData = keyData[key].filter(d => d != null)
+      console.log(tempLabelData)
+      var end = tempLabelData.length - 1
+      console.log(tempLabelData[tempLabelData.length - 1].index)
 
-         features.append("circle")
-          .attr("cy", function (d) {
-            return y(tempLabelData[tempLabelData.length - 1][key])
-          })
-          .attr("fill", function (d) {
+      features.append("circle")
+        .attr("cy", function (d) {
+          return y(tempLabelData[tempLabelData.length - 1][key])
+        })
+        .attr("fill", function (d) {
           if (optionalKey.hasOwnProperty(key)) {
             return optionalKey[key]
           } else {
             return color(key)
           }
 
+        })
+        .attr("cx", function (d) {
+          return x(tempLabelData[tempLabelData.length - 1].index)
+        })
+        .attr("r", 4)
+        .style("opacity", 1)
+
+      var lineLabelAlign = "start"
+      var lineLabelOffset = 0
+
+      if (x(tempLabelData[tempLabelData.length - 1].index) > width - 20) {
+        lineLabelAlign = "end"
+        lineLabelOffset = -10
+      }
+
+
+
+      if (!isMobile) {
+        features.append("text")
+          .attr("class", "annotationText")
+          .attr("y", function (d) {
+            return y(tempLabelData[tempLabelData.length - 1][key]) + 4 + lineLabelOffset
           })
-          .attr("cx", function (d) {
-            return x(tempLabelData[tempLabelData.length - 1].index)
-          })
-          .attr("r", 4)
-          .style("opacity", 1)
-
-        var lineLabelAlign = "start";
-        var lineLabelOffset = 0;  
-
-        if (x(tempLabelData[tempLabelData.length - 1].index) > width - 20) {
-          lineLabelAlign = "end";
-          lineLabelOffset = -10;
-        }
-
-
-
-        if (!isMobile) {
-            features.append("text")
-            .attr("class", "annotationText")
-            .attr("y", function (d) {
-              return y(tempLabelData[tempLabelData.length - 1][key]) + 4 + lineLabelOffset
-            })
           .attr("x", function (d) {
             return x(tempLabelData[tempLabelData.length - 1].index) + 5
           })
@@ -499,8 +493,8 @@ export default class LineChart {
           .text(function (d) {
             return key
           })
-        }
-    
+      }
+
 
 
     })
