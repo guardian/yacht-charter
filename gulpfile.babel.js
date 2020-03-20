@@ -65,6 +65,10 @@ let webpackPlugins = [
         plugins
       }
     }
+  }), new webpack.DefinePlugin({
+    "process.env": {
+      "PATH": JSON.stringify(path)
+    }
   })
 ]
 
@@ -225,10 +229,14 @@ gulp.task("build:assets.js", function (done) {
             use: "babel-loader"
           }]
         },
+        output: {
+          filename: `${folder}.js`
+        },
         devtool: "source-map",
         plugins: webpackPlugins
       }, webpack))
-      .pipe(gulp.dest(`${buildDir}/assets/${folder}.js`))
+      .pipe(replace("<%= path %>", path))
+      .pipe(gulp.dest(buildDir))
 
   })
 

@@ -626,35 +626,8 @@ export default class LineChart {
   } // end init
 }
 
-// function getParameter(paramName) {
-//   var searchString = window.location.search.substring(1),
-//     i, val, params = searchString.split("&")
-//
-//   for (i = 0; i < params.length; i++) {
-//     val = params[i].split("=")
-//     if (val[0] == paramName) {
-//       return val[1]
-//     }
-//   }
-//   return null
-// }
-//
-// key = getParameter("key")
-//
-// var q = d3.queue()
-//   .defer(d3.json, "https://interactive.guim.co.uk/docsdata/" + key + ".json")
-//   .awaitAll(function (error, results) {
-//     init(results[0])
-//     var to = null
-//     var lastWidth = document.querySelector("#graphicContainer").getBoundingClientRect()
-//     window.addEventListener("resize", function () {
-//       var thisWidth = document.querySelector("#graphicContainer").getBoundingClientRect()
-//       if (lastWidth != thisWidth) {
-//         window.clearTimeout(to)
-//         to = window.setTimeout(function () {
-//           console.log("resize")
-//           init(results[0])
-//         }, 100)
-//       }
-//     })
-//   })
+let lineChartDraw = function (results, d3) {
+  return new LineChart(results, d3)
+}
+
+module.exports = lineChartDraw

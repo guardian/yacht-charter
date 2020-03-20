@@ -67,11 +67,9 @@ export class ChartBuilder {
         })
       break
     case "linechart":
-      ajax(`<%= path %>/assets/charts/${type}.js`)
-        .then((importedChartModule) => {
-          let instance = new importedChartModule.LineChart(data, d3)
-          this._addListener(instance, data, type, importedChartModule)
-        })
+      let lineChartDraw = require(`${process.env.PATH}/linechart.js`)
+      let instance = lineChartDraw(data, d3)
+      this._addListener(instance, data, type)
       break
     case "horizontalbar":
       ajax(`<%= path %>/assets/charts/${type}.js`)
