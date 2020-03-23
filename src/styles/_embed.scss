@@ -1,0 +1,9 @@
+html,
+body {
+    @include fs-bodyCopy(2);
+
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    background-color: #f6f6f6;
+}

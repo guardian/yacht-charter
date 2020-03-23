@@ -1,0 +1,17 @@
+@import "./styles/mq";
+@import "./styles/fonts";
+@import "./styles/palette";
+@import "./styles/nouislider";
+@import "./styles/slider";
+@import "./styles/charts";
+@import "./styles/generic";
+
+// Uncomment for embeds
+//@import "embed";
+// Uncomment for full screen (including immersive article main media)
+//@import "fullscreen";
+
+.element-atom,
+.interactive-atom {
+    margin: 0 !important;
+}
