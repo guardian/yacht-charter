@@ -1,15 +1,16 @@
 "use strict";
 
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
 var AnnotatedBarChart = function AnnotatedBarChart(results, d3) {
-  _classCallCheck(this, AnnotatedBarChart);
-
+  (0, _classCallCheck2["default"])(this, AnnotatedBarChart);
   console.log(results);
   var data = results.sheets.data;
   var details = results.sheets.details;

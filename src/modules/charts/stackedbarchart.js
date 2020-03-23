@@ -1,26 +1,23 @@
 "use strict";
 
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
 
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
 var d3 = _interopRequireDefault(require("d3"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 var StackedBarChart = /*#__PURE__*/function () {
   function StackedBarChart(results) {
-    _classCallCheck(this, StackedBarChart);
-
+    (0, _classCallCheck2["default"])(this, StackedBarChart);
     console.log(results);
     var data = results.sheets.data;
     var details = results.sheets.template;
@@ -106,11 +103,11 @@ var StackedBarChart = /*#__PURE__*/function () {
     } // Check if time format defined by user
 
 
-    if (_typeof(details[0]["dateFormat"]) != undefined) {
+    if ((0, _typeof2["default"])(details[0]["dateFormat"]) != undefined) {
       dateParse = d3.timeParse(details[0]["dateFormat"]);
     }
 
-    if (_typeof(details[0]["timeInterval"]) != undefined) {
+    if ((0, _typeof2["default"])(details[0]["timeInterval"]) != undefined) {
       timeInterval = details[0]["timeInterval"];
     }
 
@@ -346,7 +343,7 @@ var StackedBarChart = /*#__PURE__*/function () {
     }
   }
 
-  _createClass(StackedBarChart, [{
+  (0, _createClass2["default"])(StackedBarChart, [{
     key: "makeTooltip",
     value: function makeTooltip(el, d3) {
       console.log("make", el);
@@ -376,7 +373,6 @@ var StackedBarChart = /*#__PURE__*/function () {
       });
     }
   }]);
-
   return StackedBarChart;
 }();
 

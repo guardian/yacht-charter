@@ -1,19 +1,18 @@
 "use strict";
 
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
 
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
 var d3 = _interopRequireDefault(require("d3"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 var horizontalBar = function horizontalBar(results) {
-  _classCallCheck(this, horizontalBar);
-
+  (0, _classCallCheck2["default"])(this, horizontalBar);
   var container = d3.select("#graphicContainer svg");
   container.remove();
   console.log(results);
