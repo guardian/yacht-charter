@@ -5,7 +5,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.LineChart = void 0;
+exports["default"] = void 0;
 
 var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
 
@@ -441,4 +441,4 @@ var LineChart = function LineChart(results) {
 } // end init
 ;
 
-exports.LineChart = LineChart;
+exports["default"] = LineChart;

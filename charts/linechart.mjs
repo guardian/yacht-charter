@@ -1,4 +1,4 @@
-export class LineChart {
+export default class LineChart {
   constructor(results) {
     console.log(results)
     let clone = JSON.parse(JSON.stringify(results))
