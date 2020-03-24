@@ -1,10 +1,10 @@
-import getURLParams from './modules/getURLParams'
+import getURLParams from "./modules/getURLParams"
 import {
   Chart
-} from './modules/chart'
-import './main.scss';
+} from "./modules/chart"
+import "./main.scss"
 
-const key = getURLParams("key") ? getURLParams("key") : "1wsga1Ja8HalQvwQNisnd1twXLbTYCOjVuyH-RrcZZnA"
+const key = getURLParams("key") ? getURLParams("key") : "1aaxWJBVD653P8yLeQUtERhGe8JXXTOqMnZFmCcI2mT8"
 
 const location = getURLParams("location") ? getURLParams("location") : "docsdata"
 

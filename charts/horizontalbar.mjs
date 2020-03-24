@@ -1,9 +1,6 @@
-import * as d3 from "d3"
-
 export default class horizontalBar {
   constructor(results) {
-    const container = d3.select("#graphicContainer svg")
-    container.remove()
+    const container = d3.select("#graphicContainer")
     console.log(results)
     var data = results.sheets.data
     var details = results.sheets.template
@@ -80,7 +77,6 @@ export default class horizontalBar {
     }
 
     var width = document.querySelector("#graphicContainer").getBoundingClientRect().width
-    console.log(width)
     var height = data.length * 70
     var margin
 
@@ -381,19 +377,6 @@ export default class horizontalBar {
 
     }
 
-    // var button = document.getElementById("button2")
-    // var wrapper = document.getElementById("outer-wrapper")
-    // var gradient = document.getElementById("gradientBar")
-    //
-    // button.addEventListener("click", toggleButton)
-    //
-    // function toggleButton() {
-    //   wrapper.classList.toggle("min")
-    //   gradient.classList.toggle("gradient")
-    //   button.querySelectorAll(".is-on")[0].classList.toggle("hide")
-    //   button.querySelectorAll(".is-off")[0].classList.toggle("hide")
-    // }
-
     // const fnmap = {
     //   'toggle': 'toggle',
     //     'show': 'add',
@@ -424,6 +407,121 @@ export default class horizontalBar {
 
     //   }
     // }, false);
-    // end init
+
+    // }	// end init
+    //
+    // function getURLParams(paramName) {
+    //
+    // 	const params = window.location.search.substring(1).split("&")
+    //
+    //     for (let i = 0; i < params.length; i++) {
+    //     	let val = params[i].split("=");
+    // 	    if (val[0] == paramName) {
+    // 	        return val[1];
+    // 	    }
+    // 	}
+    // 	return null;
+    //
+    // }
+    //
+    // const key = getURLParams('key') //"10k7rSn5Y4x0V8RNyQ7oGDfhLvDqhUQ2frtZkDMoB1Xk"
+    //
+    // if ( key != null ) {
+    //
+    // 	Promise.all([
+    // 		d3.json(`https://interactive.guim.co.uk/docsdata/${key}.json`)
+    // 		])
+    // 		.then((results) =>  {
+    // 			init(results[0])
+    // 			var to=null
+    // 			var lastWidth = document.querySelector("#graphicContainer").getBoundingClientRect()
+    // 			window.addEventListener('resize', function() {
+    // 				var thisWidth = document.querySelector("#graphicContainer").getBoundingClientRect()
+    // 				if (lastWidth != thisWidth) {
+    // 					window.clearTimeout(to);
+    // 					to = window.setTimeout(function() {
+    // 						    init(results[0])
+    // 						}, 100)
+    // 				}
+    //
+    // 			})
+
+    var button = document.getElementById("button2")
+    var wrapper = document.getElementById("outer-wrapper")
+    var gradient = document.getElementById("gradientBar")
+
+    button.addEventListener("click", toggleButton)
+
+    function toggleButton() {
+      wrapper.classList.toggle("min")
+      gradient.classList.toggle("gradient")
+      button.querySelectorAll(".is-on")[0].classList.toggle("hide")
+      button.querySelectorAll(".is-off")[0].classList.toggle("hide")
+
+    }
+
+  }
+
+  // const $ = selector => document.querySelector(selector)
+  // const $$ = selector => [].slice.apply(document.querySelectorAll(selector))
+
+  round(value, exp) {
+    if (typeof exp === "undefined" || +exp === 0)
+      return Math.round(value)
+
+    value = +value
+    exp = +exp
+
+    if (isNaN(value) || !(typeof exp === "number" && exp % 1 === 0))
+      return NaN
+
+    value = value.toString().split("e")
+    value = Math.round(+(value[0] + "e" + (value[1] ? (+value[1] + exp) : exp)))
+
+    value = value.toString().split("e")
+    return +(value[0] + "e" + (value[1] ? (+value[1] - exp) : -exp))
+  }
+
+  numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+  }
+
+  wait(ms) {
+    new Promise((resolve, reject) => setTimeout(() => resolve(), ms))
+  }
+
+  getDimensions(el) {
+    const width = el.clientWidth || el.getBoundingClientRect().width
+    const height = el.clientHeight || el.getBoundingClientRect().height
+    return [width, height]
+  }
+
+  hashPattern(patternId, pathClass, rectClass) {
+
+    return `
+  		<pattern id='${patternId}' patternUnits='userSpaceOnUse' width='4' height='4'>
+  			<rect width='4' height='4' class='${rectClass}'></rect>
+  			<path d='M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2' class='${pathClass}'></path>
+  		</pattern>
+  	`
+
+  }
+
+  duplicate(el, className) {
+
+    const clone = el.cloneNode(true)
+    clone.classList.add(className)
+    el.parentNode.insertBefore(clone, el)
+
+  }
+
+  pseq(arr, lambda) {
+
+    return arr.reduce((agg, cur) => {
+
+      return agg.then(res => lambda(cur).then(res2 => res.concat(res2)))
+
+    }, Promise.resolve([]))
+
   }
 }

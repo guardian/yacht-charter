@@ -15,3 +15,96 @@
 .interactive-atom {
     margin: 0 !important;
 }
+
+figure {
+	margin:0;
+}
+
+.interactive-wrapper {
+	background: #FFF;
+	position: relative;
+    margin: 0 !important;
+    border-top: 1px solid #dcdcdc;
+    border-bottom: 1px solid #dcdcdc;
+
+#graphicContainer {
+	position:relative;
+	max-width: 1200px;
+}
+
+.min {
+	max-height: 500px;
+	overflow: hidden;
+}
+
+#outer-wrapper {
+	position: relative;
+
+/*	max-height: 500px;*/
+}
+/*.spacer {
+	height:50px;
+	width: 100%;
+}*/
+
+.gradient {
+	position: absolute;
+	bottom: 0px;
+	height: 100px;
+	width: 100%;
+  	background-image: linear-gradient(rgba(255,255,255,0), rgba(255,255,255,1));
+}
+
+.button {
+	    background: #121212;
+		color: #ffffff;
+		font-size: 13px;
+		@include fs-textSans(3);
+		/*position: absolute;
+		bottom: 0;
+		transform: translate(0, 50%);*/
+		padding: 0 15px 0 7px;
+    	border-radius: 100em;
+    	height: 2.25em;
+    	cursor: pointer;
+	    display: inline-flex;
+	    align-items: center;
+	    border: 0;
+	    margin: 0;
+        font-weight: bold;
+        height: 2.25em;
+
+        .hide {
+			display: none;
+		}
+
+        span {
+       		display: inline-flex;
+    		align-items: center;
+    		    line-height: 1.5rem;
+        }
+
+        .is-on {
+        	pointer-events: none;
+        }
+
+    	.is-off {
+    		pointer-events: none;
+    	}
+
+    	.icon {
+    		fill: white;
+		    width: 20px;
+		    height: 20px;
+		    margin-right: 10px;
+		    overflow: hidden;
+    	}
+	}
+
+	.button:hover {
+		background-color: #e00000;
+	}
+
+	.buttonWrapper {
+		    margin-bottom: 10px;
+	}}
