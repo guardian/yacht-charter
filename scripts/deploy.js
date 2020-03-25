@@ -1,3 +1,5 @@
+require("dotenv").config()
+
 var fs = require("fs")
 
 var s3 = require("s3")
@@ -32,6 +34,7 @@ var app = {
       s3Params: {
         Bucket: "gdn-cdn",
         Prefix: config.path,
+        ACL: "public-read",
         // other options supported by putObject, except Body and ContentLength.
         // See: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#putObject-property
       },
@@ -47,7 +50,7 @@ var app = {
     })
 
     uploader.on("end", function () {
-      console.log(`https://interactive.guim.co.uk/${config.path}/index.html`)
+      console.log("done uploading")
     })
 
   }
