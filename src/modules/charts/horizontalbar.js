@@ -184,7 +184,11 @@ var horizontalBar = /*#__PURE__*/function () {
     features.append("g").attr("class", "x").attr("transform", "translate(0," + height + ")").call(xAxis);
     features.append("g").attr("class", "y").call(yAxis);
     features.selectAll(".bar").data(data).enter().append("rect").attr("class", "bar").attr("x", 0).style("fill", function (d) {
-      return d.Color;
+      if (d.Color) {
+        return d.Color;
+      } else {
+        return userKey.color[userKey.key.indexOf(d[3])];
+      }
     }).attr("y", function (d) {
       return y(d[yVar]); // return y(d[keys[0]])
     }).attr("width", function (d) {
@@ -280,76 +284,19 @@ var horizontalBar = /*#__PURE__*/function () {
       }).style("opacity", 1).text(function (d) {
         return d.text;
       });
-    } // const fnmap = {
-    //   'toggle': 'toggle',
-    //     'show': 'add',
-    //     'hide': 'remove'
-    // };
-    // const collapse = (selector, cmd) => {
-    //   const targets = Array.from(document.querySelectorAll(selector));
-    //   console.log("targets",targets)
-    //   targets.forEach(target => {
-    //     target.classList[fnmap[cmd]]('show');
-    //   });
-    // }
-    // // Grab all the trigger elements on the page
-    // const triggers = Array.from(document.querySelectorAll('[data-toggle="collapse1"]'));
-    // // Listen for click events, but only on our triggers
-    // window.addEventListener('click', (ev) => {
-    // console.log("triggered")
-    //   const elm = ev.target;
-    //   console.log(elm)
-    //   if (triggers.includes(elm)) {
-    //     const selector = elm.getAttribute('data-target');
-    //     console.log(selector)
-    //     collapse(selector, 'toggle');
-    //     elm.querySelectorAll('.is-on')[0].classList.toggle("hide");
-    //     elm.querySelectorAll('.is-off')[0].classList.toggle("hide");
-    //   }
-    // }, false);
-    // }	// end init
-    //
-    // function getURLParams(paramName) {
-    //
-    // 	const params = window.location.search.substring(1).split("&")
-    //
-    //     for (let i = 0; i < params.length; i++) {
-    //     	let val = params[i].split("=");
-    // 	    if (val[0] == paramName) {
-    // 	        return val[1];
-    // 	    }
-    // 	}
-    // 	return null;
-    //
-    // }
-    //
-    // const key = getURLParams('key') //"10k7rSn5Y4x0V8RNyQ7oGDfhLvDqhUQ2frtZkDMoB1Xk"
-    //
-    // if ( key != null ) {
-    //
-    // 	Promise.all([
-    // 		d3.json(`https://interactive.guim.co.uk/docsdata/${key}.json`)
-    // 		])
-    // 		.then((results) =>  {
-    // 			init(results[0])
-    // 			var to=null
-    // 			var lastWidth = document.querySelector("#graphicContainer").getBoundingClientRect()
-    // 			window.addEventListener('resize', function() {
-    // 				var thisWidth = document.querySelector("#graphicContainer").getBoundingClientRect()
-    // 				if (lastWidth != thisWidth) {
-    // 					window.clearTimeout(to);
-    // 					to = window.setTimeout(function() {
-    // 						    init(results[0])
-    // 						}, 100)
-    // 				}
-    //
-    // 			})
-
+    }
 
     var button = document.getElementById("button2");
     var wrapper = document.getElementById("outer-wrapper");
     var gradient = document.getElementById("gradientBar");
-    button.addEventListener("click", toggleButton);
+
+    if (results.sheets.options.enableShowMore === "1") {
+      button.addEventListener("click", toggleButton);
+    } else {
+      button.remove();
+      wrapper.classList.toggle("min");
+      gradient.remove();
+    }
 
     function toggleButton() {
       wrapper.classList.toggle("min");
