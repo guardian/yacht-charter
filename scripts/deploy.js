@@ -8,6 +8,8 @@ var config = require("../config.json")
 
 const localDir = "./dist/"
 
+var cacheControl = "max-age=30"
+
 var app = {
 
   upload: function (localDir) {
@@ -35,6 +37,7 @@ var app = {
         Bucket: "gdn-cdn",
         Prefix: config.path,
         ACL: "public-read",
+        CacheControl: cacheControl
         // other options supported by putObject, except Body and ContentLength.
         // See: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#putObject-property
       },
