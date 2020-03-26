@@ -1,17 +1,18 @@
 "use strict";
 
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.LineChart = void 0;
+exports["default"] = void 0;
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
 var LineChart = function LineChart(results) {
-  _classCallCheck(this, LineChart);
-
+  (0, _classCallCheck2["default"])(this, LineChart);
   console.log(results);
   var clone = JSON.parse(JSON.stringify(results));
   var data = clone["sheets"]["data"];
@@ -206,7 +207,7 @@ var LineChart = function LineChart(results) {
   var parseTime = d3.timeParse(template[0]["dateFormat"]);
   var parsePeriods = d3.timeParse(template[0]["periodDateFormat"]);
   data.forEach(function (d) {
-    console.log(_typeof(d[xVar]));
+    console.log((0, _typeof2["default"])(d[xVar]));
 
     if (typeof d[xVar] == "string") {
       d[xVar] = parseTime(d[xVar]);
@@ -440,4 +441,4 @@ var LineChart = function LineChart(results) {
 } // end init
 ;
 
-exports.LineChart = LineChart;
+exports["default"] = LineChart;

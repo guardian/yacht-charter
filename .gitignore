@@ -4,3 +4,7 @@ bower_components/
 .local/
 yarn.lock
 .DS_Store
+
+dist/*.js
+dist/charts/*
+scripts/.env
