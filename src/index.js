@@ -13,6 +13,7 @@ const location = getURLParams("location") ? getURLParams("location") : ""
 //treemap = "1-N-6UNFyYSCRHP18gy_u6pfzaosqomD1pzzHBZoss9E"
 //linechart = "total-emissions-year-to-date"
 //horizontalbar = "1aaxWJBVD653P8yLeQUtERhGe8JXXTOqMnZFmCcI2mT8"
+//smallmultiples = "australian-states-daily-covid-cases-2020"
 
 //data directories: "yacht-charter-data" "docsdata"
 

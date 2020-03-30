@@ -23,36 +23,6 @@ export class Chart {
     }
   }
 
-  // _configure(data, type) {
-  // 	this._initialiseChart(data, type)
-  // }
-  //
-  // _initialiseChart(data, type) {
-  //
-  //       import(`./charts/testchart.js`).then( chart => {
-  //       	const instance = new chart.TestChart(data);
-  //       })
-  //
-  // }
-
-  // constructor(key, location) {
-  //   let configure = this._configure.bind(this)
-  //   if (key != null) {
-  //     loadJson(`https://interactive.guim.co.uk/${location}/${key}.json`)
-  //       .then((data) => {
-  //         const type = data.sheets.chartId[0].type
-  //         ajax(`<%= path %>/assets/templates/${type}.html`).then((templateHtml) => {
-  //           new Ractive({
-  //             target: "#app",
-  //             template: templateHtml,
-  //             data: data.sheets.template[0]
-  //           })
-  //           configure(data, type)
-  //         })
-  //       })
-  //   }
-  // }
-
   _configure(data, type) {
     var isMobile = this._isMobile()
 

@@ -3,7 +3,7 @@ export default class SmallMultiples {
     var data = results.sheets.data
     var details = results.sheets.template
     var keys = [...new Set(data.map(d => d.State))]
-    console.log(isMobile)
+
 
     d3.select("#graphicContainer svg").remove()
     // var chartKey = d3.select("#chartKey")
