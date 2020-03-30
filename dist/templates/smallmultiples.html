@@ -1,8 +1,8 @@
 <div id="outer-wrapper" class="showcase">
   <div class="row">
 
-  <div class='chartTitle' id="chartTitle"></div>
-  <div class='subTitle' id="subTitle"></div>
+  <div class='chartTitle' id="chartTitle">{{title}}</div>
+	<div class='subTitle' id="subTitle">{{standfirst}}</div>
   <div class='chartNotes' id='chartKey'></div>
 
   </div>
@@ -10,11 +10,12 @@
 
   </div>
   <div class='footer offset'>
-    <div id="footerAnnotations">
 
-    </div>
+		<div id="footerAnnotations">{{footnotes}}</div>
 
-    <span id="footnote"></span> Guardian graphic | Source: <span id="sourceText"></span>
-  </div>
+		<span id="footnote"></span> Guardian graphic | Source: <span id="sourceText">{{{source}}}</span>
+
+	</div>
+
 
 </div>

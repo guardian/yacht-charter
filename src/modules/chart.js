@@ -57,7 +57,6 @@ export class Chart {
     var isMobile = this._isMobile()
 
     var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-
     if (windowWidth < 610) {
       isMobile = true
     }
@@ -124,7 +123,7 @@ export class Chart {
     case "smallmultiples":
       import("./charts/smallmultiples")
         .then((importedChartModule) => {
-          let instance = new importedChartModule.default(data)
+          let instance = new importedChartModule.default(data, isMobile)
         })
       break
     default:
@@ -179,7 +178,6 @@ export class Chart {
       instance = new importedChartModule.default(data)
       break
     case "smallmultiples":
-      instance = new importedChartModule.default(data)
       break
     default:
       instance = new importedChartModule.default(data, d3)

@@ -14,47 +14,45 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
 var SmallMultiples = /*#__PURE__*/function () {
-  function SmallMultiples(results) {
+  function SmallMultiples(results, isMobile) {
     (0, _classCallCheck2["default"])(this, SmallMultiples);
-    console.log(results);
     var data = results.sheets.data;
     var details = results.sheets.template;
     var keys = (0, _toConsumableArray2["default"])(new Set(data.map(function (d) {
-      return d.categoryKey;
-    }))); // assumes the second column is the thing we want to group by, but should allow for setting a manual option in template or options
-    // var groupVar = keys[1]
-    //
-    // keys.splice(0, 1)
-    //
-    // // var nested = d3.nest()
-    // //   .key((n) => n[groupVar].trim())
-    // //   .entries(data)
-    //
-    // console.log(nested)
-
-    console.log(keys);
+      return d.State;
+    })));
+    console.log(isMobile);
     d3.select("#graphicContainer svg").remove(); // var chartKey = d3.select("#chartKey")
     // chartKey.html("")
 
     data.forEach(function (d) {
-      if (typeof d.categoryValue == "string") {
-        d.categoryValue = +d.categoryValue;
+      if (typeof d.Cases == "string") {
+        d.Cases = +d.Cases;
       }
 
-      if (typeof d.categoryDay == "string") {
-        d.categoryDay = +d.categoryDay;
+      if (typeof d.Date == "string") {
+        var timeParse = d3.timeParse("%Y-%m-%d");
+        d.Date = timeParse(d.Date);
       }
     });
 
     for (var keyIndex = 0; keyIndex < keys.length; keyIndex++) {
-      this._drawSmallChart(data, keyIndex, keys, details);
+      this._drawSmallChart(data, keyIndex, keys, details, isMobile);
     }
   }
 
   (0, _createClass2["default"])(SmallMultiples, [{
     key: "_drawSmallChart",
-    value: function _drawSmallChart(data, index, key, details) {
-      var width = document.querySelector("#graphicContainer").getBoundingClientRect().width / 3;
+    value: function _drawSmallChart(data, index, key, details, isMobile) {
+      var numCols;
+
+      if (isMobile) {
+        numCols = 2;
+      } else {
+        numCols = 3;
+      }
+
+      var width = document.querySelector("#graphicContainer").getBoundingClientRect().width / numCols;
       var height = width * 0.5;
       var margin;
 
@@ -78,56 +76,41 @@ var SmallMultiples = /*#__PURE__*/function () {
       d3.select("#graphicContainer").append("div").attr("id", key[index]);
       var hashString = "#";
       var keyId = hashString.concat(key[index]);
+      d3.select(keyId).append("div").text(key[index]).attr("class", "chartSubTitle");
       var svg = d3.select(keyId).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr("id", "svg").attr("overflow", "hidden");
       var features = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
       var keys = Object.keys(data[0]);
-      console.log(1, keys);
       var x = d3.scaleBand().range([0, width]).paddingInner(0.08);
       var y = d3.scaleLinear().range([height, 0]);
       x.domain(data.map(function (d) {
-        return d.categoryDay;
+        return d.Date;
       }));
       y.domain(d3.extent(data, function (d) {
-        return d.categoryValue;
+        return d.Cases;
       })).nice();
       var xAxis;
       var yAxis;
+      var tickMod = Math.round(x.domain().length / 3);
       var ticks = x.domain().filter(function (d, i) {
-        return !(i % 20);
+        return !(i % tickMod) || i === x.domain().length - 1;
       });
-      xAxis = d3.axisBottom(x).tickValues(ticks);
+      xAxis = d3.axisBottom(x).tickValues(ticks).tickFormat(d3.timeFormat("%d %b"));
       yAxis = d3.axisLeft(y).tickFormat(function (d) {
         return d;
-      });
+      }).ticks(5);
       features.append("g").attr("class", "x").attr("transform", "translate(0," + height + ")").call(xAxis);
       features.append("g").attr("class", "y").call(yAxis);
       features.selectAll(".bar").data(data.filter(function (d) {
-        console.log(d);
-        console.log(key, index, key[index]);
-        return d.categoryKey === key[index];
+        return d.State === key[index];
       })).enter().append("rect").attr("class", "bar").attr("x", function (d) {
-        return x(d.categoryDay);
+        return x(d.Date);
       }).style("fill", function () {
         return "rgb(204, 10, 17)";
       }).attr("y", function (d) {
-        return y(Math.max(d.categoryValue, 0)); // return y(d[keys[0]])
+        return y(Math.max(d.Cases, 0)); // return y(d[keys[0]])
       }).attr("width", x.bandwidth()).attr("height", function (d) {
-        return Math.abs(y(d.categoryValue) - y(0));
-      }); // function textPadding(d) {
-      //   if (d.y2 > 0) {
-      //     return 12
-      //   } else {
-      //     return -2
-      //   }
-      // }
-      //
-      // function textPaddingMobile(d) {
-      //   if (d.y2 > 0) {
-      //     return 12
-      //   } else {
-      //     return 4
-      //   }
-      // }
+        return Math.abs(y(d.Cases) - y(0));
+      });
     }
   }]);
   return SmallMultiples;
