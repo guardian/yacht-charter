@@ -120,6 +120,13 @@ export class Chart {
         .then((importedChartModule) => {
           let instance = new importedChartModule.default(data)
         })
+      break
+    case "smallmultiples":
+      import("./charts/smallmultiples")
+        .then((importedChartModule) => {
+          let instance = new importedChartModule.default(data)
+        })
+      break
     default:
       console.log("no valid type selected")
     }
@@ -170,6 +177,10 @@ export class Chart {
       break
     case "horizontalbar":
       instance = new importedChartModule.default(data)
+      break
+    case "smallmultiples":
+      instance = new importedChartModule.default(data)
+      break
     default:
       instance = new importedChartModule.default(data, d3)
     }

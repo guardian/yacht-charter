@@ -47,6 +47,12 @@ figure {
 	width: 100%;
 }*/
 
+.smallMultiplesGridContainer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 10px;
+}
+
 .gradient {
 	position: absolute;
 	bottom: 0px;
