@@ -257,10 +257,12 @@ var LineChart = function LineChart(results) {
     min = d3.min(allValues);
   }
 
+  var max = d3.max(allValues)
+
   x.domain(d3.extent(data, function (d) {
     return d[xVar];
   }));
-  y.domain([min, 100000]);
+  y.domain([min, max]);
   var xAxis;
   var yAxis;
 
