@@ -6,5 +6,6 @@ yarn.lock
 .DS_Store
 
 dist/*.js
+dist/*.css
 dist/charts/*
 scripts/.env
