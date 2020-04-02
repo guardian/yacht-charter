@@ -11,6 +11,10 @@
 // Uncomment for full screen (including immersive article main media)
 //@import "fullscreen";
 
+body, html {
+	margin: 0 !important;
+}
+
 .element-atom,
 .interactive-atom {
     margin: 0 !important;
@@ -46,13 +50,6 @@ figure {
 	height:50px;
 	width: 100%;
 }*/
-
-.smallMultiplesGridContainer {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-gap: 10px;
-}
-
 
 .chartSubTitle {
 font-size:14px;

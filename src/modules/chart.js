@@ -94,6 +94,7 @@ export class Chart {
       import("./charts/smallmultiples")
         .then((importedChartModule) => {
           let instance = new importedChartModule.default(data, isMobile)
+          this._addListener(instance, data, type, importedChartModule)
         })
       break
     default:
@@ -134,6 +135,7 @@ export class Chart {
   }
 
   _reRenderChart(data, type, isMobile, instance, importedChartModule) {
+    console.log("re-render")
     switch (type) {
     case "animated":
       instance.render(data.sheets)
@@ -148,6 +150,7 @@ export class Chart {
       instance = new importedChartModule.default(data)
       break
     case "smallmultiples":
+      instance = new importedChartModule.default(data, isMobile)
       break
     default:
       instance = new importedChartModule.default(data, d3)

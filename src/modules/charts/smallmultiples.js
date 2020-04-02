@@ -21,7 +21,6 @@ var SmallMultiples = /*#__PURE__*/function () {
     var keys = (0, _toConsumableArray2["default"])(new Set(data.map(function (d) {
       return d.State;
     })));
-    console.log(isMobile);
     d3.select("#graphicContainer svg").remove(); // var chartKey = d3.select("#chartKey")
     // chartKey.html("")
 
