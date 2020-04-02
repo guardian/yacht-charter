@@ -8,7 +8,7 @@
     "watch": "webpack --watch",
     "start": "npx babel charts/*.mjs -d src/modules/charts && webpack-dev-server --open --mode=development",
     "minify": "uglifyjs -o dist/bundle.min.js -- tmp/bundle.js",
-    "build": "npx babel charts/*.mjs -d dist/charts/ && webpack --mode=production",
+    "build": "npx babel charts/*.mjs -d dist/charts/ && webpack --mode=production && node ./scripts/copycss.js",
     "postbuild": "node ./scripts/deploy.js"
   },
   "author": "",
@@ -32,6 +32,7 @@
     "webpack-dev-server": "^3.7.2"
   },
   "dependencies": {
+    "compile-sass": "^1.1.0",
     "d3": "^5.15.0",
     "dotenv": "^8.2.0",
     "mini-css-extract-plugin": "^0.8.0",
