@@ -261,7 +261,7 @@ var LineChart = function LineChart(results) {
   x.domain(d3.extent(data, function (d) {
     return d[xVar];
   }));
-  y.domain([min, max]);
+  y.domain([min, 100000]);
   var xAxis;
   var yAxis;
 

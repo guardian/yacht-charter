@@ -97,6 +97,14 @@ export class Chart {
           this._addListener(instance, data, type, importedChartModule)
         })
       break
+    case "table":
+      import("./charts/table")
+        .then((importedChartModule) => {
+          let instance = new importedChartModule.default(data)
+          this._addListener(instance, data, type)
+        })
+      break
+
     default:
       console.log("no valid type selected")
     }
@@ -151,6 +159,9 @@ export class Chart {
       break
     case "smallmultiples":
       instance = new importedChartModule.default(data, isMobile)
+      break
+    case "table":
+      console.log("Table resize")
       break
     default:
       instance = new importedChartModule.default(data, d3)
