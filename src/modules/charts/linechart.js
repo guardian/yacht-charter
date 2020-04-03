@@ -250,14 +250,13 @@ var LineChart = function LineChart(results) {
   });
   console.log(periods);
   var min;
+  var max = d3.max(allValues);
 
   if (template[0]["baseline"] === "zero") {
     min = 0;
   } else {
     min = d3.min(allValues);
   }
-
-  var max = d3.max(allValues);
 
   x.domain(d3.extent(data, function (d) {
     return d[xVar];

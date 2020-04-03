@@ -5,7 +5,7 @@ export default class SmallMultiples {
     var keys = [...new Set(data.map(d => d.State))]
 
 
-    d3.select("#graphicContainer svg").remove()
+    d3.select("#graphicContainer").html("")
     // var chartKey = d3.select("#chartKey")
     // chartKey.html("")
     data.forEach(function (d) {
@@ -25,11 +25,23 @@ export default class SmallMultiples {
 
   _drawSmallChart(data, index, key, details, isMobile) {
     var numCols
-    if (isMobile) {
+  
+    var containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width
+
+    if (containerWidth  < 500) {
+      numCols = 1
+    }
+
+    else if (containerWidth  < 750) {
       numCols = 2
-    } else {
+    }
+
+    else {
       numCols = 3
     }
+
+    console.log(numCols)
+
     var width = document.querySelector("#graphicContainer").getBoundingClientRect().width / numCols
     var height = width * 0.5
     var margin
@@ -55,6 +67,7 @@ export default class SmallMultiples {
 
     d3.select("#graphicContainer").append("div")
       .attr("id", key[index])
+      .attr("class", "barGrid")
 
     let hashString = "#"
     let keyId = hashString.concat(key[index])

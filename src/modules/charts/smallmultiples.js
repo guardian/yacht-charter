@@ -21,7 +21,7 @@ var SmallMultiples = /*#__PURE__*/function () {
     var keys = (0, _toConsumableArray2["default"])(new Set(data.map(function (d) {
       return d.State;
     })));
-    d3.select("#graphicContainer svg").remove(); // var chartKey = d3.select("#chartKey")
+    d3.select("#graphicContainer").html(""); // var chartKey = d3.select("#chartKey")
     // chartKey.html("")
 
     data.forEach(function (d) {
@@ -44,13 +44,17 @@ var SmallMultiples = /*#__PURE__*/function () {
     key: "_drawSmallChart",
     value: function _drawSmallChart(data, index, key, details, isMobile) {
       var numCols;
+      var containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width;
 
-      if (isMobile) {
+      if (containerWidth < 500) {
+        numCols = 1;
+      } else if (containerWidth < 750) {
         numCols = 2;
       } else {
         numCols = 3;
       }
 
+      console.log(numCols);
       var width = document.querySelector("#graphicContainer").getBoundingClientRect().width / numCols;
       var height = width * 0.5;
       var margin;
@@ -72,7 +76,7 @@ var SmallMultiples = /*#__PURE__*/function () {
       }
 
       width = width - margin.left - margin.right, height = height - margin.top - margin.bottom;
-      d3.select("#graphicContainer").append("div").attr("id", key[index]);
+      d3.select("#graphicContainer").append("div").attr("id", key[index]).attr("class", "barGrid");
       var hashString = "#";
       var keyId = hashString.concat(key[index]);
       d3.select(keyId).append("div").text(key[index]).attr("class", "chartSubTitle");
