@@ -6,9 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "webpack --watch",
-    "start": "node ./scripts/copycss.js && npx babel charts/*.mjs -d src/modules/charts && webpack-dev-server --open --mode=development",
-    "minify": "uglifyjs -o dist/bundle.min.js -- tmp/bundle.js",
-    "build": "npx babel charts/*.mjs -d dist/charts/ && webpack --mode=production && node ./scripts/copycss.js",
+    "start": "node ./scripts/copycss.js && npx babel charts/*.mjs -d src/modules/charts && node ./scripts/minify.js 'src/modules/charts' && webpack-dev-server --open --mode=development",
+    "build": "npx babel charts/*.mjs -d dist/charts/ && webpack --mode=production && node ./scripts/copycss.js && node ./scripts/minify.js 'dist/charts/charts'",
     "postbuild": "node ./scripts/deploy.js"
   },
   "author": "",
@@ -45,6 +44,7 @@
     "ractive-loader": "^0.5.6",
     "sass-mq": "^5.0.1",
     "terser-webpack-plugin": "^1.3.0",
+    "uglify-js": "^2.8.29",
     "unfetch": "^4.1.0"
   }
 }

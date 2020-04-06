@@ -2,10 +2,8 @@ const { compileSassAndSaveMultiple } = require('compile-sass')
 const fs = require("fs")
 const path = require('path');
 
-const sassFolder = path.join( __dirname, '..', 'src/styles')
-const cssFolder = path.join( __dirname, '..', 'dist')
-var sassFiles = fs
-console.log()
+const sassFolder = path.join( __dirname, '..', 'src/styles/chartcss')
+const cssFolder = path.join( __dirname, '..', 'dist/chartcss')
 
 var sass = []
 
@@ -22,8 +20,6 @@ fs.readdir(sassFolder, function (err, files) {
         }
 
     });
-
-    console.log(sass)
 
     compile(sass)
 });

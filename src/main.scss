@@ -5,15 +5,12 @@
 @import "./styles/slider";
 @import "./styles/charts";
 @import "./styles/generic";
+@import "./styles/embed";
 
-
-// Uncomment for embeds
-//@import "embed";
-// Uncomment for full screen (including immersive article main media)
-//@import "fullscreen";
 
 body, html {
 	margin: 0 !important;
+	background-color: white;
 }
 
 .element-atom,
