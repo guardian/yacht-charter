@@ -63,8 +63,6 @@ export default class SmallMultiples {
 
       d3.select(this).html(label)
 
-      self.render()
-
     })
 
     this.render()
@@ -162,7 +160,7 @@ export default class SmallMultiples {
 
     features.append("g").attr("class", "x").attr("transform", "translate(0," + height + ")").call(xAxis)
 
-    features.append("g").attr("class", "y").call(yAxis)
+    features.append("g").attr("class", "y")
 
     function update() {
 
@@ -203,15 +201,9 @@ export default class SmallMultiples {
 
     }
 
-    function rerender() {
+    document.getElementById("switch").addEventListener("click", () => update());
 
-      update();
-
-    }
-
-    let init = rerender.bind(this);
-
-    init(); 
+    update()
 
   }
 
