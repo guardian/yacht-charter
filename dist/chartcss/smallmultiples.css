@@ -1,7 +1,7 @@
 .barGrid {
   float: left;
   width: 32.9%;
-  padding-bottom: 10px; }
+  padding-bottom: 15px; }
 
 .row {
   margin-bottom: 20px; }
@@ -18,7 +18,7 @@
     width: 49.9%;
     margin: 0; } }
 
-@media (max-width: 450px) {
+@media (max-width: 500px) {
   .barGrid {
     width: 100%;
     margin: 0; } }

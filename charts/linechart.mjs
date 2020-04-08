@@ -169,8 +169,6 @@ export default class LineChart {
 
     var features = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
-    
-
     var x
 
     if (typeof data[0][xVar] == "string") {
@@ -323,29 +321,40 @@ export default class LineChart {
     var min
     var max = d3.max(allValues);
 
-    if (template[0]["baseline"] === "zero") {
-      min = 0
+    if (template[0]["minY"] != "") {
+      min = parseInt(template[0]["minY"])
     } else {
       min = d3.min(allValues)
     }
     x.domain(d3.extent(data, function (d) {
       return d[xVar]
     }))
+
+    console.log(min)
     y.domain([min, max])
 
     var xAxis
     var yAxis
 
+    var yTicks
+
+    if (template[0]["yScaleType"] == "scaleLog") {
+         yAxis = d3.axisLeft(y).tickFormat(function (d) {
+          return numberFormat(d)
+        }).ticks(3)
+    }
+
+    else {
+      yAxis = d3.axisLeft(y).tickFormat(function (d) {
+          return numberFormat(d)
+        }).ticks(5)
+    }
+
     if (isMobile) {
       xAxis = d3.axisBottom(x).ticks(5)
-      yAxis = d3.axisLeft(y).tickFormat(function (d) {
-        return numberFormat(d)
-      }).ticks(3)
+  
     } else {
-      xAxis = d3.axisBottom(x)
-      yAxis = d3.axisLeft(y).tickFormat(function (d) {
-        return numberFormat(d)
-      }).ticks(3)
+      xAxis = d3.axisBottom(x).ticks(5)
     }
 
     d3.selectAll(".periodLine").remove()
@@ -482,10 +491,22 @@ export default class LineChart {
 
 
       var tempLabelData = keyData[key].filter(d => d != null)
-
+      console.log(tempLabelData)
       var end = tempLabelData.length - 1
 
-      features.append("circle")
+      
+
+      var lineLabelAlign = "start"
+      var lineLabelOffset = 0
+
+      // if (x(tempLabelData[tempLabelData.length - 1].index) > width - 20) {
+      //   lineLabelAlign = "end"
+      //   lineLabelOffset = -10
+      // }
+
+      if (!isMobile) {
+
+        features.append("circle")
         .attr("cy", function (d) {
           return y(tempLabelData[tempLabelData.length - 1][key])
         })
@@ -498,27 +519,19 @@ export default class LineChart {
 
         })
         .attr("cx", function (d) {
-          return x(tempLabelData[tempLabelData.length - 1].index)
+          return x(tempLabelData[tempLabelData.length - 1][xVar])
         })
         .attr("r", 4)
         .style("opacity", 1)
 
-      var lineLabelAlign = "start"
-      var lineLabelOffset = 0
-
-      // if (x(tempLabelData[tempLabelData.length - 1].index) > width - 20) {
-      //   lineLabelAlign = "end"
-      //   lineLabelOffset = -10
-      // }
-
-      if (!isMobile) {
         features.append("text")
           .attr("class", "annotationText")
           .attr("y", function (d) {
             return y(tempLabelData[tempLabelData.length - 1][key]) + 4 + lineLabelOffset
           })
           .attr("x", function (d) {
-            return x(tempLabelData[tempLabelData.length - 1].index) + 5
+            console.log(x(tempLabelData[tempLabelData.length - 1][xVar]))
+            return x(tempLabelData[tempLabelData.length - 1][xVar]) + 5
           })
           .style("opacity", 1)
           .attr("text-anchor", lineLabelAlign)
