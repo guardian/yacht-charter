@@ -3,9 +3,9 @@ import {
   Chart
 } from "./modules/chart"
 import "./main.scss"
-const key = getURLParams("key") ? getURLParams("key") : "1iZs8MT2qBcEz0550zWiPAFkGw03TEapgSJd-jBM2zVs"
+const key = getURLParams("key") ? getURLParams("key") : "australian-states-daily-covid-cases-2020"
 
-const location = getURLParams("location") ? getURLParams("location") : "docsdata"
+const location = getURLParams("location") ? getURLParams("location") : "yacht-charter-data"
 //animated = "1wsga1Ja8HalQvwQNisnd1twXLbTYCOjVuyH-RrcZZnA"
 //scatterplot = "1AsgU8YQCKI6DuzJ8Y1qh4-Y7YRuFZZQr8K-4gmbtffU"
 //stackedbarchart = "1qcFgkC1KraIA1n1fNSJxDGBWiKMEdfnAEuwFgHKXGg4"

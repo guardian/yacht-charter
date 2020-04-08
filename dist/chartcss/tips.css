@@ -1,0 +1,13 @@
+.tipster {
+  position: absolute !important;
+  width: 200px;
+  pointer-events: none;
+  background-color: white;
+  border: 1px;
+  border-color: black;
+  border-style: solid;
+  padding: 10px;
+  line-height: 1.1rem;
+  font-size: 0.9rem; }
+
+/*# sourceMappingURL=data:application/json;base64,ewoJInZlcnNpb24iOiAzLAoJImZpbGUiOiAic3JjL3N0eWxlcy9jaGFydGNzcy90aXBzLmNzcyIsCgkic291cmNlcyI6IFsKCQkic3JjL3N0eWxlcy9jaGFydGNzcy90aXBzLnNjc3MiCgldLAoJIm5hbWVzIjogW10sCgkibWFwcGluZ3MiOiAiQUFFQSxBQUFBLFFBQVEsQ0FBQztFQUNQLFFBQVEsRUFBRSxRQUFRLENBQUEsVUFBVTtFQUM1QixLQUFLLEVBQUUsS0FBSztFQUNaLGNBQWMsRUFBRSxJQUFJO0VBQ3BCLGdCQUFnQixFQUFFLEtBQUs7RUFDdkIsTUFBTSxFQUFFLEdBQUc7RUFDWCxZQUFZLEVBQUUsS0FBSztFQUNuQixZQUFZLEVBQUUsS0FBSztFQUNuQixPQUFPLEVBQUUsSUFBSTtFQUNiLFdBQVcsRUFBRSxNQUFNO0VBQ25CLFNBQVMsRUFBRSxNQUFNLEdBQ2xCIgp9 */

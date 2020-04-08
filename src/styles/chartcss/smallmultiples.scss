@@ -33,3 +33,17 @@
 	}
 
 }
+
+.tooltip {
+	position: absolute !important;
+	width: 150px;
+	pointer-events: none;
+	background-color: white;
+	border: 1px;
+	border-color: black;
+	border-style: solid;
+	padding: 10px;
+	font-family: 'Guardian Text Sans Web', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
+	font-size: 12px;
+	line-height: 14px;
+}
