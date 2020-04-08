@@ -80,11 +80,23 @@ export default class SmallMultiples {
     var self = this
 
     var numCols
-    if (isMobile) {
+  
+    var containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width
+
+    if (containerWidth  < 500) {
+      numCols = 1
+    }
+
+    else if (containerWidth  < 750) {
       numCols = 2
-    } else {
+    }
+
+    else {
       numCols = 3
     }
+
+    console.log(numCols)
+
     var width = document.querySelector("#graphicContainer").getBoundingClientRect().width / numCols
     var height = width * 0.5
     var margin

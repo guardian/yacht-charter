@@ -9,3 +9,4 @@ dist/*.js
 dist/*.css
 dist/charts/*
 scripts/.env
+src/modules/charts/*

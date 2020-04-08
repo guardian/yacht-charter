@@ -250,6 +250,7 @@ var LineChart = function LineChart(results) {
   });
   console.log(periods);
   var min;
+  var max = d3.max(allValues);
 
   if (template[0]["baseline"] === "zero") {
     min = 0;
@@ -260,7 +261,7 @@ var LineChart = function LineChart(results) {
   x.domain(d3.extent(data, function (d) {
     return d[xVar];
   }));
-  y.domain([min, 100000]);
+  y.domain([min, max]);
   var xAxis;
   var yAxis;
 
