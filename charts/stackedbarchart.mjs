@@ -1,5 +1,3 @@
-import * as d3 from "d3"
-
 export default class StackedBarChart {
   constructor(results) {
     console.log(results)
@@ -306,7 +304,7 @@ export default class StackedBarChart {
       .call(yAxis)
 
     if (tooltip) {
-      this.makeTooltip(".barPart", d3)
+      this.makeTooltip(".barPart")
     }
 
 
@@ -431,7 +429,7 @@ export default class StackedBarChart {
     }
   }
 
-  makeTooltip(el, d3) {
+  makeTooltip(el) {
 
     console.log("make", el)
 
