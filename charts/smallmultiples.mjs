@@ -2,13 +2,12 @@ import moment from 'moment'
 
 export default class SmallMultiples {
   constructor(results, isMobile) {
+
+    var self = this
     var data = results.sheets.data
     var details = results.sheets.template
     var keys = [...new Set(data.map(d => d.State))]
     var tooltip = (details[0].tooltip != "") ? true : false ;
-
-    d3.select("#graphicContainer svg").remove()
-    d3.select("#graphicContainer").html("")
 
     data.forEach(function (d) {
       if (typeof d.Cases == "string") {
@@ -30,14 +29,53 @@ export default class SmallMultiples {
           .style("opacity", 0)
     }
 
-    for (var keyIndex = 0; keyIndex < keys.length; keyIndex++) {
+    this.data = data
 
-      this._drawSmallChart(data, keyIndex, keys, details, isMobile, tooltip)
+    this.keys = keys
 
-    }
+    this.details = details
+
+    this.isMobile = isMobile
+
+    this.hasTooltip = tooltip
+
+    this.template = details[0].tooltip
+
+    this.showGroupMax = true
+
+    d3.select("#switch").on("click", function() {
+
+      self.showGroupMax = (self.showGroupMax) ? false : true ;
+
+      var label = (self.showGroupMax) ? "Show max scale for each chart" : "Show max scale for group" ;
+
+      d3.select(this).html(label)
+
+      self.render()
+
+    })
+
+    this.render()
+
   }
 
-  _drawSmallChart(data, index, key, details, isMobile, tooltip) {
+  render() {
+
+    var self = this
+
+    d3.select("#graphicContainer").selectAll("svg").remove()
+
+    d3.select("#graphicContainer").html("")
+
+    for (var keyIndex = 0; keyIndex < this.keys.length; keyIndex++) {
+
+      this._drawSmallChart(self.data, keyIndex, self.keys, self.details, self.isMobile, self.hasTooltip, self.showGroupMax)
+
+    }
+
+  }
+
+  _drawSmallChart(data, index, key, details, isMobile, tooltip, showGroupMax) {
 
     var self = this
 
@@ -74,7 +112,6 @@ export default class SmallMultiples {
       .attr("id", key[index])
       .attr("class", "barGrid")
 
-
     let hashString = "#"
     let keyId = hashString.concat(key[index])
 
@@ -87,7 +124,6 @@ export default class SmallMultiples {
     var svg = d3.select(keyId).append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
-      .attr("id", "svg")
       .attr("overflow", "hidden")
 
     var features = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -106,12 +142,16 @@ export default class SmallMultiples {
     }
 
     var x = d3.scaleBand().range([0, width]).paddingInner(0.08)
+
     var y = d3.scaleLinear().range([height, 0])
+
+    var yMax = (showGroupMax) ? data : data.filter( item => item.State === key[index]) ;
 
     x.domain(data.map(function (d) {
       return d.Date
     }))
-    y.domain(d3.extent(data, function (d) {
+
+    y.domain(d3.extent(yMax, function (d) {
       return d.Cases
     })).nice()
 
@@ -160,7 +200,7 @@ export default class SmallMultiples {
 
         if (tooltip) {
 
-          var text = self.mustache('<strong>Date: </strong>{{#nicedate}}Date{{/nicedate}}<br/><strong>Cases: </strong>{{Cases}}', {...utilities, ...d})
+          var text = self.mustache(self.template, {...utilities, ...d})
 
           self.tooltip.html(text)
 

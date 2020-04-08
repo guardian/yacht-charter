@@ -158,7 +158,7 @@ export class Chart {
       instance = new importedChartModule.default(data)
       break
     case "smallmultiples":
-      instance = new importedChartModule.default(data, isMobile)
+      instance.render()
       break
     case "table":
       console.log("Table resize")
