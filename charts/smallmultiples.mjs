@@ -203,13 +203,15 @@ export default class SmallMultiples {
 
     }
 
-    function func() {
-      self.showGroupMax = (self.showGroupMax) ? true : false ;
+    function rerender() {
+
       update();
+
     }
 
-    let funcUser = func.bind(this);
-    funcUser(); 
+    let init = rerender.bind(this);
+
+    init(); 
 
   }
 
