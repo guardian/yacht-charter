@@ -186,6 +186,28 @@ export default class SmallMultiples {
         .attr("width", x.bandwidth())
         .attr("height", (d) => Math.abs(y(d.Cases) - y(0)))
 
+
+      d3.selectAll('.bar')
+        .on("mouseover", function(d) {
+          if (tooltip) {
+            var text = self.mustache(self.template, { ...self.utilities,...d})
+            self.tooltip.html(text)
+            var tipWidth = document.querySelector("#tooltip").getBoundingClientRect().width
+            if (d3.event.pageX < (width / 2)) {
+              self.tooltip.style("left", (d3.event.pageX + tipWidth / 2) + "px")
+            } else if (d3.event.pageX >= (width / 2)) {
+              self.tooltip.style("left", (d3.event.pageX - tipWidth) + "px")
+            }
+            self.tooltip.style("top", (d3.event.pageY) + "px")
+            self.tooltip.transition().duration(200).style("opacity", .9)
+          }
+        }).on("mouseout", function() {
+          if (tooltip) {
+            self.tooltip.transition().duration(500).style("opacity", 0)
+          }
+        })
+
+
       bars
         .exit()
         .transition()
