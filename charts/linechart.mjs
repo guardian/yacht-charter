@@ -129,6 +129,7 @@ export default class LineChart {
 
     var colors = ["#4daacf", "#5db88b", "#a2b13e", "#8a6929", "#b05cc6", "#c8a466", "#c35f95", "#ce592e", "#d23d5e", "#d89a34", "#7277ca", "#527b39", "#59b74b", "#c76c65", "#8a6929"]
 
+    // var colors = ["#000000","#0000ff","#9d02d7","#cd34b5","#ea5f94","#fa8775","#ffb14e","#ffd700"]
 
     var width = containerWidth - margin.left - margin.right,
     height = height - margin.top - margin.bottom
@@ -351,10 +352,10 @@ export default class LineChart {
     }
 
     if (isMobile) {
-      xAxis = d3.axisBottom(x).ticks(5)
+      xAxis = d3.axisBottom(x).ticks(4)
   
     } else {
-      xAxis = d3.axisBottom(x).ticks(5)
+      xAxis = d3.axisBottom(x).ticks(8)
     }
 
     d3.selectAll(".periodLine").remove()

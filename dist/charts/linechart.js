@@ -298,9 +298,9 @@ var LineChart = function LineChart(results) {
   }
 
   if (isMobile) {
-    xAxis = d3.axisBottom(x).ticks(5);
+    xAxis = d3.axisBottom(x).ticks(4);
   } else {
-    xAxis = d3.axisBottom(x).ticks(5);
+    xAxis = d3.axisBottom(x).ticks(8);
   }
 
   d3.selectAll(".periodLine").remove();
