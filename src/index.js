@@ -17,4 +17,5 @@ const location = getURLParams("location") ? getURLParams("location") : "yacht-ch
 
 //data directories: "yacht-charter-data" "docsdata"
 
+
 new Chart(key, location)
