@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "webpack --watch",
-    "start": "node ./scripts/copycss.js && npx babel charts/*.mjs -d src/modules/charts && node ./scripts/minify.js 'src/modules/charts' && webpack-dev-server --open --mode=development",
+    "start": "node ./scripts/mjs.js & node ./scripts/copycss.js && npx babel charts/*.mjs -d src/modules/charts && node ./scripts/minify.js 'src/modules/charts' && webpack-dev-server --open --mode=development",
     "build": "npx babel charts/*.mjs -d dist/charts/ && webpack --mode=production && node ./scripts/copycss.js && node ./scripts/minify.js 'dist/charts/charts'",
     "postbuild": "node ./scripts/deploy.js"
   },
@@ -36,7 +36,9 @@
     "dotenv": "^8.2.0",
     "mini-css-extract-plugin": "^0.8.0",
     "moment": "^2.24.0",
+    "node-watch": "^0.6.3",
     "nouislider": "^14.1.1",
+    "npm-watch": "^0.6.0",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "path": "^0.12.7",
     "promise-polyfill": "^8.1.3",

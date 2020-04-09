@@ -1,15 +1,14 @@
 import moment from 'moment'
 
 export default class SmallMultiples {
+
   constructor(results, isMobile) {
+
+    var self = this
     var data = results.sheets.data
     var details = results.sheets.template
     var keys = [...new Set(data.map(d => d.State))]
     var tooltip = (details[0].tooltip != "") ? true : false ;
-
-
-    d3.select("#graphicContainer svg").remove()
-    d3.select("#graphicContainer").html("")
 
     data.forEach(function (d) {
       if (typeof d.Cases == "string") {
@@ -31,11 +30,59 @@ export default class SmallMultiples {
           .style("opacity", 0)
     }
 
-    for (var keyIndex = 0; keyIndex < keys.length; keyIndex++) {
+    this.utilities = {
+      decimals: function(items) {
+        var nums = items.split(",")
+        return parseFloat(this[nums[0]]).toFixed(nums[1]);
+      },
+      nicedate: function(dte) {
+        var chuncks = this[dte]
+        return moment(chuncks).format('MMM D')
+      }
+    }
 
-      this._drawSmallChart(data, keyIndex, keys, details, isMobile, tooltip)
+    this.data = data
+
+    this.keys = keys
+
+    this.details = details
+
+    this.isMobile = isMobile
+
+    this.hasTooltip = tooltip
+
+    this.template = details[0].tooltip
+
+    this.showGroupMax = true
+
+    d3.select("#switch").on("click", function() {
+
+      self.showGroupMax = (self.showGroupMax) ? false : true ;
+
+      var label = (self.showGroupMax) ? "Show max scale for each chart" : "Show max scale for group" ;
+
+      d3.select(this).html(label)
+
+    })
+
+    this.render()
+
+  }
+
+  render() {
+
+    var self = this
+
+    d3.select("#graphicContainer").selectAll("svg").remove()
+
+    d3.select("#graphicContainer").html("")
+
+    for (var keyIndex = 0; keyIndex < this.keys.length; keyIndex++) {
+
+      this._drawSmallChart(self.data, keyIndex, self.keys, self.details, self.isMobile, self.hasTooltip)
 
     }
+
   }
 
   _drawSmallChart(data, index, key, details, isMobile, tooltip) {
@@ -43,27 +90,20 @@ export default class SmallMultiples {
     var self = this
 
     var numCols
-  
+
     var containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width
 
-    if (containerWidth  < 500) {
+    if (containerWidth < 500) {
       numCols = 1
-    }
-
-    else if (containerWidth  < 750) {
+    } else if (containerWidth < 750) {
       numCols = 2
-    }
-
-    else {
+    } else {
       numCols = 3
     }
-
-    console.log(numCols)
 
     var width = document.querySelector("#graphicContainer").getBoundingClientRect().width / numCols
     var height = width * 0.5
     var margin
-
     if (details[0]["margin-top"]) {
       margin = {
         top: +details[0]["margin-top"],
@@ -80,132 +120,112 @@ export default class SmallMultiples {
       }
     }
 
-    width = width - margin.left - margin.right,
-      height = height - margin.top - margin.bottom
+    width = width - margin.left - margin.right
 
-    d3.select("#graphicContainer").append("div")
-      .attr("id", key[index])
-      .attr("class", "barGrid")
+    height = height - margin.top - margin.bottom
+
+    d3.select("#graphicContainer").append("div").attr("id", key[index]).attr("class", "barGrid")
 
     let hashString = "#"
+
     let keyId = hashString.concat(key[index])
 
+    d3.select(keyId).append("div").text(key[index]).attr("class", "chartSubTitle")
 
-    d3.select(keyId).append("div")
-      .text(key[index])
-      .attr("class", "chartSubTitle")
-
-
-    var svg = d3.select(keyId).append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .attr("id", "svg")
-      .attr("overflow", "hidden")
-
+    var svg = d3.select(keyId).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr("overflow", "hidden")
+    
     var features = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-
+    
     var keys = Object.keys(data[0])
 
-    var utilities = {
-        decimals: function(items) {
-          var nums = items.split(",")
-          return parseFloat(this[nums[0]]).toFixed(nums[1]);
-        },
-        nicedate: function(dte) {
-          var chuncks = this[dte]
-          return moment(chuncks).format('MMM D')
-        }
-    }
-
     var x = d3.scaleBand().range([0, width]).paddingInner(0.08)
+
     var y = d3.scaleLinear().range([height, 0])
 
-    x.domain(data.map(function (d) {
-      return d.Date
-    }))
-    y.domain(d3.extent(data, function (d) {
-      return d.Cases
-    })).nice()
+    var duration = 1000;
 
-    var xAxis
-    var yAxis
+    var yMax = (this.showGroupMax) ? data : data.filter(item => item.State === key[index]);
+
+    x.domain(data.map((d) => d.Date))
+
+    y.domain(d3.extent(yMax, (d) => d.Cases)).nice()
 
     var tickMod = Math.round(x.domain().length / 3)
-    var ticks = x.domain().filter(function (d, i) {
-      return !(i % tickMod) || i === x.domain().length - 1
-    })
-    xAxis = d3.axisBottom(x).tickValues(ticks).tickFormat(d3.timeFormat("%d %b"))
-    yAxis = d3.axisLeft(y).tickFormat(function (d) {
-      return d
-    }).ticks(5)
 
-    features.append("g")
-      .attr("class", "x")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis)
+    var ticks = x.domain().filter((d, i) => !(i % tickMod) || i === x.domain().length - 1)
 
-    features.append("g")
-      .attr("class", "y")
-      .call(yAxis)
+    var xAxis = d3.axisBottom(x).tickValues(ticks).tickFormat(d3.timeFormat("%d %b"))
 
-    features.selectAll(".bar")
-      .data(data.filter(d => {
-        return d.State === key[index]
-      }))
-      .enter().append("rect")
-      .attr("class", "bar")
-      .attr("x", function (d) {
-        return x(d.Date)
-      })
-      .style("fill", function () {
-        return "rgb(204, 10, 17)"
-      })
-      .attr("y", function (d) {
-        return y(Math.max(d.Cases, 0))
-        // return y(d[keys[0]])
-      })
-      .attr("width", x.bandwidth())
-      .attr("height", function (d) {
-        return Math.abs(y(d.Cases) - y(0))
-      })
-      .on("mouseover", function (d) {
+    var yAxis = d3.axisLeft(y).tickFormat((d) => d).ticks(5)
 
-        if (tooltip) {
+    features.append("g").attr("class", "x").attr("transform", "translate(0," + height + ")").call(xAxis)
 
-          var text = self.mustache('<strong>Date: </strong>{{#nicedate}}Date{{/nicedate}}<br/><strong>Cases: </strong>{{Cases}}', {...utilities, ...d})
+    features.append("g").attr("class", "y")
 
-          self.tooltip.html(text)
+    function update() {
 
-          var tipWidth = document.querySelector("#tooltip").getBoundingClientRect().width
+      yMax = (self.showGroupMax) ? data : data.filter(item => item.State === key[index]);
 
-          if (d3.event.pageX < (width / 2)) {
+      y.domain(d3.extent(yMax, (d) => d.Cases))
 
-            self.tooltip.style("left", (d3.event.pageX + tipWidth / 2) + "px")
+      var bars = features.selectAll(".bar")
+        .data(data.filter(d => d.State === key[index]))
 
-          } else if (d3.event.pageX >= (width / 2)) {
+      bars
+        .enter()
+        .append("rect")
+        .attr("class", "bar")
+        .style("fill", () => "rgb(204, 10, 17)")
+        .attr('height', 0)
+        .attr('y', height)
+        .merge(bars)
+        .transition()
+        .duration(duration)
+        .attr("x", (d) => x(d.Date))
+        .attr("y", (d) => y(Math.max(d.Cases, 0)))
+        .attr("width", x.bandwidth())
+        .attr("height", (d) => Math.abs(y(d.Cases) - y(0)))
 
-            self.tooltip.style("left", (d3.event.pageX - tipWidth) + "px")
 
+      d3.selectAll('.bar')
+        .on("mouseover", function(d) {
+          if (tooltip) {
+            var text = self.mustache(self.template, { ...self.utilities,...d})
+            self.tooltip.html(text)
+            var tipWidth = document.querySelector("#tooltip").getBoundingClientRect().width
+            if (d3.event.pageX < (width / 2)) {
+              self.tooltip.style("left", (d3.event.pageX + tipWidth / 2) + "px")
+            } else if (d3.event.pageX >= (width / 2)) {
+              self.tooltip.style("left", (d3.event.pageX - tipWidth) + "px")
+            }
+            self.tooltip.style("top", (d3.event.pageY) + "px")
+            self.tooltip.transition().duration(200).style("opacity", .9)
           }
-
-          self.tooltip.style("top", (d3.event.pageY) + "px")
-
-          self.tooltip.transition().duration(200).style("opacity", .9)
-
-        }
-
+        }).on("mouseout", function() {
+          if (tooltip) {
+            self.tooltip.transition().duration(500).style("opacity", 0)
+          }
+        })
 
 
-    })
-    .on("mouseout", function () {
+      bars
+        .exit()
+        .transition()
+        .duration(duration)
+        .attr('height', 0)
+        .attr('y', height)
+        .remove();
 
-      if (tooltip) {
+      features.select('.y')
+          .transition()
+          .duration(duration)
+          .call(yAxis);
 
-        self.tooltip.transition().duration(500).style("opacity", 0)
+    }
 
-      }
+    document.getElementById("switch").addEventListener("click", () => update());
 
-    })
+    update()
 
   }
 
