@@ -3,9 +3,9 @@ import {
   Chart
 } from "./modules/chart"
 import "./main.scss"
-const key = getURLParams("key") ? getURLParams("key") : "australian-states-daily-covid-cases-2020"
+const key = getURLParams("key") ? getURLParams("key") : "1JJpIH0NoTjM0FkJMDLLrRYj65liCFDFa8CK5j8OVtvo"
 
-const location = getURLParams("location") ? getURLParams("location") : "yacht-charter-data"
+const location = getURLParams("location") ? getURLParams("location") : "docsdata"
 //animated = "1wsga1Ja8HalQvwQNisnd1twXLbTYCOjVuyH-RrcZZnA"
 //scatterplot = "1AsgU8YQCKI6DuzJ8Y1qh4-Y7YRuFZZQr8K-4gmbtffU"
 //stackedbarchart = "1qcFgkC1KraIA1n1fNSJxDGBWiKMEdfnAEuwFgHKXGg4"
@@ -19,3 +19,4 @@ const location = getURLParams("location") ? getURLParams("location") : "yacht-ch
 
 
 new Chart(key, location)
+//https://interactive.guim.co.uk/yacht-charter-data/australian-states-daily-covid-cases-2020.json

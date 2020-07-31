@@ -15,7 +15,7 @@ export class Chart {
             new Ractive({
               target: "#app",
               template: templateHtml,
-              data: data.sheets.template[0]
+              data: (data.sheets.template[0]) ? data.sheets.template[0] : []
             })
             configure(data, type)
           })
@@ -56,8 +56,8 @@ export class Chart {
           this._addListener(instance, data, type, importedChartModule)
         })
       break
-    case "stackedbarchart":
-      import("./charts/stackedbarchart")
+    case "stackedbar":
+      import("./charts/stackedbar")
         .then((importedChartModule) => {
           let instance = new importedChartModule.default(data)
           this._addListener(instance, data, type)
@@ -156,6 +156,9 @@ export class Chart {
       break
     case "horizontalbar":
       instance = new importedChartModule.default(data)
+      break
+    case "stackedbar":
+      instance.render()
       break
     case "smallmultiples":
       instance.render()
