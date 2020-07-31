@@ -272,8 +272,8 @@ var LineChart = function LineChart(results) {
   var min;
   var max = d3.max(allValues);
 
-  if (template[0]["baseline"] === "zero") {
-    min = 0;
+  if (template[0]["minY"] != "") {
+    min = parseInt(template[0]["minY"]);
   } else {
     min = d3.min(allValues);
   }
@@ -281,20 +281,26 @@ var LineChart = function LineChart(results) {
   x.domain(d3.extent(data, function (d) {
     return d[xVar];
   }));
+  console.log(min);
   y.domain([min, max]);
   var xAxis;
   var yAxis;
+  var yTicks;
 
-  if (isMobile) {
-    xAxis = d3.axisBottom(x).ticks(5);
+  if (template[0]["yScaleType"] == "scaleLog") {
     yAxis = d3.axisLeft(y).tickFormat(function (d) {
       return numberFormat(d);
     }).ticks(3);
   } else {
-    xAxis = d3.axisBottom(x);
     yAxis = d3.axisLeft(y).tickFormat(function (d) {
       return numberFormat(d);
-    }).ticks(3);
+    }).ticks(5);
+  }
+
+  if (isMobile) {
+    xAxis = d3.axisBottom(x).ticks(4);
+  } else {
+    xAxis = d3.axisBottom(x).ticks(8);
   }
 
   d3.selectAll(".periodLine").remove();
@@ -357,6 +363,7 @@ var LineChart = function LineChart(results) {
       return d != null;
     });
     var end = tempLabelData.length - 1;
+<<<<<<< HEAD
     features.append("circle").attr("cy", function (d) {
       return y(tempLabelData[tempLabelData.length - 1][key]);
     }).attr("fill", function (d) {
@@ -368,6 +375,8 @@ var LineChart = function LineChart(results) {
     }).attr("cx", function (d) {
       return x(tempLabelData[tempLabelData.length - 1].index);
     }).attr("r", 4).style("opacity", 1);
+=======
+>>>>>>> 19fbe1e1e73cc2b4699512a87391d6c0c1e546dd
     var lineLabelAlign = "start";
     var lineLabelOffset = 0; // if (x(tempLabelData[tempLabelData.length - 1].index) > width - 20) {
     //   lineLabelAlign = "end"
@@ -375,10 +384,22 @@ var LineChart = function LineChart(results) {
     // }
 
     if (!isMobile) {
+      features.append("circle").attr("cy", function (d) {
+        return y(tempLabelData[tempLabelData.length - 1][key]);
+      }).attr("fill", function (d) {
+        if (optionalKey.hasOwnProperty(key)) {
+          return optionalKey[key];
+        } else {
+          return color(key);
+        }
+      }).attr("cx", function (d) {
+        return x(tempLabelData[tempLabelData.length - 1][xVar]);
+      }).attr("r", 4).style("opacity", 1);
       features.append("text").attr("class", "annotationText").attr("y", function (d) {
         return y(tempLabelData[tempLabelData.length - 1][key]) + 4 + lineLabelOffset;
       }).attr("x", function (d) {
-        return x(tempLabelData[tempLabelData.length - 1].index) + 5;
+        console.log(x(tempLabelData[tempLabelData.length - 1][xVar]));
+        return x(tempLabelData[tempLabelData.length - 1][xVar]) + 5;
       }).style("opacity", 1).attr("text-anchor", lineLabelAlign).text(function (d) {
         return key;
       });

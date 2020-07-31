@@ -129,6 +129,7 @@ export default class LineChart {
 
     var colors = ["#4daacf", "#5db88b", "#a2b13e", "#8a6929", "#b05cc6", "#c8a466", "#c35f95", "#ce592e", "#d23d5e", "#d89a34", "#7277ca", "#527b39", "#59b74b", "#c76c65", "#8a6929"]
 
+    // var colors = ["#000000","#0000ff","#9d02d7","#cd34b5","#ea5f94","#fa8775","#ffb14e","#ffd700"]
 
     var width = containerWidth - margin.left - margin.right,
     height = height - margin.top - margin.bottom
@@ -168,8 +169,6 @@ export default class LineChart {
     svg.attr("width", width + margin.left + margin.right)  
 
     var features = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-
-    
 
     var x
 
@@ -323,29 +322,40 @@ export default class LineChart {
     var min
     var max = d3.max(allValues);
 
-    if (template[0]["baseline"] === "zero") {
-      min = 0
+    if (template[0]["minY"] != "") {
+      min = parseInt(template[0]["minY"])
     } else {
       min = d3.min(allValues)
     }
     x.domain(d3.extent(data, function (d) {
       return d[xVar]
     }))
+
+    console.log(min)
     y.domain([min, max])
 
     var xAxis
     var yAxis
 
+    var yTicks
+
+    if (template[0]["yScaleType"] == "scaleLog") {
+         yAxis = d3.axisLeft(y).tickFormat(function (d) {
+          return numberFormat(d)
+        }).ticks(3)
+    }
+
+    else {
+      yAxis = d3.axisLeft(y).tickFormat(function (d) {
+          return numberFormat(d)
+        }).ticks(5)
+    }
+
     if (isMobile) {
-      xAxis = d3.axisBottom(x).ticks(5)
-      yAxis = d3.axisLeft(y).tickFormat(function (d) {
-        return numberFormat(d)
-      }).ticks(3)
+      xAxis = d3.axisBottom(x).ticks(4)
+  
     } else {
-      xAxis = d3.axisBottom(x)
-      yAxis = d3.axisLeft(y).tickFormat(function (d) {
-        return numberFormat(d)
-      }).ticks(3)
+      xAxis = d3.axisBottom(x).ticks(8)
     }
 
     d3.selectAll(".periodLine").remove()
@@ -482,10 +492,22 @@ export default class LineChart {
 
 
       var tempLabelData = keyData[key].filter(d => d != null)
-
+      console.log(tempLabelData)
       var end = tempLabelData.length - 1
 
-      features.append("circle")
+      
+
+      var lineLabelAlign = "start"
+      var lineLabelOffset = 0
+
+      // if (x(tempLabelData[tempLabelData.length - 1].index) > width - 20) {
+      //   lineLabelAlign = "end"
+      //   lineLabelOffset = -10
+      // }
+
+      if (!isMobile) {
+
+        features.append("circle")
         .attr("cy", function (d) {
           return y(tempLabelData[tempLabelData.length - 1][key])
         })
@@ -498,27 +520,19 @@ export default class LineChart {
 
         })
         .attr("cx", function (d) {
-          return x(tempLabelData[tempLabelData.length - 1].index)
+          return x(tempLabelData[tempLabelData.length - 1][xVar])
         })
         .attr("r", 4)
         .style("opacity", 1)
 
-      var lineLabelAlign = "start"
-      var lineLabelOffset = 0
-
-      // if (x(tempLabelData[tempLabelData.length - 1].index) > width - 20) {
-      //   lineLabelAlign = "end"
-      //   lineLabelOffset = -10
-      // }
-
-      if (!isMobile) {
         features.append("text")
           .attr("class", "annotationText")
           .attr("y", function (d) {
             return y(tempLabelData[tempLabelData.length - 1][key]) + 4 + lineLabelOffset
           })
           .attr("x", function (d) {
-            return x(tempLabelData[tempLabelData.length - 1].index) + 5
+            console.log(x(tempLabelData[tempLabelData.length - 1][xVar]))
+            return x(tempLabelData[tempLabelData.length - 1][xVar]) + 5
           })
           .style("opacity", 1)
           .attr("text-anchor", lineLabelAlign)
