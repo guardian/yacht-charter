@@ -1,6 +1,6 @@
 export default class ScatterPlot {
 
-  constructor(data, d3) {
+  constructor(data) {
     var self = this
 
     // Declare

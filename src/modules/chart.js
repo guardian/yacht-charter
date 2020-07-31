@@ -53,7 +53,7 @@ export class Chart {
     case "scatterplot":
       import("./charts/scatterplot")
         .then((importedChartModule) => {
-          let instance = new importedChartModule.default(data, d3)
+          let instance = new importedChartModule.default(data)
           this._addListener(instance, data, type, importedChartModule)
         })
       break
@@ -67,7 +67,7 @@ export class Chart {
     case "annotatedbarchart":
       import("./charts/annotatedbarchart")
         .then((importedChartModule) => {
-          let instance = new importedChartModule.default(data, d3)
+          let instance = new importedChartModule.default(data)
           this._addListener(instance, data, type, importedChartModule)
         })
       break
@@ -94,7 +94,7 @@ export class Chart {
     case "smallmultiples":
       import("./charts/smallmultiples")
         .then((importedChartModule) => {
-          let instance = new importedChartModule.default(data, isMobile)
+          let instance = new importedChartModule.default(data)
           this._addListener(instance, data, type, importedChartModule)
         })
       break
@@ -168,7 +168,7 @@ export class Chart {
       console.log("Table resize")
       break
     default:
-      instance = new importedChartModule.default(data, d3)
+      instance = new importedChartModule.default(data)
     }
   }
 

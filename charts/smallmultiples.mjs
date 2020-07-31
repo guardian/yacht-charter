@@ -4,13 +4,14 @@ import helpers from '../utilities/helpers'
 
 export default class SmallMultiples {
 
-  constructor(results, isMobile) {
+  constructor(results) {
 
     var self = this
     var data = results.sheets.data
     var details = results.sheets.template
     var keys = [...new Set(data.map(d => d.State))]
     var tooltip = (details[0].tooltip != "") ? true : false ;
+    var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 
     data.forEach(function (d) {
       if (typeof d.Cases == "string") {
@@ -38,7 +39,7 @@ export default class SmallMultiples {
 
     this.details = details
 
-    this.isMobile = isMobile
+    this.isMobile = = (windowWidth < 610) ? true : false ;
 
     this.hasTooltip = tooltip
 
