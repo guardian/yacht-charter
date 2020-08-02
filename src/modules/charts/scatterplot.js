@@ -1,1 +1,643 @@
-"use strict";var _interopRequireDefault=require("@babel/runtime/helpers/interopRequireDefault");Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var _toConsumableArray2=_interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray")),_classCallCheck2=_interopRequireDefault(require("@babel/runtime/helpers/classCallCheck")),_createClass2=_interopRequireDefault(require("@babel/runtime/helpers/createClass")),ScatterPlot=function(){function t(e){(0,_classCallCheck2.default)(this,t);var s=this;this.firstTime=!0,this.default=null,this.database=null,this.settings=null,this.trendlines=null,this.trendline=null,this.tiptext=null,this.target=null,this.filter=null,this.cats=null,this.x_format=null,this.categories=null,this.x_axis_cross_y=null,this.y_axis_cross_x=null,this.x_label=null,this.y_label=null,this.colours=["#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f","#ff7f00","#cab2d6"],this.greyScale=["#bdbdbd","#bdbdbd","#bdbdbd","#bdbdbd","#bdbdbd","#bdbdbd","#bdbdbd","#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF"],this.symbolTypes=["symbolCircle","symbolCross","symbolDiamond","symbolSquare","symbolStar","symbolTriangle","symbolWye","symbolCircle","symbolCross","symbolDiamond","symbolSquare","symbolStar","symbolTriangle","symbolWye"],this.categories=null,this.label_col=null;var a=[];if(this.settings=e.sheets.settings,this.key=null,this.yTag=e.sheets.settings[0].y,this.xTag=e.sheets.settings[0].x,this.zero_line_x="TRUE"===e.sheets.settings[0].zero_line_x,this.zero_line_y="TRUE"===e.sheets.settings[0].zero_line_y,this.database=e.sheets.database,this.database.forEach(function(t){t.x=+t[e.sheets.settings[0].x],t.y=+t[e.sheets.settings[0].y],"label"in t&&"TRUE"===t.label&&a.push(t)}),this.labels=a,console.log(this.settings),console.log(this.database),console.log(this.labels),""!=this.settings[0].title&&d3.select(".chartTitle").html(s.settings[0].title),this.colourKey=d3.scaleOrdinal(),this.greyKey=d3.scaleOrdinal(),"key"in e.sheets&&(this.key=e.sheets.key,""!=e.sheets.key[0])){var n=[],r=[];e.sheets.key.forEach(function(t){n.push(t.key),r.push(t.colour)}),this.colourKey.domain(n).range(r)}""!=this.settings[0].categories&&this._createCats(d3),""!=this.settings[0].standfirst&&d3.select("#standfirst").html(s.settings[0].standfirst),""!=this.settings[0].x_format&&(this.x_format=this.settings[0].x_format),"TRUE"==this.settings[0].trendline&&(this.trendline=!0,this.trendlines=e.sheets.trendline),""!=this.settings[0].tooltip&&(this.tiptext=this.settings[0].tooltip),""!=this.settings[0].filter&&this._createFilters(d3),""!=this.settings[0].x_axis_cross_y&&(this.x_axis_cross_y=this.settings[0].x_axis_cross_y),""!=this.settings[0].y_axis_cross_x&&(this.y_axis_cross_x=this.settings[0].y_axis_cross_x),""!=this.settings[0].label&&(this.label_col=this.settings[0].label_col),""!=this.settings[0].x_label?this.x_label=this.settings[0].x_label:this.x_label=e.sheets.settings[0].x,""!=this.settings[0].y_label?this.y_label=this.settings[0].y_label:this.y_label=e.sheets.settings[0].y,this.hasAnnotations=e.sheets.labels.length>0,this.hasAnnotations&&(this.annotations=e.sheets.labels),this.colourBlindUser=!1,d3.select("#scatterplot_chart_data_source").html(s.settings[0].source),this._render(d3),d3.selectAll("#colourBlind").on("click",function(){s.colourBlindUser=!s.colourBlindUser,s.colourBlindUser?d3.select("#colourBlind").text("colour"):d3.select("#colourBlind").text("greyscale"),d3.select("#key").classed("colourvision",!d3.select("#key").classed("colourvision")),this._render(d3)}),this.resizer()}return(0,_createClass2.default)(t,[{key:"_createFilters",value:function(t){console.log("Inside the filter function");var e=this;e.filter=e.settings[0].filter,e.default=e.settings[0].default_filter;var s=[];e.database.forEach(function(t){-1===s.indexOf(t[e.filter])&&s.push(t[e.filter])});for(var a="",n=0;n<s.length;n++)a+='<div data-filter="'+s[n]+'" class="btn filter '+(0==n?"currentfilter":"")+'">'+s[n]+"</div>";t.select("#graphicContainer").html(a)}},{key:"_createCats",value:function(t){var e=this;e.cats=e.settings[0].categories;var s=[],a=[],n=[];for(e.database.forEach(function(t){return-1===s.indexOf(t[e.cats])?s.push(t[e.cats]):""});e.symbolTypes.length<s.length;)e.symbolTypes=[].concat((0,_toConsumableArray2.default)(e.symbolTypes),(0,_toConsumableArray2.default)(e.symbolTypes));var r=t.symbol().size(50),l=s.map(function(t,s){return[t,e.symbolTypes[s]]}),i=new Map(l);this.symbolKey=function(e){return r.type(t[i.get(e)]),r()};var o="";if(null!=this.key)""!=this.key[0].key&&this.key.forEach(function(t,e){o+='<div class="keyDiv"><span data-cat="'+t.key+'" class="keyCircle" style="background: '+t.colour+'"></span>',o+=' <span class="keyText">'+t.key+"</span></div>"});else{for(var c=0;c<s.length;c++)a.push(s[c]),n.push(e.colours[c]);this.colourKey.domain(a).range(n),this.greyKey.domain(a).range(this.greyScale),o+='<div class="colour_blind_key">';for(var c=0;c<s.length;c++)o+='<div class="keyDiv"><span data-cat="'+s[c]+'" class="keySymbol"><svg width="12" height="12" viewBox="-6 -6 12 12"><path d="'+e.symbolKey(s[c])+'" stroke="#000" stroke-width="1px" fill="'+this.greyKey(s[c])+'" /></svg></span>',o+=' <span class="keyText">'+s[c]+"</span></div>";o+='</div><div class="colour_vision_key">';for(var c=0;c<s.length;c++)o+='<div class="keyDiv"><span data-cat="'+s[c]+'" class="keyCircle" style="background: '+e.colours[c]+'"></span>',o+=' <span class="keyText">'+s[c]+"</span></div>";o+="</div>"}t.select("#key").html(o)}},{key:"labelizer",value:function(t){var t=t.replace(/_/g," ");return t.replace(/\w\S*/g,function(t){return t.charAt(0).toUpperCase()+t.substr(1).toLowerCase()})}},{key:"resizer",value:function(t){window.addEventListener("resize",function(){clearTimeout(document.body.data),document.body.data=setTimeout(function(){console.log("Resize the chart"),this._render(t)},800)})}},{key:"_render",value:function(t){var e,s=this,a=Math.max(document.documentElement.clientWidth,window.innerWidth||0);e=a<610;var n=document.querySelector("#graphicContainer").getBoundingClientRect().width,r=e?.7*n:.5*n,l={top:20,right:20,bottom:35,left:45},n=n-l.left-l.right,r=r-l.top-l.bottom;null!=s.filter?s.target=s.database.filter(function(t){return t[s.filter]==s.default}):s.target=s.database,t.select("#graphicContainer svg").remove();var i=function(t){return t.x},o=t.scaleLinear().range([0,n]),c=function(t){return o(i(t))},u=t.axisBottom(o);s.x_format&&u.tickFormat(t.format(s.x_format));var d=function(t){return t.y},y=t.scaleLinear().range([r,0]),h=function(t){return y(d(t))},f=t.axisLeft(y),p=t.select("#graphicContainer").append("svg").attr("width",n+l.left+l.right).attr("height",r+l.top+l.bottom).attr("preserveAspectRatio","xMinYMin meet").attr("viewBox","0 0 ".concat(n+l.left+l.right," ").concat(r+l.top+l.bottom)).classed("svg-content",!0).append("g").attr("transform","translate("+l.left+","+l.top+")"),b=s.database.map(function(t){return parseFloat(t.x)}),g=t.min(b),x=t.max(b),_=(s.database.map(function(t){return parseFloat(t.y)}),s.bufferize(g,x)),m=t.min(s.database,function(t){return parseFloat(t.y)}),v=t.max(s.database,function(t){return parseFloat(t.y)});console.log(m,v);var k=s.bufferize(m,v);console.log("xLabels",_),o.domain(_),y.domain(k);var F=t.select("body").append("div").attr("class","tipster").style("position","absolute").style("background-color","white").style("opacity",0);if(p.append("g").attr("class","x axis").attr("transform",function(){return null!=s.x_axis_cross_y?"translate(0,"+y(s.x_axis_cross_y)+")":"translate(0,"+r+")"}).call(u).append("text").attr("class","label").attr("x",n).attr("y",-6).style("text-anchor","end").text(s.x_label),p.append("g").attr("class","y axis").attr("transform",function(){if(null!=s.y_axis_cross_x)return"translate("+o(s.y_axis_cross_x)+",0)"}).call(f).append("text").attr("class","label").attr("transform","rotate(-90)").attr("y",6).attr("dy",".71em").style("text-anchor","end").text(s.y_label),s.zero_line_x&&p.append("line").attr("class","zeroline").attr("x1",function(){return o(0)}).attr("y1",function(){return 0}).attr("x2",function(){return o(0)}).attr("y2",function(){return r}).attr("stroke","lightgrey").attr("stroke-width",1).style("opacity",1),s.zero_line_y&&p.append("line").attr("class","zeroline").attr("x1",function(){return 0}).attr("y1",function(){return y(0)}).attr("x2",function(){return n}).attr("y2",function(){return y(0)}).attr("stroke","lightgrey").attr("stroke-width",1).style("opacity",1),p.selectAll(".dot-label").data(s.labels).enter().append("text").attr("class","dot-label").attr("x",c).attr("dy",15).attr("text-anchor","middle").attr("y",h).text(function(t){return t[s.label_col]}),s.colourBlindUser?p.selectAll(".dot").data(s.target).enter().append("path").attr("class",function(t){return"dot "+t[s.cats]}).attr("stroke","#000").attr("stroke-width","1px").attr("transform",function(t){return"translate(".concat(o(t.x),",").concat(y(t.y),")")}).style("opacity",.8).style("fill",function(t){return s.greyKey(t[s.cats])}).attr("d",function(t){return s.symbolKey(t[s.cats])}).on("mouseover",function(a){null!=s.tiptext&&(F.transition().duration(200).style("opacity",.9),F.html(s.tipster(a)).style("left",s.tooltip(t.event.pageX,n)+"px").style("top",(e?r/2:t.event.pageY+10)+"px"))}).on("mouseout",function(){null!=s.tiptext&&F.transition().duration(500).style("opacity",0)}):p.selectAll(".dot").data(s.target).enter().append("circle").attr("class",function(t){return"dot "+t[s.cats]}).attr("r",3.5).attr("cx",c).attr("cy",h).style("fill",function(t){return null==s.cats?"#4bc6df":s.colourKey(t[s.cats])}).attr("stroke",function(t){return""!=t.label?"#000":"#bdbdbd"}).attr("stroke-width",function(){return"1px"}).on("mouseover",function(a){null!=s.tiptext&&(F.transition().duration(200).style("opacity",.9),F.html(s.tipster(a)).style("left",s.tooltip(t.event.pageX,n)+"px").style("top",(e?r/2:t.event.pageY+10)+"px"))}).on("mouseout",function(t){null!=s.tiptext&&F.transition().duration(500).style("opacity",0)}),null!=s.filter&&t.selectAll(".filter").on("click",s.filters),null!=s.cats){var C=s.colourBlindUser?".keySymbol":".keyCircle";t.selectAll(C).on("click",s.stated)}if(s.trendline){var T=s.trendlines.filter(function(t){return t.trendline==s.default});0==T.length&&(T=s.trendlines.filter(function(t){return"default"==t.trendline})),console.log(T);var A=parseFloat(T[0].min_x),w=parseFloat(T[0].min_y),z=parseFloat(T[0].max_x),E=parseFloat(T[0].max_y),B=[[A,w,z,E]],T=p.selectAll(".trendline").data(B);T.enter().append("line").attr("class","trendline").attr("x1",function(t){return o(t[0])}).attr("y1",function(t){return y(t[1])}).attr("x2",function(t){return o(t[2])}).attr("y2",function(t){return y(t[3])}).attr("stroke","black").attr("stroke-width",1).style("opacity",1).style("stroke-dasharray","3, 3")}if(s.hasAnnotations)for(var R=0;R<s.annotations.length;R++)p.append("text").attr("class","annotations").attr("x",function(t){return"TRUE"===s.annotations[R].scaled_x?o(+s.annotations[R].x):+s.annotations[R].x}).attr("y",function(t){return"TRUE"===s.annotations[R].scaled_y?y(+s.annotations[R].y):+s.annotations[R].y}).style("text-anchor",s.annotations[R]["text-anchor"]).text(s.annotations[R].text)}},{key:"calcLinear",value:function(t,e,s,a,n){var r=t.length,l=[];t.forEach(function(t,a){var n={};n.x=t[e],n.y=t[s],n.mult=n.x*n.y,l.push(n)});var i=0,o=0,c=0,u=0;l.forEach(function(t){i+=t.mult,o+=t.x,c+=t.y,u+=t.x*t.x});var d=i*r,y=o*c,h=u*r,f=o*o,p=(d-y)/(h-f),b=c,g=p*o,y=(b-g)/r;return{ptA:{x:a,y:p*a+y},ptB:{y:n,x:(n-y)/p}}}},{key:"bufferize",value:function(t,e){var s=(e-t)/100*5;return[t-s,e+s]}},{key:"tipster",value:function(t){var e=this;return Handlebars.compile(e.tiptext)(t)}},{key:"tooltip",value:function(t,e){return e<500?e/2-100:t>e/2?t-235:t+5}},{key:"stated",value:function(){var t=this,e=d3.select(this),s=e.attr("data-cat"),a=d3.select(this).classed("greyedOut");d3.select(this).classed("greyedOut",!a);var n=d3.selectAll("#graphicContainer .dot."+s),r=d3.selectAll("#graphicContainer .trendline."+s);a?n.style("display","block"):n.style("display","none"),a?r.style("opacity",.7):r.style("opacity",0),void 0!=t.categories&&t.categories.filter(function(t){t.name==s&&(t.status=a)})}},{key:"_filters",value:function(t){var e=this,s=t.select(this);e.default=s.attr("data-filter");t.selectAll(".filter").classed("currentfilter",!1);var a=t.select(this).classed("currentfilter");t.select(this).classed("currentfilter",!a),e._render(t)}},{key:"_colorize",value:function(t){return this.categories.filter(function(e){return e.name==t})[0].colour}}]),t}();exports.default=ScatterPlot;
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var ScatterPlot = /*#__PURE__*/function () {
+  function ScatterPlot(data) {
+    (0, _classCallCheck2["default"])(this, ScatterPlot);
+    var self = this; // Declare
+
+    this.firstTime = true;
+    this["default"] = null;
+    this.database = null;
+    this.settings = null;
+    this.trendlines = null;
+    this.trendline = null;
+    this.tiptext = null;
+    this.target = null;
+    this.filter = null;
+    this.cats = null;
+    this.x_format = null;
+    this.categories = null;
+    this.x_axis_cross_y = null;
+    this.y_axis_cross_x = null;
+    this.x_label = null;
+    this.y_label = null;
+    this.colours = ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6"];
+    this.greyScale = ["#bdbdbd", "#bdbdbd", "#bdbdbd", "#bdbdbd", "#bdbdbd", "#bdbdbd", "#bdbdbd", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"];
+    this.symbolTypes = ["symbolCircle", "symbolCross", "symbolDiamond", "symbolSquare", "symbolStar", "symbolTriangle", "symbolWye", "symbolCircle", "symbolCross", "symbolDiamond", "symbolSquare", "symbolStar", "symbolTriangle", "symbolWye"];
+    this.categories = null;
+    this.label_col = null;
+    var labels = []; // Assign
+
+    this.settings = data.sheets.settings;
+    this.key = null;
+    this.yTag = data.sheets.settings[0].y;
+    this.xTag = data.sheets.settings[0].x;
+    this.zero_line_x = data.sheets.settings[0].zero_line_x === "TRUE" ? true : false;
+    this.zero_line_y = data.sheets.settings[0].zero_line_y === "TRUE" ? true : false;
+    this.database = data.sheets.database;
+    this.database.forEach(function (d) {
+      d.x = +d[data.sheets.settings[0].x];
+      d.y = +d[data.sheets.settings[0].y];
+
+      if ("label" in d) {
+        if (d.label === "TRUE") {
+          labels.push(d);
+        }
+      }
+    });
+    this.labels = labels;
+    console.log(this.settings);
+    console.log(this.database);
+    console.log(this.labels);
+
+    if (this.settings[0]["title"] != "") {
+      d3.select(".chartTitle").html(self.settings[0]["title"]);
+    }
+
+    this.colourKey = d3.scaleOrdinal();
+    this.greyKey = d3.scaleOrdinal();
+
+    if ("key" in data.sheets) {
+      this.key = data.sheets.key;
+
+      if (data.sheets.key[0] != "") {
+        var colourDomain = [];
+        var colourRange = [];
+        data.sheets.key.forEach(function (d) {
+          colourDomain.push(d.key);
+          colourRange.push(d.colour);
+        });
+        this.colourKey.domain(colourDomain).range(colourRange);
+      }
+    }
+
+    if (this.settings[0].categories != "") {
+      this._createCats(d3);
+    }
+
+    if (this.settings[0]["standfirst"] != "") {
+      d3.select("#standfirst").html(self.settings[0].standfirst);
+    }
+
+    if (this.settings[0]["x_format"] != "") {
+      this.x_format = this.settings[0]["x_format"];
+    }
+
+    if (this.settings[0].trendline == "TRUE") {
+      this.trendline = true;
+      this.trendlines = data.sheets.trendline;
+    } // Set the tooltip text
+
+
+    if (this.settings[0].tooltip != "") {
+      this.tiptext = this.settings[0].tooltip;
+    } // Create the filter selectors if they have been set in the Googledoc
+
+
+    if (this.settings[0].filter != "") {
+      this._createFilters(d3);
+    } // Create the category selectors if they have been set in the Googledoc
+
+
+    if (this.settings[0].x_axis_cross_y != "") {
+      this.x_axis_cross_y = this.settings[0].x_axis_cross_y;
+    }
+
+    if (this.settings[0].y_axis_cross_x != "") {
+      this.y_axis_cross_x = this.settings[0].y_axis_cross_x;
+    }
+
+    if (this.settings[0]["label"] != "") {
+      this.label_col = this.settings[0].label_col;
+    }
+
+    if (this.settings[0]["x_label"] != "") {
+      this.x_label = this.settings[0].x_label;
+    } else {
+      this.x_label = data.sheets.settings[0].x;
+    }
+
+    if (this.settings[0]["y_label"] != "") {
+      this.y_label = this.settings[0].y_label;
+    } else {
+      this.y_label = data.sheets.settings[0].y;
+    }
+
+    this.hasAnnotations = data.sheets.labels.length > 0 ? true : false;
+
+    if (this.hasAnnotations) {
+      this.annotations = data.sheets.labels;
+    }
+
+    this.colourBlindUser = false;
+    d3.select("#scatterplot_chart_data_source").html(self.settings[0].source);
+
+    this._render(d3);
+
+    d3.selectAll("#colourBlind").on("click", function () {
+      self.colourBlindUser = self.colourBlindUser ? false : true;
+
+      if (self.colourBlindUser) {
+        d3.select("#colourBlind").text("colour");
+      } else {
+        d3.select("#colourBlind").text("greyscale");
+      }
+
+      d3.select("#key").classed("colourvision", !d3.select("#key").classed("colourvision"));
+
+      this._render(d3);
+    });
+    this.resizer();
+  }
+
+  (0, _createClass2["default"])(ScatterPlot, [{
+    key: "_createFilters",
+    value: function _createFilters(d3) {
+      console.log("Inside the filter function");
+      var self = this;
+      self.filter = self.settings[0].filter;
+      self["default"] = self.settings[0].default_filter;
+      var filters = [];
+      self.database.forEach(function (item) {
+        filters.indexOf(item[self.filter]) === -1 ? filters.push(item[self.filter]) : "";
+      });
+      var html = "";
+
+      for (var i = 0; i < filters.length; i++) {
+        // Create the categories legend
+        html += "<div data-filter=\"" + filters[i] + "\" class=\"btn filter " + (i == 0 ? "currentfilter" : "") + "\">" + filters[i] + "</div>";
+      }
+
+      d3.select("#graphicContainer").html(html);
+    }
+  }, {
+    key: "_createCats",
+    value: function _createCats(d3) {
+      var self = this;
+      self.cats = self.settings[0].categories;
+      var categories = [];
+      var colourDomain = [];
+      var colourRange = [];
+      var fillRange = [];
+      self.database.forEach(function (item) {
+        return categories.indexOf(item[self.cats]) === -1 ? categories.push(item[self.cats]) : "";
+      });
+
+      while (self.symbolTypes.length < categories.length) {
+        self.symbolTypes = [].concat((0, _toConsumableArray2["default"])(self.symbolTypes), (0, _toConsumableArray2["default"])(self.symbolTypes));
+      }
+
+      var symbolGenerator = d3.symbol().size(50);
+      var syms = categories.map(function (item, index) {
+        return [item, self.symbolTypes[index]];
+      });
+      var symap = new Map(syms);
+
+      this.symbolKey = function (cat) {
+        symbolGenerator.type(d3[symap.get(cat)]);
+        return symbolGenerator();
+      };
+
+      var html = "";
+
+      if (this.key != null) {
+        if (this.key[0].key != "") {
+          this.key.forEach(function (d, i) {
+            html += "<div class=\"keyDiv\"><span data-cat=\"" + d.key + "\" class=\"keyCircle\" style=\"background: " + d.colour + "\"></span>";
+            html += " <span class=\"keyText\">" + d.key + "</span></div>";
+          });
+        }
+      } else {
+        for (var i = 0; i < categories.length; i++) {
+          colourDomain.push(categories[i]);
+          colourRange.push(self.colours[i]);
+        }
+
+        this.colourKey.domain(colourDomain).range(colourRange);
+        this.greyKey.domain(colourDomain).range(this.greyScale);
+        html += "<div class=\"colour_blind_key\">";
+
+        for (var i = 0; i < categories.length; i++) {
+          // colourDomain.push(categories[i])
+          // colourRange.push(self.colours[i])
+          html += "<div class=\"keyDiv\"><span data-cat=\"" + categories[i] + "\" class=\"keySymbol\"><svg width=\"12\" height=\"12\" viewBox=\"-6 -6 12 12\"><path d=\"" + self.symbolKey(categories[i]) + "\" stroke=\"#000\" stroke-width=\"1px\" fill=\"" + this.greyKey(categories[i]) + "\" /></svg></span>";
+          html += " <span class=\"keyText\">" + categories[i] + "</span></div>";
+        }
+
+        html += "</div><div class=\"colour_vision_key\">";
+
+        for (var i = 0; i < categories.length; i++) {
+          html += "<div class=\"keyDiv\"><span data-cat=\"" + categories[i] + "\" class=\"keyCircle\" style=\"background: " + self.colours[i] + "\"></span>";
+          html += " <span class=\"keyText\">" + categories[i] + "</span></div>";
+        }
+
+        html += "</div>";
+      }
+
+      d3.select("#key").html(html);
+    }
+  }, {
+    key: "labelizer",
+    value: function labelizer(text) {
+      var text = text.replace(/_/g, " ");
+      return text.replace(/\w\S*/g, function (txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      });
+    }
+  }, {
+    key: "resizer",
+    value: function resizer(d3) {
+      window.addEventListener("resize", function () {
+        clearTimeout(document.body.data);
+        document.body.data = setTimeout(function () {
+          console.log("Resize the chart");
+
+          this._render(d3);
+        }, 800);
+      });
+    }
+  }, {
+    key: "_render",
+    value: function _render(d3) {
+      var self = this;
+      var isMobile;
+      var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+      isMobile = windowWidth < 610 ? true : false;
+      var width = document.querySelector("#graphicContainer").getBoundingClientRect().width;
+      var height = isMobile ? width * 0.7 : width * 0.5;
+      var margin = {
+        top: 20,
+        right: 20,
+        bottom: 35,
+        left: 45
+      },
+          width = width - margin.left - margin.right,
+          height = height - margin.top - margin.bottom; // Filter the data if the filter value has been set in the Googledoc
+
+      if (self.filter != null) {
+        self.target = self.database.filter(function (d) {
+          return d[self.filter] == self["default"];
+        });
+      } else {
+        self.target = self.database;
+      }
+
+      d3.select("#graphicContainer svg").remove(); // setup x
+
+      var xValue = function xValue(d) {
+        return d.x;
+      },
+          // data -> value
+      x = d3.scaleLinear().range([0, width]),
+          // value -> display
+      xMap = function xMap(d) {
+        return x(xValue(d));
+      },
+          // data -> display
+      xAxis = d3.axisBottom(x); //d3.svg.axis().scale(x).orient("bottom");
+
+
+      if (self.x_format) {
+        xAxis.tickFormat(d3.format(self.x_format));
+      } // setup y
+
+
+      var yValue = function yValue(d) {
+        return d.y;
+      },
+          // data -> value
+      y = d3.scaleLinear().range([height, 0]),
+          // value -> display
+      yMap = function yMap(d) {
+        return y(yValue(d));
+      },
+          // data -> display
+      yAxis = d3.axisLeft(y); //d3.svg.axis().scale(y).orient("left");
+
+
+      var svg = d3.select("#graphicContainer").append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr("preserveAspectRatio", "xMinYMin meet").attr("viewBox", "0 0 ".concat(width + margin.left + margin.right, " ").concat(height + margin.top + margin.bottom)).classed("svg-content", true).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")"); // Get the values for the X Axis using all the values from the database (This means you can flip between categories and compare values on the same axis)
+
+      var xRange = self.database.map(function (d) {
+        return parseFloat(d.x);
+      }); // Set the X axis min value
+
+      var xMin = d3.min(xRange); // Set the X axis max value
+
+      var xMax = d3.max(xRange); // Get the full range
+
+      var yRange = self.database.map(function (d) {
+        return parseFloat(d.y);
+      }); // Add a 5% buffer on either side of the X axis min max values
+
+      var xLabels = self.bufferize(xMin, xMax); // Set the Y axis min value
+
+      var yMin = d3.min(self.database, function (d) {
+        return parseFloat(d.y);
+      }); // Set the Y axis max value
+
+      var yMax = d3.max(self.database, function (d) {
+        return parseFloat(d.y);
+      });
+      console.log(yMin, yMax); // Add a 5% buffer on either side of the Y axis min max values
+
+      var yLabels = self.bufferize(yMin, yMax);
+      console.log("xLabels", xLabels);
+      x.domain(xLabels);
+      y.domain(yLabels);
+      var tooltip = d3.select("body").append("div").attr("class", "tipster").style("position", "absolute").style("background-color", "white").style("opacity", 0); // x-axis
+
+      svg.append("g").attr("class", "x axis").attr("transform", function () {
+        if (self.x_axis_cross_y != null) {
+          return "translate(0," + y(self.x_axis_cross_y) + ")";
+        } else {
+          return "translate(0," + height + ")";
+        }
+      }).call(xAxis).append("text").attr("class", "label").attr("x", width).attr("y", -6).style("text-anchor", "end").text(self.x_label); // y-axis
+
+      svg.append("g").attr("class", "y axis").attr("transform", function () {
+        if (self.y_axis_cross_x != null) {
+          return "translate(" + x(self.y_axis_cross_x) + ",0)";
+        }
+      }).call(yAxis).append("text").attr("class", "label").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", ".71em").style("text-anchor", "end").text(self.y_label);
+
+      if (self.zero_line_x) {
+        svg.append("line").attr("class", "zeroline").attr("x1", function () {
+          return x(0);
+        }).attr("y1", function () {
+          return 0;
+        }) //y(yMax)
+        .attr("x2", function () {
+          return x(0);
+        }).attr("y2", function () {
+          return height;
+        }) //y(yMin)
+        .attr("stroke", "lightgrey").attr("stroke-width", 1).style("opacity", 1);
+      }
+
+      if (self.zero_line_y) {
+        svg.append("line").attr("class", "zeroline").attr("x1", function () {
+          return 0;
+        }).attr("y1", function () {
+          return y(0);
+        }) //y(yMax)
+        .attr("x2", function () {
+          return width;
+        }).attr("y2", function () {
+          return y(0);
+        }) //y(yMin)
+        .attr("stroke", "lightgrey").attr("stroke-width", 1).style("opacity", 1);
+      }
+
+      svg.selectAll(".dot-label").data(self.labels).enter().append("text").attr("class", "dot-label").attr("x", xMap).attr("dy", 15).attr("text-anchor", "middle").attr("y", yMap).text(function (d) {
+        return d[self.label_col];
+      });
+
+      if (self.colourBlindUser) {
+        svg.selectAll(".dot").data(self.target).enter().append("path").attr("class", function (d) {
+          return "dot " + d[self.cats];
+        }).attr("stroke", "#000").attr("stroke-width", "1px").attr("transform", function (d) {
+          return "translate(".concat(x(d.x), ",").concat(y(d.y), ")");
+        }).style("opacity", 0.8).style("fill", function (d) {
+          return self.greyKey(d[self.cats]); // return (self.cats==null) ? '#4bc6df' : self.colourKey(d[self.cats])
+        }).attr("d", function (d) {
+          return self.symbolKey(d[self.cats]);
+        }).on("mouseover", function (d) {
+          if (self.tiptext != null) {
+            tooltip.transition().duration(200).style("opacity", .9);
+            tooltip.html(self.tipster(d)).style("left", self.tooltip(d3.event.pageX, width) + "px").style("top", (isMobile ? height / 2 : d3.event.pageY + 10) + "px");
+          }
+        }).on("mouseout", function () {
+          if (self.tiptext != null) {
+            tooltip.transition().duration(500).style("opacity", 0);
+          }
+        });
+      } else {
+        svg.selectAll(".dot").data(self.target).enter().append("circle").attr("class", function (d) {
+          return "dot " + d[self.cats];
+        }).attr("r", 3.5).attr("cx", xMap).attr("cy", yMap).style("fill", function (d) {
+          return self.cats == null ? "#4bc6df" : self.colourKey(d[self.cats]);
+        }).attr("stroke", function (d) {
+          if (d.label != "") {
+            return "#000";
+          } else {
+            return "#bdbdbd";
+          }
+        }).attr("stroke-width", function () {
+          return "1px";
+        }).on("mouseover", function (d) {
+          if (self.tiptext != null) {
+            tooltip.transition().duration(200).style("opacity", .9);
+            tooltip.html(self.tipster(d)).style("left", self.tooltip(d3.event.pageX, width) + "px").style("top", (isMobile ? height / 2 : d3.event.pageY + 10) + "px");
+          }
+        }).on("mouseout", function (d) {
+          if (self.tiptext != null) {
+            tooltip.transition().duration(500).style("opacity", 0);
+          }
+        });
+      }
+
+      if (self.filter != null) {
+        d3.selectAll(".filter").on("click", self.filters);
+      }
+
+      if (self.cats != null) {
+        var user = self.colourBlindUser ? ".keySymbol" : ".keyCircle";
+        d3.selectAll(user).on("click", self.stated);
+      } // Add the trendline if it has been specified
+
+
+      if (self.trendline) {
+        var trendline = self.trendlines.filter(function (value) {
+          return value.trendline == self["default"];
+        });
+
+        if (trendline.length == 0) {
+          trendline = self.trendlines.filter(function (value) {
+            return value.trendline == "default";
+          });
+        }
+
+        console.log(trendline);
+        var x1 = parseFloat(trendline[0].min_x);
+        var y1 = parseFloat(trendline[0].min_y);
+        var x2 = parseFloat(trendline[0].max_x);
+        var y2 = parseFloat(trendline[0].max_y);
+        var trendData = [[x1, y1, x2, y2]];
+        var trendline = svg.selectAll(".trendline").data(trendData);
+        trendline.enter().append("line").attr("class", "trendline").attr("x1", function (d) {
+          return x(d[0]);
+        }).attr("y1", function (d) {
+          return y(d[1]);
+        }).attr("x2", function (d) {
+          return x(d[2]);
+        }).attr("y2", function (d) {
+          return y(d[3]);
+        }).attr("stroke", "black").attr("stroke-width", 1).style("opacity", 1).style("stroke-dasharray", "3, 3");
+      }
+
+      if (self.hasAnnotations) {
+        for (var i = 0; i < self.annotations.length; i++) {
+          svg.append("text").attr("class", "annotations").attr("x", function (d) {
+            var scaled_x = self.annotations[i].scaled_x === "TRUE" ? true : false;
+            var position = scaled_x ? x(+self.annotations[i].x) : +self.annotations[i].x;
+            return position;
+          }).attr("y", function (d) {
+            var scaled_y = self.annotations[i].scaled_y === "TRUE" ? true : false;
+            var position = scaled_y ? y(+self.annotations[i].y) : +self.annotations[i].y;
+            return position;
+          }).style("text-anchor", self.annotations[i]["text-anchor"]).text(self.annotations[i].text);
+        }
+      }
+    }
+  }, {
+    key: "calcLinear",
+    value: function calcLinear(data, x, y, minX, minY) {
+      //console.log(data, x, y, minX, minY)
+      /////////
+      //SLOPE//
+      /////////
+      // Let n = the number of data points
+      var n = data.length; // Get just the points
+
+      var pts = [];
+      data.forEach(function (d, i) {
+        var obj = {};
+        obj.x = d[x];
+        obj.y = d[y];
+        obj.mult = obj.x * obj.y;
+        pts.push(obj);
+      }); // Let a equal n times the summation of all x-values multiplied by their corresponding y-values
+      // Let b equal the sum of all x-values times the sum of all y-values
+      // Let c equal n times the sum of all squared x-values
+      // Let d equal the squared sum of all x-values
+
+      var sum = 0;
+      var xSum = 0;
+      var ySum = 0;
+      var sumSq = 0;
+      pts.forEach(function (pt) {
+        sum = sum + pt.mult;
+        xSum = xSum + pt.x;
+        ySum = ySum + pt.y;
+        sumSq = sumSq + pt.x * pt.x;
+      });
+      var a = sum * n;
+      var b = xSum * ySum;
+      var c = sumSq * n;
+      var d = xSum * xSum; // Plug the values that you calculated for a, b, c, and d into the following equation to calculate the slope
+      // slope = m = (a - b) / (c - d)
+
+      var m = (a - b) / (c - d); /////////////
+      //INTERCEPT//
+      /////////////
+      // Let e equal the sum of all y-values
+
+      var e = ySum; // Let f equal the slope times the sum of all x-values
+
+      var f = m * xSum; // Plug the values you have calculated for e and f into the following equation for the y-intercept
+      // y-intercept = b = (e - f) / n
+
+      var b = (e - f) / n; // Print the equation below the chart
+      //document.getElementsByClassName("equation")[0].innerHTML = "y = " + m + "x + " + b;
+      //document.getElementsByClassName("equation")[1].innerHTML = "x = ( y - " + b + " ) / " + m;
+      // return an object of two points
+      // each point is an object with an x and y coordinate
+
+      return {
+        ptA: {
+          x: minX,
+          y: m * minX + b
+        },
+        ptB: {
+          y: minY,
+          x: (minY - b) / m
+        }
+      };
+    }
+  }, {
+    key: "bufferize",
+    value: function bufferize(min, max) {
+      var buffer = (max - min) / 100 * 5;
+      return [min - buffer, max + buffer];
+    }
+  }, {
+    key: "tipster",
+    value: function tipster(d) {
+      var self = this;
+      var template = Handlebars.compile(self.tiptext);
+      var html = template(d);
+      return html;
+    }
+  }, {
+    key: "tooltip",
+    value: function tooltip(pos, width) {
+      var self = this;
+
+      if (width < 500) {
+        return width / 2 - 100;
+      } else {
+        return pos > width / 2 ? pos - 235 : pos + 5;
+      }
+    }
+  }, {
+    key: "stated",
+    value: function stated() {
+      var self = this;
+      var currElement = d3.select(this);
+      var cat = currElement.attr("data-cat");
+      var activeClass = "greyedOut";
+      var alreadyIsActive = d3.select(this).classed(activeClass);
+      d3.select(this).classed(activeClass, !alreadyIsActive); // Target the circles for a specific cat
+
+      var currCircles = d3.selectAll("#graphicContainer .dot." + cat); // Target the trendline for a specific cat
+
+      var trendline = d3.selectAll("#graphicContainer .trendline." + cat);
+      alreadyIsActive ? currCircles.style("display", "block") : currCircles.style("display", "none");
+      alreadyIsActive ? trendline.style("opacity", 0.7) : trendline.style("opacity", 0);
+
+      if (self.categories != undefined) {
+        self.categories.filter(function (value) {
+          if (value.name == cat) {
+            value.status = alreadyIsActive;
+          }
+        });
+      }
+    }
+  }, {
+    key: "_filters",
+    value: function _filters(d3) {
+      var self = this;
+      var currElement = d3.select(this);
+      self["default"] = currElement.attr("data-filter");
+      var activeClass = "currentfilter";
+      d3.selectAll(".filter").classed(activeClass, false);
+      var alreadyIsActive = d3.select(this).classed(activeClass);
+      d3.select(this).classed(activeClass, !alreadyIsActive);
+
+      self._render(d3);
+    }
+  }, {
+    key: "_colorize",
+    value: function _colorize(state) {
+      return this.categories.filter(function (value) {
+        return value.name == state;
+      })[0].colour;
+    }
+  }]);
+  return ScatterPlot;
+}();
+
+exports["default"] = ScatterPlot;

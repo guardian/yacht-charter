@@ -1,1 +1,371 @@
-"use strict";var _interopRequireDefault=require("@babel/runtime/helpers/interopRequireDefault");Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var _classCallCheck2=_interopRequireDefault(require("@babel/runtime/helpers/classCallCheck")),_createClass2=_interopRequireDefault(require("@babel/runtime/helpers/createClass")),horizontalBar=function(){function t(e){function n(t){if(t>0)return t>1e9?(t/1e9).toFixed(1)+"bn":t>1e6?(t/1e6).toFixed(1)+"m":t>1e3?(t/1e3).toFixed(1)+"k":t%1!=0?t.toFixed(1):t.toLocaleString();if(t<0){var e=-1*t;return e>1e9?["-"+String(e/1e9)+"bn"]:e>1e6?["-"+String(e/1e6)+"m"]:e>1e3?["-"+String(e/1e3)+"k"]:t.toLocaleString()}return t}function r(t){if(t>0)return t>1e9?t/1e9+"bn":t>1e6?t/1e6+"m":t>1e3?t/1e3+"k":t%1!=0?t.toFixed(1):t.toLocaleString();if(t<0){var e=-1*t;return e>1e9?["-"+String(e/1e9)+"bn"]:e>1e6?["-"+String(e/1e6)+"m"]:e>1e3?["-"+String(e/1e3)+"k"]:t.toLocaleString()}return t}function a(t){return t.y2>0?12:-2}function o(t){return t.y2>0?12:4}function i(){N.classList.toggle("min"),q.classList.toggle("gradient"),T.querySelectorAll(".is-on")[0].classList.toggle("hide"),T.querySelectorAll(".is-off")[0].classList.toggle("hide")}(0,_classCallCheck2.default)(this,t);d3.select("#graphicContainer");console.log(e);var l,c=e.sheets.data,s=e.sheets.template,u=e.sheets.labels,d=e.sheets.key,f=Math.max(document.documentElement.clientWidth,window.innerWidth||0);f<610&&(l=!0),f>=610&&(l=!1);var p,h=document.querySelector("#graphicContainer").getBoundingClientRect().width,g=70*c.length;p=s[0]["margin-top"]?{top:+s[0]["margin-top"],right:+s[0]["margin-right"],bottom:+s[0]["margin-bottom"],left:+s[0]["margin-left"]}:{top:0,right:0,bottom:20,left:40},h=h-p.left-p.right,g=g-p.top-p.bottom,d3.select("#chartTitle").text(s[0].title),d3.select("#subTitle").text(s[0].subtitle),d3.select("#sourceText").html(s[0].source),d3.select("#footnote").html(s[0].footnote),d3.select("#graphicContainer svg").remove();var m=d3.select("#chartKey");m.html("");var x,y,b=d3.select("#graphicContainer").append("svg").attr("width",h+p.left+p.right).attr("height",g+p.top+p.bottom).attr("id","svg").attr("overflow","hidden"),v=b.append("g").attr("transform","translate("+p.left+","+p.top+")"),k=Object.keys(c[0]);y=s[0].yColumn?s[0].yColumn:k[0],x=s[0].xColumn?s[0].xColumn:k[1];var C=isNaN(c[0][y]);console.log(y,k),c.forEach(function(t){"string"!=typeof t[y]||C||(t[y]=+t[y]),t[x]=+t[x]}),u.forEach(function(t){t.x=+t.x,t.y=+t.y,t.y2=+t.y2}),console.log(c),d.forEach(function(t,e){var n=m.append("div").attr("class","keyDiv");n.append("span").attr("class","keyCircle").style("background-color",function(){return t.colour}),n.append("span").attr("class","keyText").text(t.key)});var w=d3.scaleLinear().range([0,h]),S=d3.scaleBand().range([0,g]).paddingInner(.3).paddingOuter(.3);S.domain(c.map(function(t){return t[y]})),w.domain(d3.extent(c,function(t){return t[x]})).nice();var F,L;L=d3.axisLeft(S),F=d3.axisBottom(w).tickFormat(function(t){return r(t)}),v.append("g").attr("class","x").attr("transform","translate(0,"+g+")").call(F),v.append("g").attr("class","y").call(L),v.selectAll(".bar").data(c).enter().append("rect").attr("class","bar").attr("x",0).style("fill",function(t){return t.Color?t.Color:d.color[d.key.indexOf(t[3])]}).attr("y",function(t){return S(t[y])}).attr("width",function(t){return w(t[x])}).attr("height",S.bandwidth()),v.selectAll(".barText").data(c).enter().append("text").attr("class","barText").attr("x",5).attr("y",function(t){return S(t[y])-5}).text(function(t){return t[y]}),v.selectAll(".barNumber").data(c).enter().append("text").attr("class","barNumber").attr("x",function(t){return w(t[x])>50?w(t[x])-50:w(t[x])+5}).style("fill",function(t){return w(t[x])>50?"#FFF":"#000"}).attr("y",function(t){return S(t[y])+(S.bandwidth()/2+5)}).text(function(t){return n(t[x])}),d3.selectAll(".y .tick").remove(),v.selectAll(".annotationLine").data(u).enter().append("line").attr("class","annotationLine").attr("x1",function(t){return w(t.x)+w.bandwidth()/2}).attr("y1",function(t){return S(t.y)}).attr("x2",function(t){return w(t.x)+w.bandwidth()/2}).attr("y2",function(t){return S(t.y2)}).style("opacity",1).attr("stroke","#000");var B=d3.select("#footerAnnotations");B.html(""),l?(v.selectAll(".annotationCircles").data(u).enter().append("circle").attr("class","annotationCircle").attr("cy",function(t){return S(t.y2)+a(t)/2}).attr("cx",function(t){return w(t.x)+w.bandwidth()/2}).attr("r",8).attr("fill","#000"),v.selectAll(".annotationTextMobile").data(u).enter().append("text").attr("class","annotationTextMobile").attr("y",function(t){return S(t.y2)+o(t)}).attr("x",function(t){return w(t.x)+w.bandwidth()/2}).style("text-anchor","middle").style("opacity",1).attr("fill","#FFF").text(function(t,e){return e+1}),console.log(u.length),u.length>0&&B.append("span").attr("class","annotationFooterHeader").text("Notes: "),u.forEach(function(t,e){B.append("span").attr("class","annotationFooterNumber").text(e+1+" - "),e<u.length-1?B.append("span").attr("class","annotationFooterText").text(t.text+", "):B.append("span").attr("class","annotationFooterText").text(t.text)})):v.selectAll(".annotationText").data(u).enter().append("text").attr("class","annotationText").attr("y",function(t){return S(t.y2)}).attr("x",function(t){return w(t.x)+w.bandwidth()/2}).style("text-anchor",function(t){return t.align}).style("opacity",1).text(function(t){return t.text});var T=document.getElementById("button2"),N=document.getElementById("outer-wrapper"),q=document.getElementById("gradientBar");"1"===e.sheets.options.enableShowMore?T.addEventListener("click",i):(T.remove(),N.classList.toggle("min"),q.remove())}return(0,_createClass2.default)(t,[{key:"round",value:function(t,e){return void 0===e||0==+e?Math.round(t):(t=+t,e=+e,isNaN(t)||"number"!=typeof e||e%1!=0?NaN:(t=t.toString().split("e"),t=Math.round(+(t[0]+"e"+(t[1]?+t[1]+e:e))),t=t.toString().split("e"),+(t[0]+"e"+(t[1]?+t[1]-e:-e))))}},{key:"numberWithCommas",value:function(t){return t.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",")}},{key:"wait",value:function(t){new Promise(function(e,n){return setTimeout(function(){return e()},t)})}},{key:"getDimensions",value:function(t){return[t.clientWidth||t.getBoundingClientRect().width,t.clientHeight||t.getBoundingClientRect().height]}},{key:"hashPattern",value:function(t,e,n){return"\n  \t\t<pattern id='".concat(t,"' patternUnits='userSpaceOnUse' width='4' height='4'>\n  \t\t\t<rect width='4' height='4' class='").concat(n,"'></rect>\n  \t\t\t<path d='M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2' class='").concat(e,"'></path>\n  \t\t</pattern>\n  \t")}},{key:"duplicate",value:function(t,e){var n=t.cloneNode(!0);n.classList.add(e),t.parentNode.insertBefore(n,t)}},{key:"pseq",value:function(t,e){return t.reduce(function(t,n){return t.then(function(t){return e(n).then(function(e){return t.concat(e)})})},Promise.resolve([]))}}]),t}();exports.default=horizontalBar;
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var horizontalBar = /*#__PURE__*/function () {
+  function horizontalBar(results) {
+    (0, _classCallCheck2["default"])(this, horizontalBar);
+    var container = d3.select("#graphicContainer");
+    console.log(results);
+    var data = results.sheets.data;
+    var details = results.sheets.template;
+    var labels = results.sheets.labels;
+    var userKey = results["sheets"]["key"];
+
+    function numberFormat(num) {
+      if (num > 0) {
+        if (num > 1000000000) {
+          return (num / 1000000000).toFixed(1) + "bn";
+        }
+
+        if (num > 1000000) {
+          return (num / 1000000).toFixed(1) + "m";
+        }
+
+        if (num > 1000) {
+          return (num / 1000).toFixed(1) + "k";
+        }
+
+        if (num % 1 != 0) {
+          return num.toFixed(1);
+        } else {
+          return num.toLocaleString();
+        }
+      }
+
+      if (num < 0) {
+        var posNum = num * -1;
+        if (posNum > 1000000000) return ["-" + String(posNum / 1000000000) + "bn"];
+        if (posNum > 1000000) return ["-" + String(posNum / 1000000) + "m"];
+        if (posNum > 1000) return ["-" + String(posNum / 1000) + "k"];else {
+          return num.toLocaleString();
+        }
+      }
+
+      return num;
+    }
+
+    function axisFormat(num) {
+      if (num > 0) {
+        if (num > 1000000000) {
+          return num / 1000000000 + "bn";
+        }
+
+        if (num > 1000000) {
+          return num / 1000000 + "m";
+        }
+
+        if (num > 1000) {
+          return num / 1000 + "k";
+        }
+
+        if (num % 1 != 0) {
+          return num.toFixed(1);
+        } else {
+          return num.toLocaleString();
+        }
+      }
+
+      if (num < 0) {
+        var posNum = num * -1;
+        if (posNum > 1000000000) return ["-" + String(posNum / 1000000000) + "bn"];
+        if (posNum > 1000000) return ["-" + String(posNum / 1000000) + "m"];
+        if (posNum > 1000) return ["-" + String(posNum / 1000) + "k"];else {
+          return num.toLocaleString();
+        }
+      }
+
+      return num;
+    }
+
+    var isMobile;
+    var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+
+    if (windowWidth < 610) {
+      isMobile = true;
+    }
+
+    if (windowWidth >= 610) {
+      isMobile = false;
+    }
+
+    var width = document.querySelector("#graphicContainer").getBoundingClientRect().width;
+    var height = data.length * 70;
+    var margin;
+
+    if (details[0]["margin-top"]) {
+      margin = {
+        top: +details[0]["margin-top"],
+        right: +details[0]["margin-right"],
+        bottom: +details[0]["margin-bottom"],
+        left: +details[0]["margin-left"]
+      };
+    } else {
+      margin = {
+        top: 0,
+        right: 0,
+        bottom: 20,
+        left: 40
+      };
+    }
+
+    width = width - margin.left - margin.right, height = height - margin.top - margin.bottom;
+    d3.select("#chartTitle").text(details[0].title);
+    d3.select("#subTitle").text(details[0].subtitle);
+    d3.select("#sourceText").html(details[0].source);
+    d3.select("#footnote").html(details[0].footnote);
+    d3.select("#graphicContainer svg").remove();
+    var chartKey = d3.select("#chartKey");
+    chartKey.html("");
+    var svg = d3.select("#graphicContainer").append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr("id", "svg").attr("overflow", "hidden");
+    var features = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    var keys = Object.keys(data[0]);
+    var xVar;
+    var yVar;
+
+    if (details[0]["yColumn"]) {
+      yVar = details[0]["yColumn"]; // keys.splice(keys.indexOf(yVar), 1);
+    } else {
+      yVar = keys[0]; // keys.splice(0, 1);
+    }
+
+    if (details[0]["xColumn"]) {
+      xVar = details[0]["xColumn"]; // keys.splice(keys.indexOf(xVar), 1);
+    } else {
+      xVar = keys[1]; // keys.splice(0, 1);
+    } // Check first entry and see if it looks like a string. True if string, false if number or number as string
+
+
+    var yNaN = isNaN(data[0][yVar]);
+    console.log(yVar, keys);
+    data.forEach(function (d) {
+      if (typeof d[yVar] == "string" && !yNaN) {
+        d[yVar] = +d[yVar];
+      }
+
+      d[xVar] = +d[xVar];
+    });
+    labels.forEach(function (d) {
+      d.x = +d.x;
+      d.y = +d.y;
+      d.y2 = +d.y2;
+    });
+    console.log(data);
+    userKey.forEach(function (key, i) {
+      var keyDiv = chartKey.append("div").attr("class", "keyDiv");
+      keyDiv.append("span").attr("class", "keyCircle").style("background-color", function () {
+        return key.colour;
+      });
+      keyDiv.append("span").attr("class", "keyText").text(key.key);
+    });
+    var x = d3.scaleLinear().range([0, width]);
+    var y = d3.scaleBand().range([0, height]).paddingInner(0.3).paddingOuter(0.3);
+    y.domain(data.map(function (d) {
+      return d[yVar];
+    }));
+    x.domain(d3.extent(data, function (d) {
+      return d[xVar];
+    })).nice();
+    var xAxis;
+    var yAxis;
+    yAxis = d3.axisLeft(y);
+    xAxis = d3.axisBottom(x).tickFormat(function (d) {
+      return axisFormat(d);
+    });
+    features.append("g").attr("class", "x").attr("transform", "translate(0," + height + ")").call(xAxis);
+    features.append("g").attr("class", "y").call(yAxis);
+    features.selectAll(".bar").data(data).enter().append("rect").attr("class", "bar").attr("x", 0).style("fill", function (d) {
+      if (d.Color) {
+        return d.Color;
+      } else {
+        return userKey.color[userKey.key.indexOf(d[3])];
+      }
+    }).attr("y", function (d) {
+      return y(d[yVar]); // return y(d[keys[0]])
+    }).attr("width", function (d) {
+      return x(d[xVar]);
+    }).attr("height", y.bandwidth());
+    features.selectAll(".barText").data(data).enter().append("text").attr("class", "barText").attr("x", 5).attr("y", function (d) {
+      return y(d[yVar]) - 5;
+    }).text(function (d) {
+      return d[yVar];
+    });
+    features.selectAll(".barNumber").data(data).enter().append("text").attr("class", "barNumber").attr("x", function (d) {
+      if (x(d[xVar]) > 50) {
+        return x(d[xVar]) - 50;
+      } else {
+        return x(d[xVar]) + 5;
+      }
+    }).style("fill", function (d) {
+      if (x(d[xVar]) > 50) {
+        return "#FFF";
+      } else {
+        return "#000";
+      }
+    }).attr("y", function (d) {
+      return y(d[yVar]) + (y.bandwidth() / 2 + 5);
+    }).text(function (d) {
+      return numberFormat(d[xVar]);
+    });
+    d3.selectAll(".y .tick").remove();
+
+    function textPadding(d) {
+      if (d.y2 > 0) {
+        return 12;
+      } else {
+        return -2;
+      }
+    }
+
+    function textPaddingMobile(d) {
+      if (d.y2 > 0) {
+        return 12;
+      } else {
+        return 4;
+      }
+    }
+
+    features.selectAll(".annotationLine").data(labels).enter().append("line").attr("class", "annotationLine").attr("x1", function (d) {
+      return x(d.x) + x.bandwidth() / 2;
+    }).attr("y1", function (d) {
+      return y(d.y);
+    }).attr("x2", function (d) {
+      return x(d.x) + x.bandwidth() / 2;
+    }).attr("y2", function (d) {
+      return y(d.y2);
+    }).style("opacity", 1).attr("stroke", "#000");
+    var footerAnnotations = d3.select("#footerAnnotations");
+    footerAnnotations.html("");
+
+    if (isMobile) {
+      features.selectAll(".annotationCircles").data(labels).enter().append("circle").attr("class", "annotationCircle").attr("cy", function (d) {
+        return y(d.y2) + textPadding(d) / 2;
+      }).attr("cx", function (d) {
+        return x(d.x) + x.bandwidth() / 2;
+      }).attr("r", 8).attr("fill", "#000");
+      features.selectAll(".annotationTextMobile").data(labels).enter().append("text").attr("class", "annotationTextMobile").attr("y", function (d) {
+        return y(d.y2) + textPaddingMobile(d);
+      }).attr("x", function (d) {
+        return x(d.x) + x.bandwidth() / 2;
+      }).style("text-anchor", "middle").style("opacity", 1).attr("fill", "#FFF").text(function (d, i) {
+        return i + 1;
+      });
+      console.log(labels.length);
+
+      if (labels.length > 0) {
+        footerAnnotations.append("span").attr("class", "annotationFooterHeader").text("Notes: ");
+      }
+
+      labels.forEach(function (d, i) {
+        footerAnnotations.append("span").attr("class", "annotationFooterNumber").text(i + 1 + " - ");
+
+        if (i < labels.length - 1) {
+          footerAnnotations.append("span").attr("class", "annotationFooterText").text(d.text + ", ");
+        } else {
+          footerAnnotations.append("span").attr("class", "annotationFooterText").text(d.text);
+        }
+      });
+    } else {
+      features.selectAll(".annotationText").data(labels).enter().append("text").attr("class", "annotationText").attr("y", function (d) {
+        return y(d.y2);
+      }).attr("x", function (d) {
+        return x(d.x) + x.bandwidth() / 2;
+      }).style("text-anchor", function (d) {
+        return d.align;
+      }).style("opacity", 1).text(function (d) {
+        return d.text;
+      });
+    }
+
+    var button = document.getElementById("button2");
+    var wrapper = document.getElementById("outer-wrapper");
+    var gradient = document.getElementById("gradientBar");
+
+    if (results.sheets.options.enableShowMore === "1") {
+      button.addEventListener("click", toggleButton);
+    } else {
+      button.remove();
+      wrapper.classList.toggle("min");
+      gradient.remove();
+    }
+
+    function toggleButton() {
+      wrapper.classList.toggle("min");
+      gradient.classList.toggle("gradient");
+      button.querySelectorAll(".is-on")[0].classList.toggle("hide");
+      button.querySelectorAll(".is-off")[0].classList.toggle("hide");
+    }
+  } // const $ = selector => document.querySelector(selector)
+  // const $$ = selector => [].slice.apply(document.querySelectorAll(selector))
+
+
+  (0, _createClass2["default"])(horizontalBar, [{
+    key: "round",
+    value: function round(value, exp) {
+      if (typeof exp === "undefined" || +exp === 0) return Math.round(value);
+      value = +value;
+      exp = +exp;
+      if (isNaN(value) || !(typeof exp === "number" && exp % 1 === 0)) return NaN;
+      value = value.toString().split("e");
+      value = Math.round(+(value[0] + "e" + (value[1] ? +value[1] + exp : exp)));
+      value = value.toString().split("e");
+      return +(value[0] + "e" + (value[1] ? +value[1] - exp : -exp));
+    }
+  }, {
+    key: "numberWithCommas",
+    value: function numberWithCommas(x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+  }, {
+    key: "wait",
+    value: function wait(ms) {
+      new Promise(function (resolve, reject) {
+        return setTimeout(function () {
+          return resolve();
+        }, ms);
+      });
+    }
+  }, {
+    key: "getDimensions",
+    value: function getDimensions(el) {
+      var width = el.clientWidth || el.getBoundingClientRect().width;
+      var height = el.clientHeight || el.getBoundingClientRect().height;
+      return [width, height];
+    }
+  }, {
+    key: "hashPattern",
+    value: function hashPattern(patternId, pathClass, rectClass) {
+      return "\n  \t\t<pattern id='".concat(patternId, "' patternUnits='userSpaceOnUse' width='4' height='4'>\n  \t\t\t<rect width='4' height='4' class='").concat(rectClass, "'></rect>\n  \t\t\t<path d='M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2' class='").concat(pathClass, "'></path>\n  \t\t</pattern>\n  \t");
+    }
+  }, {
+    key: "duplicate",
+    value: function duplicate(el, className) {
+      var clone = el.cloneNode(true);
+      clone.classList.add(className);
+      el.parentNode.insertBefore(clone, el);
+    }
+  }, {
+    key: "pseq",
+    value: function pseq(arr, lambda) {
+      return arr.reduce(function (agg, cur) {
+        return agg.then(function (res) {
+          return lambda(cur).then(function (res2) {
+            return res.concat(res2);
+          });
+        });
+      }, Promise.resolve([]));
+    }
+  }]);
+  return horizontalBar;
+}();
+
+exports["default"] = horizontalBar;

@@ -33,7 +33,7 @@ export default class StackedBarChart {
     var optionalKeys = []
     var optionalColours = []
     var hasTooltip = (details[0].tooltip != "") ? true : false ;
-    var hasTrendline = (trendline[0]) ? true : false ;
+    var hasTrendline = (trendline[0].index != "") ? true : false ;
     var template
 
     if (userKey.length > 1) {
