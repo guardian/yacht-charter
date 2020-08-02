@@ -33,7 +33,7 @@ export default class StackedBarChart {
     var optionalKeys = []
     var optionalColours = []
     var hasTooltip = (details[0].tooltip != "") ? true : false ;
-    var hasTrendline = (trendline[0].minx != "") ? true : false ;
+    var hasTrendline = (trendline[0]) ? true : false ;
     var template
 
     if (userKey.length > 1) {
@@ -95,6 +95,7 @@ export default class StackedBarChart {
     var svg = d3.select("#graphicContainer").append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr("id", "svg").attr("overflow", "hidden");
     var features = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     var keys = Object.keys(data[0])
+
     var colors = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00'];
     var color = d3.scaleOrdinal();
     if (userKey.length > 1) {
@@ -238,21 +239,38 @@ export default class StackedBarChart {
 
     if (hasTrendline) {
 
-      for (const trend of trendline) {
+      var tkeys = Object.keys(trendline[0]).filter(item => item != xVar)
 
-        var maxx = x(d3.max(xRange))
-        var maxy = y(trend.maxy)
-        var minx = x(d3.min(xRange))
-        var miny = y(trend.miny)
+      trendline.forEach(function(d) {
+        if (dateParse != null) {
+          if (typeof d[xVar] === 'string') {
+            d[xVar] = dateParse(d[xVar])
+          }
+        }
+      })
 
-        features.append("line")
-          .attr("x1", minx)
-          .attr("y1", miny)
-          .attr("x2", maxx)
-          .attr("y2", maxy)
-          .attr("stroke-width", 1)
-          .attr("stroke", trend.colour)
-          .attr("stroke-dasharray", "1 1")
+      var trendColours = (details[0].trendColours) ? details[0].trendColours.split(',') : ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00'] ;
+
+      var colourIndex = 0
+
+      for (const trend of tkeys) {
+
+        let tline = d3.line()
+
+        let tdata = trendline.map( item => [ x(item.index), y(+item[trend]) ])
+
+        features.append("path")
+              .attr("d", tline(tdata))
+              .attr("stroke", trendColours[colourIndex])
+              .attr("fill", "none")
+
+        var keyDiv = chartKey.append("div").attr("class", "keyDiv")
+
+        keyDiv.append("div").attr("class", "keyDash").style("border-color", () => trendColours[colourIndex])
+
+        keyDiv.append("span").attr("class", "keyText").text(tkeys[colourIndex])
+
+        colourIndex++
 
       }
 

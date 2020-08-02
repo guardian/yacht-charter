@@ -16,7 +16,8 @@ const location = getURLParams("location") ? getURLParams("location") : "docsdata
 //smallmultiples = "australian-states-daily-covid-cases-2020"
 
 //data directories: "yacht-charter-data" "docsdata"
-
+// https://interactive.guim.co.uk/embed/aus/2020/yacht-charter-v5/index.html?key=local-trend-nsw-corona-2020&location=yacht-charter-data
 
 new Chart(key, location)
 //https://interactive.guim.co.uk/yacht-charter-data/australian-states-daily-covid-cases-2020.json
+//https://interactive.guim.co.uk/yacht-charter-data/local-trend-nsw-corona-2020.json

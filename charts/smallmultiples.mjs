@@ -39,7 +39,7 @@ export default class SmallMultiples {
 
     this.details = details
 
-    this.isMobile = = (windowWidth < 610) ? true : false ;
+    this.isMobile = (windowWidth < 610) ? true : false ;
 
     this.hasTooltip = tooltip
 

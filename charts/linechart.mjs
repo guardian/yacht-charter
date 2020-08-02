@@ -1,6 +1,7 @@
+import { numberFormat } from '../utilities/numberFormat'
+
 export default class LineChart {
   constructor(results) {
-    console.log(results)
     let clone = JSON.parse(JSON.stringify(results))
     var data = clone["sheets"]["data"]
     var template = clone["sheets"]["template"]
@@ -17,67 +18,20 @@ export default class LineChart {
       })
     }
 
-    function numberFormat(num) {
-      if (num > 0) {
-        if (num > 1000000000) {
-          return (num / 1000000000) + "bn"
-        }
-        if (num > 1000000) {
-          return (num / 1000000) + "m"
-        }
-        if (num > 1000) {
-          return (num / 1000) + "k"
-        }
-        if (num % 1 != 0) {
-          return num.toFixed(2)
-        } else {
-          return num.toLocaleString()
-        }
-      }
-      if (num < 0) {
-        var posNum = num * -1
-        if (posNum > 1000000000) return ["-" + String((posNum / 1000000000)) + "bn"]
-        if (posNum > 1000000) return ["-" + String((posNum / 1000000)) + "m"]
-        if (posNum > 1000) return ["-" + String((posNum / 1000)) + "k"]
-        else {
-          return num.toLocaleString()
-        }
-      }
-      return num
-    }
-
-    d3.select("#chartTitle").text(template[0].title)
-    d3.select("#subTitle").text(template[0].subtitle)
-    if (template[0].source != "") {
-      d3.select("#sourceText").html(" | Source: " + template[0].source)
-    }
-
     if (template[0].x_axis_cross_y != "") {
       x_axis_cross_y = +template[0].x_axis_cross_y
       x_axis_cross_y = null
     }
 
-    d3.select("#footnote").html(template[0].footnote)
-
     var chartKey = d3.select("#chartKey")
 
-    var isMobile
     var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
 
-    if (windowWidth < 610) {
-      isMobile = true
-    }
-
-    if (windowWidth >= 610) {
-      isMobile = false
-    }
+    var isMobile = (windowWidth < 610) ? true : false ;
 
     var containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width
 
-
     var height = containerWidth * 0.6
-
-    console.log("width", containerWidth,"height", height)
 
     var margin
     if (template[0]["margin-top"]) {
@@ -105,9 +59,6 @@ export default class LineChart {
         }
     }
     
-
-    console.log(lineLabelling);
-
     var breaks = "yes"
 
     if (template[0]["breaks"]) {
@@ -125,17 +76,13 @@ export default class LineChart {
       xVar = keys[0]
       keys.splice(0, 1)
     }
-    // console.log(xVar, keys)
 
     var colors = ["#4daacf", "#5db88b", "#a2b13e", "#8a6929", "#b05cc6", "#c8a466", "#c35f95", "#ce592e", "#d23d5e", "#d89a34", "#7277ca", "#527b39", "#59b74b", "#c76c65", "#8a6929"]
 
-    // var colors = ["#000000","#0000ff","#9d02d7","#cd34b5","#ea5f94","#fa8775","#ffb14e","#ffd700"]
-
-    var width = containerWidth - margin.left - margin.right,
-    height = height - margin.top - margin.bottom
-
+    var width = containerWidth - margin.left - margin.right, height = height - margin.top - margin.bottom
 
     d3.select("#graphicContainer svg").remove()
+
     chartKey.html("")
 
     var svg = d3.select("#graphicContainer").append("svg")
@@ -144,8 +91,8 @@ export default class LineChart {
       .attr("id", "svg")
       .attr("overflow", "hidden")
 
-
     if (lineLabelling && !isMobile) {
+
       var longestKey = keys.sort(function (a, b) { return b.length - a.length; })[0];
       
       d3.select("#dummyText").remove()
@@ -161,7 +108,6 @@ export default class LineChart {
 
       margin.right = margin.right + keyLength
 
-      console.log(margin.right, keyLength)
     }
 
     width = containerWidth - margin.left - margin.right
