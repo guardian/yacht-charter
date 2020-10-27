@@ -12,9 +12,10 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 var AnnotatedBarChart = function AnnotatedBarChart(results, d3) {
   (0, _classCallCheck2["default"])(this, AnnotatedBarChart);
   console.log(results);
-  var data = results.sheets.data;
-  var details = results.sheets.details;
-  var labels = results.sheets.labels;
+  var clone = JSON.parse(JSON.stringify(results));
+  var data = clone["sheets"]["data"];
+  var details = clone["sheets"]["template"];
+  var labels = clone["sheets"]["labels"];
 
   function numberFormat(num) {
     if (num > 0) {

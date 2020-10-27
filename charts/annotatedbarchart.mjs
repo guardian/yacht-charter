@@ -1,9 +1,10 @@
 export default class AnnotatedBarChart {
   constructor(results, d3) {
     console.log(results)
-    var data = results.sheets.data
-    var details = results.sheets.details
-    var labels = results.sheets.labels
+    let clone = JSON.parse(JSON.stringify(results))
+    var data = clone["sheets"]["data"]
+    var details = clone["sheets"]["template"]
+    var labels = clone["sheets"]["labels"]
 
     function numberFormat(num) {
       if (num > 0) {
@@ -259,8 +260,6 @@ export default class AnnotatedBarChart {
           .attr("class", "annotationFooterHeader")
           .text("Notes: ")
       }
-
-
 
       labels.forEach(function (d, i) {
 

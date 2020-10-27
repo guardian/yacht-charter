@@ -4,19 +4,29 @@ export default class SmallMultiples {
 
   constructor(results, isMobile) {
 
+    console.log(results)
     var self = this
     var data = results.sheets.data
     var details = results.sheets.template
-    var keys = [...new Set(data.map(d => d.State))]
+
+    var dataKeys = Object.keys(data[0])
+
+    console.log(dataKeys)
+
+    this.groupVar = dataKeys[1]
+    this.xVar = dataKeys[0]
+    this.yVar = dataKeys[2]
+
+    var keys = [...new Set(data.map(d => d[this.groupVar]))]
     var tooltip = (details[0].tooltip != "") ? true : false ;
 
     data.forEach(function (d) {
-      if (typeof d.Cases == "string") {
-        d.Cases = +d.Cases
+      if (typeof d[self.yVar] == "string") {
+        d[self.yVar] = +d[self.yVar]
       }
-      if (typeof d.Date == "string") {
+      if (typeof d[self.xVar] == "string") {
         let timeParse = d3.timeParse("%Y-%m-%d")
-        d.Date = timeParse(d.Date)
+        d[self.xVar] = timeParse(d[self.xVar])
       }
     })
 
@@ -124,11 +134,16 @@ export default class SmallMultiples {
 
     height = height - margin.top - margin.bottom
 
-    d3.select("#graphicContainer").append("div").attr("id", key[index]).attr("class", "barGrid")
+    function makeId(str) {
+        return str.replace(/ /g, '_');
+      }
+
+
+    d3.select("#graphicContainer").append("div").attr("id", makeId(key[index])).attr("class", "barGrid")
 
     let hashString = "#"
 
-    let keyId = hashString.concat(key[index])
+    let keyId = hashString.concat(makeId(key[index]))
 
     d3.select(keyId).append("div").text(key[index]).attr("class", "chartSubTitle")
 
@@ -138,17 +153,17 @@ export default class SmallMultiples {
     
     var keys = Object.keys(data[0])
 
-    var x = d3.scaleBand().range([0, width]).paddingInner(0.08)
+    var x = d3.scaleBand().range([0, width]).padding(0)
 
     var y = d3.scaleLinear().range([height, 0])
 
     var duration = 1000;
 
-    var yMax = (this.showGroupMax) ? data : data.filter(item => item.State === key[index]);
+    var yMax = (this.showGroupMax) ? data : data.filter(item => item[self.groupVar] === key[index]);
 
-    x.domain(data.map((d) => d.Date))
+    x.domain(data.map((d) => d[self.xVar]))
 
-    y.domain(d3.extent(yMax, (d) => d.Cases)).nice()
+    y.domain(d3.extent(yMax, (d) => d[self.yVar])).nice()
 
     var tickMod = Math.round(x.domain().length / 3)
 
@@ -164,12 +179,12 @@ export default class SmallMultiples {
 
     function update() {
 
-      yMax = (self.showGroupMax) ? data : data.filter(item => item.State === key[index]);
+      yMax = (self.showGroupMax) ? data : data.filter(item => item[self.groupVar] === key[index]);
 
-      y.domain(d3.extent(yMax, (d) => d.Cases))
+      y.domain(d3.extent(yMax, (d) => d[self.yVar]))
 
       var bars = features.selectAll(".bar")
-        .data(data.filter(d => d.State === key[index]))
+        .data(data.filter(d => d[self.groupVar] === key[index]))
 
       bars
         .enter()
@@ -181,10 +196,10 @@ export default class SmallMultiples {
         .merge(bars)
         .transition()
         .duration(duration)
-        .attr("x", (d) => x(d.Date))
-        .attr("y", (d) => y(Math.max(d.Cases, 0)))
+        .attr("x", (d) => x(d[self.xVar]))
+        .attr("y", (d) => y(Math.max(d[self.yVar], 0)))
         .attr("width", x.bandwidth())
-        .attr("height", (d) => Math.abs(y(d.Cases) - y(0)))
+        .attr("height", (d) => Math.abs(y(d[self.yVar]) - y(0)))
 
 
       d3.selectAll('.bar')

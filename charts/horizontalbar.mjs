@@ -182,9 +182,29 @@ export default class horizontalBar {
     y.domain(data.map(function (d) {
       return d[yVar]
     }))
-    x.domain(d3.extent(data, function (d) {
-      return d[xVar]
-    })).nice()
+
+
+    var xMin, xMax
+
+  xMax = d3.max(data, function (d) {  return d[xVar] })
+
+   if (details[0]["minX"]) {
+      if (details[0]["minX"] != "") {
+        console.log("yeg ")
+        xMin = parseInt(details[0]["minX"])
+      }
+
+      else {
+        xMin = d3.min(data, function (d) {  return d[xVar] })
+    }
+  }
+  
+  else {
+    xMin = d3.min(data, function (d) {  return d[xVar] })
+  }
+
+
+    x.domain([xMin, xMax]).nice()
 
     var xAxis
     var yAxis

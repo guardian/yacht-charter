@@ -13,9 +13,10 @@ export default class LineChart {
 
     if (userKey.length > 1) {
       userKey.forEach(function (d) {
-        optionalKey[d.keyName] = d.colour
+        optionalKey[d.key] = d.colour
       })
     }
+    console.log("key",optionalKey)
 
     function numberFormat(num) {
       if (num > 0) {
@@ -52,10 +53,13 @@ export default class LineChart {
       d3.select("#sourceText").html(" | Source: " + template[0].source)
     }
 
-    if (template[0].x_axis_cross_y != "") {
-      x_axis_cross_y = +template[0].x_axis_cross_y
-      x_axis_cross_y = null
+    if (template[0].x_axis_cross_y) {
+        if (template[0].x_axis_cross_y != "") {
+        x_axis_cross_y = +template[0].x_axis_cross_y
+        // x_axis_cross_y = null
+      }
     }
+    
 
     d3.select("#footnote").html(template[0].footnote)
 
@@ -96,14 +100,14 @@ export default class LineChart {
       }
     }
 
-    var lineLabelling = true;
-    if (options.length > 0) {
-        if (options[0]["lineLabelling"]) {
-          if (options[0]["lineLabelling"] != "") {
-            lineLabelling = (options[0]["lineLabelling"] === true);
-          }
-        }
-    }
+    var lineLabelling = false;
+    // if (options.length > 0) {
+    //     if (options[0]["lineLabelling"]) {
+    //       if (options[0]["lineLabelling"] != "") {
+    //         lineLabelling = (options[0]["lineLabelling"] === true);
+    //       }
+    //     }
+    // }
     
 
     console.log(lineLabelling);
@@ -127,10 +131,19 @@ export default class LineChart {
     }
     // console.log(xVar, keys)
 
-    var colors = ["#4daacf", "#5db88b", "#a2b13e", "#8a6929", "#b05cc6", "#c8a466", "#c35f95", "#ce592e", "#d23d5e", "#d89a34", "#7277ca", "#527b39", "#59b74b", "#c76c65", "#8a6929"]
+  var colors;
+  var colorsLong = ["#4daacf", "#5db88b", "#a2b13e", "#8a6929", "#b05cc6", "#c8a466", "#c35f95", "#ce592e", "#d23d5e", "#d89a34", "#7277ca", "#527b39", "#59b74b", "#c76c65", "#8a6929"]; 
+  var colorsMedium = ["#000000","#0000ff","#9d02d7","#cd34b5","#ea5f94","#fa8775","#ffb14e","#ffd700"]
+  var colorsShort = ["#ffb14e","#fa8775","#ea5f94","#cd34b5","#9d02d7","#0000ff"]
+  var colors = ["#4daacf", "#5db88b", "#a2b13e", "#8a6929", "#b05cc6", "#c8a466", "#c35f95", "#ce592e", "#d23d5e", "#d89a34", "#7277ca", "#527b39", "#59b74b", "#c76c65", "#8a6929"]; // var colors = ["#000000","#0000ff","#9d02d7","#cd34b5","#ea5f94","#fa8775","#ffb14e","#ffd700"]
 
-    // var colors = ["#000000","#0000ff","#9d02d7","#cd34b5","#ea5f94","#fa8775","#ffb14e","#ffd700"]
+  if (keys.length <= 5) {
+    colors = colorsShort;
+  }
 
+  else {
+    colors = colorsLong
+  }
     var width = containerWidth - margin.left - margin.right,
     height = height - margin.top - margin.bottom
 
@@ -246,7 +259,7 @@ export default class LineChart {
 
     // console.log(data)
 
-    if (isMobile) {
+    // if (isMobile) {
       keys.forEach(function (key) {
 
         var keyDiv = chartKey.append("div")
@@ -267,7 +280,7 @@ export default class LineChart {
           .text(key)
 
       })
-    }
+    // }
 
     var parseTime = d3.timeParse(template[0]["dateFormat"])
     var parsePeriods = d3.timeParse(template[0]["periodDateFormat"])
@@ -322,16 +335,26 @@ export default class LineChart {
     var min
     var max = d3.max(allValues);
 
-    if (template[0]["minY"] != "") {
-      min = parseInt(template[0]["minY"])
-    } else {
+
+    if (template[0]["minY"]) {
+        if (template[0]["minY"] != "") {
+          console.log("yeg ")
+          min = parseInt(template[0]["minY"])
+        }
+
+        else {
+          min = d3.min(allValues)
+      }
+    }
+    
+    else {
       min = d3.min(allValues)
     }
     x.domain(d3.extent(data, function (d) {
       return d[xVar]
     }))
 
-    console.log(min)
+    console.log(min, max)
     y.domain([min, max])
 
     var xAxis
@@ -355,7 +378,7 @@ export default class LineChart {
       xAxis = d3.axisBottom(x).ticks(4)
   
     } else {
-      xAxis = d3.axisBottom(x).ticks(8)
+      xAxis = d3.axisBottom(x).ticks(6)
     }
 
     d3.selectAll(".periodLine").remove()
@@ -487,7 +510,7 @@ export default class LineChart {
         })
         .attr("stroke-linejoin", "round")
         .attr("stroke-linecap", "round")
-        .attr("stroke-width", 1.5)
+        .attr("stroke-width", 2)
         .attr("d", lineGenerators[key])
 
 
@@ -505,41 +528,41 @@ export default class LineChart {
       //   lineLabelOffset = -10
       // }
 
-      if (!isMobile) {
+      // if (!isMobile) {
 
-        features.append("circle")
-        .attr("cy", function (d) {
-          return y(tempLabelData[tempLabelData.length - 1][key])
-        })
-        .attr("fill", function (d) {
-          if (optionalKey.hasOwnProperty(key)) {
-            return optionalKey[key]
-          } else {
-            return color(key)
-          }
+      //   features.append("circle")
+      //   .attr("cy", function (d) {
+      //     return y(tempLabelData[tempLabelData.length - 1][key])
+      //   })
+      //   .attr("fill", function (d) {
+      //     if (optionalKey.hasOwnProperty(key)) {
+      //       return optionalKey[key]
+      //     } else {
+      //       return color(key)
+      //     }
 
-        })
-        .attr("cx", function (d) {
-          return x(tempLabelData[tempLabelData.length - 1][xVar])
-        })
-        .attr("r", 4)
-        .style("opacity", 1)
+      //   })
+      //   .attr("cx", function (d) {
+      //     return x(tempLabelData[tempLabelData.length - 1][xVar])
+      //   })
+      //   .attr("r", 4)
+      //   .style("opacity", 1)
 
-        features.append("text")
-          .attr("class", "annotationText")
-          .attr("y", function (d) {
-            return y(tempLabelData[tempLabelData.length - 1][key]) + 4 + lineLabelOffset
-          })
-          .attr("x", function (d) {
-            console.log(x(tempLabelData[tempLabelData.length - 1][xVar]))
-            return x(tempLabelData[tempLabelData.length - 1][xVar]) + 5
-          })
-          .style("opacity", 1)
-          .attr("text-anchor", lineLabelAlign)
-          .text(function (d) {
-            return key
-          })
-      }
+      //   features.append("text")
+      //     .attr("class", "annotationText")
+      //     .attr("y", function (d) {
+      //       return y(tempLabelData[tempLabelData.length - 1][key]) + 4 + lineLabelOffset
+      //     })
+      //     .attr("x", function (d) {
+      //       console.log(x(tempLabelData[tempLabelData.length - 1][xVar]))
+      //       return x(tempLabelData[tempLabelData.length - 1][xVar]) + 5
+      //     })
+      //     .style("opacity", 1)
+      //     .attr("text-anchor", lineLabelAlign)
+      //     .text(function (d) {
+      //       return key
+      //     })
+      // }
 
 
 
@@ -547,7 +570,7 @@ export default class LineChart {
 
     function textPadding(d) {
       if (d.offset > 0) {
-        return 12
+        return 6
       } else {
         return -2
       }
@@ -555,7 +578,7 @@ export default class LineChart {
 
     function textPaddingMobile(d) {
       if (d.offset > 0) {
-        return 12
+        return 8
       } else {
         return 4
       }
@@ -648,7 +671,8 @@ export default class LineChart {
         .enter().append("text")
         .attr("class", "annotationText")
         .attr("y", function (d) {
-          return y(d.offset) + textPadding(d)
+          console.log(textPadding(d))
+          return y(d.offset) + -1*textPadding(d)
         })
         .attr("x", function (d) {
           return x(d.x)
