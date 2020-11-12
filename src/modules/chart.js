@@ -13,11 +13,15 @@ export class Chart {
         .then((data) => {
           const type = data.sheets.chartId[0].type
           ajax(`./templates/${type}.html`).then((templateHtml) => {
+            Ractive.DEBUG = false;
             new Ractive({
               target: "#app",
               template: templateHtml,
               data: data.sheets.template[0]
             })
+
+            
+            
             configure(data, type)
           })
         })

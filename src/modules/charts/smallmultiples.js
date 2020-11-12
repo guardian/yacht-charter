@@ -32,6 +32,7 @@ var SmallMultiples = /*#__PURE__*/function () {
     var self = this;
     var data = results.sheets.data;
     var details = results.sheets.template;
+    var options = results.sheets.options;
     var dataKeys = Object.keys(data[0]);
     console.log(dataKeys);
     this.groupVar = dataKeys[1];
@@ -72,12 +73,40 @@ var SmallMultiples = /*#__PURE__*/function () {
     this.isMobile = isMobile;
     this.hasTooltip = tooltip;
     this.template = details[0].tooltip;
-    this.showGroupMax = true;
+
+    if (options[0]['scaleBy'] == "group") {
+      this.showGroupMax = true;
+    } else {
+      this.showGroupMax = false;
+      d3.select("#switch").html("Show max scale for group");
+    }
+
     d3.select("#switch").on("click", function () {
       self.showGroupMax = self.showGroupMax ? false : true;
       var label = self.showGroupMax ? "Show max scale for each chart" : "Show max scale for group";
       d3.select(this).html(label);
     });
+    var margin;
+
+    if (details[0]["margin-top"]) {
+      margin = {
+        top: +details[0]["margin-top"],
+        right: +details[0]["margin-right"],
+        bottom: +details[0]["margin-bottom"],
+        left: +details[0]["margin-left"]
+      };
+    } else {
+      margin = {
+        top: 0,
+        right: 0,
+        bottom: 20,
+        left: 50
+      };
+    }
+
+    this.margin = margin;
+    this.width;
+    this.height;
     this.render();
   }
 
@@ -85,6 +114,29 @@ var SmallMultiples = /*#__PURE__*/function () {
     key: "render",
     value: function render() {
       var self = this;
+      var containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width;
+      console.log("containerWidth", containerWidth);
+      var numCols;
+
+      if (containerWidth <= 500) {
+        numCols = 1;
+      } else if (containerWidth <= 750) {
+        numCols = 2;
+      } else {
+        numCols = 3;
+      }
+
+      console.log(numCols);
+      var width = document.querySelector("#graphicContainer").getBoundingClientRect().width / numCols;
+      console.log("width", width);
+      var height = 200;
+
+      if (self.isMobile) {
+        height = 150;
+      }
+
+      self.width = width - self.margin.left - self.margin.right;
+      self.height = height - self.margin.top - self.margin.bottom;
       d3.select("#graphicContainer").selectAll("svg").remove();
       d3.select("#graphicContainer").html("");
 
@@ -96,55 +148,55 @@ var SmallMultiples = /*#__PURE__*/function () {
     key: "_drawSmallChart",
     value: function _drawSmallChart(data, index, key, details, isMobile, tooltip) {
       var self = this;
-      var numCols;
-      var containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width;
-
-      if (containerWidth < 500) {
-        numCols = 1;
-      } else if (containerWidth < 750) {
-        numCols = 2;
-      } else {
-        numCols = 3;
-      }
-
-      var width = document.querySelector("#graphicContainer").getBoundingClientRect().width / numCols;
-      var height = width * 0.5;
-      var margin;
-
-      if (details[0]["margin-top"]) {
-        margin = {
-          top: +details[0]["margin-top"],
-          right: +details[0]["margin-right"],
-          bottom: +details[0]["margin-bottom"],
-          left: +details[0]["margin-left"]
-        };
-      } else {
-        margin = {
-          top: 0,
-          right: 0,
-          bottom: 20,
-          left: 50
-        };
-      }
-
-      width = width - margin.left - margin.right;
-      height = height - margin.top - margin.bottom;
 
       function makeId(str) {
         return str.replace(/ /g, '_');
+      }
+
+      function numberFormat(num) {
+        if (num > 0) {
+          if (num > 1000000000) {
+            return num / 1000000000 + "bn";
+          }
+
+          if (num > 1000000) {
+            return num / 1000000 + "m";
+          }
+
+          if (num > 1000) {
+            return num / 1000 + "k";
+          }
+
+          if (num % 1 != 0) {
+            return num.toFixed(2);
+          } else {
+            return num.toLocaleString();
+          }
+        }
+
+        if (num < 0) {
+          var posNum = num * -1;
+          if (posNum > 1000000000) return ["-" + String(posNum / 1000000000) + "bn"];
+          if (posNum > 1000000) return ["-" + String(posNum / 1000000) + "m"];
+          if (posNum > 1000) return ["-" + String(posNum / 1000) + "k"];else {
+            return num.toLocaleString();
+          }
+        }
+
+        return num;
       }
 
       d3.select("#graphicContainer").append("div").attr("id", makeId(key[index])).attr("class", "barGrid");
       var hashString = "#";
       var keyId = hashString.concat(makeId(key[index]));
       d3.select(keyId).append("div").text(key[index]).attr("class", "chartSubTitle");
-      var svg = d3.select(keyId).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr("overflow", "hidden");
-      var features = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      var svg = d3.select(keyId).append("svg").attr("width", self.width + self.margin.left + self.margin.right).attr("height", self.height + self.margin.top + self.margin.bottom).attr("overflow", "hidden");
+      var features = svg.append("g").attr("transform", "translate(" + self.margin.left + "," + self.margin.top + ")");
       var keys = Object.keys(data[0]);
-      var x = d3.scaleBand().range([0, width]).padding(0);
-      var y = d3.scaleLinear().range([height, 0]);
+      var x = d3.scaleBand().range([0, self.width]).padding(0);
+      var y = d3.scaleLinear().range([self.height, 0]);
       var duration = 1000;
-      var yMax = this.showGroupMax ? data : data.filter(function (item) {
+      var yMax = self.showGroupMax ? data : data.filter(function (item) {
         return item[self.groupVar] === key[index];
       });
       x.domain(data.map(function (d) {
@@ -159,12 +211,13 @@ var SmallMultiples = /*#__PURE__*/function () {
       });
       var xAxis = d3.axisBottom(x).tickValues(ticks).tickFormat(d3.timeFormat("%d %b"));
       var yAxis = d3.axisLeft(y).tickFormat(function (d) {
-        return d;
-      }).ticks(5);
-      features.append("g").attr("class", "x").attr("transform", "translate(0," + height + ")").call(xAxis);
+        return numberFormat(d);
+      }).ticks(3);
+      features.append("g").attr("class", "x").attr("transform", "translate(0," + self.height + ")").call(xAxis);
       features.append("g").attr("class", "y");
 
       function update() {
+        // console.log(self)
         yMax = self.showGroupMax ? data : data.filter(function (item) {
           return item[self.groupVar] === key[index];
         });
@@ -176,7 +229,7 @@ var SmallMultiples = /*#__PURE__*/function () {
         }));
         bars.enter().append("rect").attr("class", "bar").style("fill", function () {
           return "rgb(204, 10, 17)";
-        }).attr('height', 0).attr('y', height).merge(bars).transition().duration(duration).attr("x", function (d) {
+        }).attr('height', 0).attr('y', self.height).merge(bars).transition().duration(duration).attr("x", function (d) {
           return x(d[self.xVar]);
         }).attr("y", function (d) {
           return y(Math.max(d[self.yVar], 0));
@@ -189,9 +242,9 @@ var SmallMultiples = /*#__PURE__*/function () {
             self.tooltip.html(text);
             var tipWidth = document.querySelector("#tooltip").getBoundingClientRect().width;
 
-            if (d3.event.pageX < width / 2) {
+            if (d3.event.pageX < self.width / 2) {
               self.tooltip.style("left", d3.event.pageX + tipWidth / 2 + "px");
-            } else if (d3.event.pageX >= width / 2) {
+            } else if (d3.event.pageX >= self.width / 2) {
               self.tooltip.style("left", d3.event.pageX - tipWidth + "px");
             }
 
@@ -203,7 +256,7 @@ var SmallMultiples = /*#__PURE__*/function () {
             self.tooltip.transition().duration(500).style("opacity", 0);
           }
         });
-        bars.exit().transition().duration(duration).attr('height', 0).attr('y', height).remove();
+        bars.exit().transition().duration(duration).attr('height', 0).attr('y', self.height).remove();
         features.select('.y').transition().duration(duration).call(yAxis);
       }
 

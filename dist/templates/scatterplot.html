@@ -1,14 +1,18 @@
 <div id="outer-wrapper" class="immersive">
 	<link rel="stylesheet" href="chartcss/scatterplot.css">
 	<style media="screen"/>
-	<div class='chartTitle'></div>
-	<div class='row  chartNotes' id='standfirst'></div>
+	<div class='chartTitle' id="chartTitle">{{title}}</div>
+	<div class='subTitle' id="subTitle">{{{subtitle}}}</div>
 	<div class="row">
 		<div id='key' class="chartNotes"></div>
-		<div id='colourBlind' class="chartNotes">greyscale</div>
+		<!-- <div id='colourBlind' class="chartNotes">greyscale</div> -->
 	</div>
 	<div class="row borderBottom chartSans" id="graphicContainer"></div>
-	<div id="scatterplot_chart_data_source" class='footer offset '>
-		Text | Source:
+	<div class='footer offset'>
+
+		<div id="footerAnnotations">{{{footnote}}}</div>
+
+		<span id="footnote"></span> Guardian graphic <span id="sourceText">{{{source}}}</span>
+
 	</div>
 </div>

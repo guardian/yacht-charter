@@ -7,7 +7,7 @@ export default class ScatterPlot {
     this.firstTime = true
     this.default = null
     this.database = null
-    this.settings = null
+    this.template = null
     this.trendlines = null
     this.trendline = null
     this.tiptext = null
@@ -42,16 +42,16 @@ export default class ScatterPlot {
     var labels = []
 
     // Assign
-    this.settings = data.sheets.settings
+    this.template = data.sheets.template
     this.key = null
-    this.yTag = data.sheets.settings[0].y
-    this.xTag = data.sheets.settings[0].x
-    this.zero_line_x = (data.sheets.settings[0].zero_line_x === "TRUE") ? true : false
-    this.zero_line_y = (data.sheets.settings[0].zero_line_y === "TRUE") ? true : false
+    this.yTag = data.sheets.template[0].y
+    this.xTag = data.sheets.template[0].x
+    this.zero_line_x = (data.sheets.template[0].zero_line_x === "TRUE") ? true : false
+    this.zero_line_y = (data.sheets.template[0].zero_line_y === "TRUE") ? true : false
     this.database = data.sheets.database
     this.database.forEach(function (d) {
-      d.x = +d[data.sheets.settings[0].x]
-      d.y = +d[data.sheets.settings[0].y]
+      d.x = +d[data.sheets.template[0].x]
+      d.y = +d[data.sheets.template[0].y]
       if ("label" in d) {
         if (d.label === "TRUE") {
           labels.push(d)
@@ -59,13 +59,25 @@ export default class ScatterPlot {
       }
     })
 
+    this.utilities = {
+      decimals: function(items) {
+        var nums = items.split(",")
+        return parseFloat(this[nums[0]]).toFixed(nums[1]);
+      },
+      nicedate: function(dte) {
+        var chuncks = this[dte]
+        return moment(chuncks).format('MMM D')
+      }
+    }
+
+
     this.labels = labels
-    console.log(this.settings)
+    console.log(this.template)
     console.log(this.database)
     console.log(this.labels)
 
-    if (this.settings[0]["title"] != "") {
-      d3.select(".chartTitle").html(self.settings[0]["title"])
+    if (this.template[0]["title"] != "") {
+      d3.select(".chartTitle").html(self.template[0]["title"])
     }
 
     this.colourKey = d3.scaleOrdinal()
@@ -89,19 +101,19 @@ export default class ScatterPlot {
       }
     }
 
-    if (this.settings[0].categories != "") {
+    if (this.template[0].categories != "") {
       this._createCats(d3)
     }
 
-    if (this.settings[0]["standfirst"] != "") {
-      d3.select("#standfirst").html(self.settings[0].standfirst)
+    if (this.template[0]["standfirst"] != "") {
+      d3.select("#standfirst").html(self.template[0].standfirst)
     }
 
-    if (this.settings[0]["x_format"] != "") {
-      this.x_format = this.settings[0]["x_format"]
+    if (this.template[0]["x_format"] != "") {
+      this.x_format = this.template[0]["x_format"]
     }
 
-    if (this.settings[0].trendline == "TRUE") {
+    if (this.template[0].trendline == "TRUE") {
 
       this.trendline = true
       this.trendlines = data.sheets.trendline
@@ -109,14 +121,14 @@ export default class ScatterPlot {
     }
 
     // Set the tooltip text
-    if (this.settings[0].tooltip != "") {
+    if (this.template[0].tooltip != "") {
 
-      this.tiptext = this.settings[0].tooltip
+      this.tiptext = this.template[0].tooltip
 
     }
 
     // Create the filter selectors if they have been set in the Googledoc
-    if (this.settings[0].filter != "") {
+    if (this.template[0].filter != "") {
 
       this._createFilters(d3)
 
@@ -124,28 +136,28 @@ export default class ScatterPlot {
 
     // Create the category selectors if they have been set in the Googledoc
 
-    if (this.settings[0].x_axis_cross_y != "") {
-      this.x_axis_cross_y = this.settings[0].x_axis_cross_y
+    if (this.template[0].x_axis_cross_y != "") {
+      this.x_axis_cross_y = this.template[0].x_axis_cross_y
     }
 
-    if (this.settings[0].y_axis_cross_x != "") {
-      this.y_axis_cross_x = this.settings[0].y_axis_cross_x
+    if (this.template[0].y_axis_cross_x != "") {
+      this.y_axis_cross_x = this.template[0].y_axis_cross_x
     }
 
-    if (this.settings[0]["label"] != "") {
-      this.label_col = this.settings[0].label_col
+    if (this.template[0]["label"] != "") {
+      this.label_col = this.template[0].label_col
     }
 
-    if (this.settings[0]["x_label"] != "") {
-      this.x_label = this.settings[0].x_label
+    if (this.template[0]["x_label"] != "") {
+      this.x_label = this.template[0].x_label
     } else {
-      this.x_label = data.sheets.settings[0].x
+      this.x_label = data.sheets.template[0].x
     }
 
-    if (this.settings[0]["y_label"] != "") {
-      this.y_label = this.settings[0].y_label
+    if (this.template[0]["y_label"] != "") {
+      this.y_label = this.template[0].y_label
     } else {
-      this.y_label = data.sheets.settings[0].y
+      this.y_label = data.sheets.template[0].y
     }
 
 
@@ -159,7 +171,7 @@ export default class ScatterPlot {
 
     this.colourBlindUser = false
 
-    d3.select("#scatterplot_chart_data_source").html(self.settings[0].source)
+    d3.select("#scatterplot_chart_data_source").html(self.template[0].source)
     this._render(d3)
 
     d3.selectAll("#colourBlind").on("click", function () {
@@ -182,9 +194,9 @@ export default class ScatterPlot {
 
     var self = this
 
-    self.filter = self.settings[0].filter
+    self.filter = self.template[0].filter
 
-    self.default = self.settings[0].default_filter
+    self.default = self.template[0].default_filter
 
     var filters = []
 
@@ -212,7 +224,7 @@ export default class ScatterPlot {
 
     var self = this
 
-    self.cats = self.settings[0].categories
+    self.cats = self.template[0].categories
 
     var categories = []
     var colourDomain = []
@@ -701,20 +713,21 @@ export default class ScatterPlot {
 
       for (var i = 0; i < self.annotations.length; i++) {
 
+        let scaled_x = (self.annotations[i].scaled_x === "TRUE") ? true : false
+        let position_x = (scaled_x) ? x(+self.annotations[i].x) : +self.annotations[i].x
+        let scaled_y = (self.annotations[i].scaled_y === "TRUE") ? true : false
+        let position_y = (scaled_y) ? y(+self.annotations[i].y) : +self.annotations[i].y
+        let rotation = (self.annotations[i].rotation === "") ? 0 : self.annotations[i].rotation
+
         svg.append("text")
-          .attr("class", "annotations")
-          .attr("x", function (d) {
-            let scaled_x = (self.annotations[i].scaled_x === "TRUE") ? true : false
-            let position = (scaled_x) ? x(+self.annotations[i].x) : +self.annotations[i].x
-            return position
-          })
-          .attr("y", function (d) {
-            let scaled_y = (self.annotations[i].scaled_y === "TRUE") ? true : false
-            let position = (scaled_y) ? y(+self.annotations[i].y) : +self.annotations[i].y
-            return position
-          })
+          .attr("class", "annotations mobHide")
+          .attr("x", position_x)
+          .attr("y", position_y)
           .style("text-anchor", self.annotations[i]["text-anchor"])
           .text(self.annotations[i].text)
+          .attr("transform", function(d) {
+            return `rotate(${rotation},${position_x},${position_y})`
+          })
 
       }
 
@@ -810,10 +823,8 @@ export default class ScatterPlot {
   tipster(d) {
 
     var self = this
-
-    var template = Handlebars.compile(self.tiptext)
-    var html = template(d)
-    return html
+    var text = self.mustache(self.tiptext, { ...self.utilities,...d})
+    return text
 
   }
 
@@ -886,6 +897,66 @@ export default class ScatterPlot {
 
     return this.categories.filter((value) => value.name == state)[0].colour
 
+  }
+
+  mustache(template, self, parent, invert) {
+    var render = this.mustache
+    var output = ""
+    var i
+
+    function get (ctx, path) {
+      path = path.pop ? path : path.split(".")
+      ctx = ctx[path.shift()]
+      ctx = ctx != null ? ctx : ""
+      return (0 in path) ? get(ctx, path) : ctx
+    }
+
+    self = Array.isArray(self) ? self : (self ? [self] : [])
+    self = invert ? (0 in self) ? [] : [1] : self
+    
+    for (i = 0; i < self.length; i++) {
+      var childCode = ''
+      var depth = 0
+      var inverted
+      var ctx = (typeof self[i] == "object") ? self[i] : {}
+      ctx = Object.assign({}, parent, ctx)
+      ctx[""] = {"": self[i]}
+      
+      template.replace(/([\s\S]*?)({{((\/)|(\^)|#)(.*?)}}|$)/g,
+        function(match, code, y, z, close, invert, name) {
+          if (!depth) {
+            output += code.replace(/{{{(.*?)}}}|{{(!?)(&?)(>?)(.*?)}}/g,
+              function(match, raw, comment, isRaw, partial, name) {
+                return raw ? get(ctx, raw)
+                  : isRaw ? get(ctx, name)
+                  : partial ? render(get(ctx, name), ctx)
+                  : !comment ? new Option(get(ctx, name)).innerHTML
+                  : ""
+              }
+            )
+            inverted = invert
+          } else {
+            childCode += depth && !close || depth > 1 ? match : code
+          }
+          if (close) {
+            if (!--depth) {
+              name = get(ctx, name)
+              if (/^f/.test(typeof name)) {
+                output += name.call(ctx, childCode, function (template) {
+                  return render(template, ctx)
+                })
+              } else {
+                output += render(childCode, name, ctx, inverted) 
+              }
+              childCode = ""
+            }
+          } else {
+            ++depth
+          }
+        }
+      )
+    }
+    return output
   }
 
 }

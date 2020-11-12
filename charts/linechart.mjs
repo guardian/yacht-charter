@@ -259,7 +259,7 @@ export default class LineChart {
 
     // console.log(data)
 
-    // if (isMobile) {
+    if (isMobile) {
       keys.forEach(function (key) {
 
         var keyDiv = chartKey.append("div")
@@ -280,7 +280,7 @@ export default class LineChart {
           .text(key)
 
       })
-    // }
+    }
 
     var parseTime = d3.timeParse(template[0]["dateFormat"])
     var parsePeriods = d3.timeParse(template[0]["periodDateFormat"])
@@ -523,46 +523,46 @@ export default class LineChart {
       var lineLabelAlign = "start"
       var lineLabelOffset = 0
 
-      // if (x(tempLabelData[tempLabelData.length - 1].index) > width - 20) {
-      //   lineLabelAlign = "end"
-      //   lineLabelOffset = -10
-      // }
+      if (x(tempLabelData[tempLabelData.length - 1].index) > width - 20) {
+        lineLabelAlign = "end"
+        lineLabelOffset = -10
+      }
 
-      // if (!isMobile) {
+      if (!isMobile) {
 
-      //   features.append("circle")
-      //   .attr("cy", function (d) {
-      //     return y(tempLabelData[tempLabelData.length - 1][key])
-      //   })
-      //   .attr("fill", function (d) {
-      //     if (optionalKey.hasOwnProperty(key)) {
-      //       return optionalKey[key]
-      //     } else {
-      //       return color(key)
-      //     }
+        features.append("circle")
+        .attr("cy", function (d) {
+          return y(tempLabelData[tempLabelData.length - 1][key])
+        })
+        .attr("fill", function (d) {
+          if (optionalKey.hasOwnProperty(key)) {
+            return optionalKey[key]
+          } else {
+            return color(key)
+          }
 
-      //   })
-      //   .attr("cx", function (d) {
-      //     return x(tempLabelData[tempLabelData.length - 1][xVar])
-      //   })
-      //   .attr("r", 4)
-      //   .style("opacity", 1)
+        })
+        .attr("cx", function (d) {
+          return x(tempLabelData[tempLabelData.length - 1][xVar])
+        })
+        .attr("r", 4)
+        .style("opacity", 1)
 
-      //   features.append("text")
-      //     .attr("class", "annotationText")
-      //     .attr("y", function (d) {
-      //       return y(tempLabelData[tempLabelData.length - 1][key]) + 4 + lineLabelOffset
-      //     })
-      //     .attr("x", function (d) {
-      //       console.log(x(tempLabelData[tempLabelData.length - 1][xVar]))
-      //       return x(tempLabelData[tempLabelData.length - 1][xVar]) + 5
-      //     })
-      //     .style("opacity", 1)
-      //     .attr("text-anchor", lineLabelAlign)
-      //     .text(function (d) {
-      //       return key
-      //     })
-      // }
+        features.append("text")
+          .attr("class", "annotationText")
+          .attr("y", function (d) {
+            return y(tempLabelData[tempLabelData.length - 1][key]) + 4 + lineLabelOffset
+          })
+          .attr("x", function (d) {
+            console.log(x(tempLabelData[tempLabelData.length - 1][xVar]))
+            return x(tempLabelData[tempLabelData.length - 1][xVar]) + 5
+          })
+          .style("opacity", 1)
+          .attr("text-anchor", lineLabelAlign)
+          .text(function (d) {
+            return key
+          })
+      }
 
 
 

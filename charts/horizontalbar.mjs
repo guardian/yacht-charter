@@ -136,6 +136,8 @@ export default class horizontalBar {
       // keys.splice(0, 1);
     }
 
+    console.log("xVar", xVar, "yVar", yVar)
+
     // Check first entry and see if it looks like a string. True if string, false if number or number as string
 
     var yNaN = isNaN(data[0][yVar])
@@ -404,7 +406,9 @@ export default class horizontalBar {
     var button = document.getElementById("button2")
     var wrapper = document.getElementById("outer-wrapper")
     var gradient = document.getElementById("gradientBar")
-    if (results.sheets.options.enableShowMore === "1") {
+
+    if (results.sheets.options[0].enableShowMore === "1") {
+      console.log("Show more button enabled")
       button.addEventListener("click", toggleButton)
     } else {
       button.remove()

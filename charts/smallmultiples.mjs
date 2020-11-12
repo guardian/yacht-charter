@@ -8,6 +8,7 @@ export default class SmallMultiples {
     var self = this
     var data = results.sheets.data
     var details = results.sheets.template
+    var options = results.sheets.options
 
     var dataKeys = Object.keys(data[0])
 
@@ -63,8 +64,14 @@ export default class SmallMultiples {
 
     this.template = details[0].tooltip
 
-    this.showGroupMax = true
-
+    if (options[0]['scaleBy'] == "group") {
+        this.showGroupMax = true
+    }
+    
+    else {
+      this.showGroupMax = false
+      d3.select("#switch").html("Show max scale for group")
+    }
     d3.select("#switch").on("click", function() {
 
       self.showGroupMax = (self.showGroupMax) ? false : true ;
@@ -75,44 +82,8 @@ export default class SmallMultiples {
 
     })
 
-    this.render()
 
-  }
 
-  render() {
-
-    var self = this
-
-    d3.select("#graphicContainer").selectAll("svg").remove()
-
-    d3.select("#graphicContainer").html("")
-
-    for (var keyIndex = 0; keyIndex < this.keys.length; keyIndex++) {
-
-      this._drawSmallChart(self.data, keyIndex, self.keys, self.details, self.isMobile, self.hasTooltip)
-
-    }
-
-  }
-
-  _drawSmallChart(data, index, key, details, isMobile, tooltip) {
-
-    var self = this
-
-    var numCols
-
-    var containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width
-
-    if (containerWidth < 500) {
-      numCols = 1
-    } else if (containerWidth < 750) {
-      numCols = 2
-    } else {
-      numCols = 3
-    }
-
-    var width = document.querySelector("#graphicContainer").getBoundingClientRect().width / numCols
-    var height = width * 0.5
     var margin
     if (details[0]["margin-top"]) {
       margin = {
@@ -130,14 +101,95 @@ export default class SmallMultiples {
       }
     }
 
-    width = width - margin.left - margin.right
+    this.margin = margin
+    this.width
+    this.height
 
-    height = height - margin.top - margin.bottom
+    this.render()
+
+  }
+
+  render() {
+
+    var self = this
+
+     var containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width 
+    
+    console.log("containerWidth",containerWidth)
+    
+    var numCols
+    if (containerWidth <= 500) {
+      numCols = 1
+    } else if (containerWidth <= 750) {
+      numCols = 2
+    } else {
+      numCols = 3
+    }
+
+    console.log(numCols)
+    
+    var width = document.querySelector("#graphicContainer").getBoundingClientRect().width / numCols
+    
+    console.log("width",width)
+    
+    var height = 200
+
+    if (self.isMobile) {
+      height = 150
+    }
+
+    self.width = width - self.margin.left - self.margin.right
+    self.height = height - self.margin.top - self.margin.bottom
+
+    d3.select("#graphicContainer").selectAll("svg").remove()
+
+    d3.select("#graphicContainer").html("")
+
+    for (var keyIndex = 0; keyIndex < this.keys.length; keyIndex++) {
+
+      this._drawSmallChart(self.data, keyIndex, self.keys, self.details, self.isMobile, self.hasTooltip)
+
+    }
+
+  }
+
+  _drawSmallChart(data, index, key, details, isMobile, tooltip) {
+
+    var self = this
 
     function makeId(str) {
         return str.replace(/ /g, '_');
       }
 
+
+    function numberFormat(num) {
+      if (num > 0) {
+        if (num > 1000000000) {
+          return (num / 1000000000) + "bn"
+        }
+        if (num > 1000000) {
+          return (num / 1000000) + "m"
+        }
+        if (num > 1000) {
+          return (num / 1000) + "k"
+        }
+        if (num % 1 != 0) {
+          return num.toFixed(2)
+        } else {
+          return num.toLocaleString()
+        }
+      }
+      if (num < 0) {
+        var posNum = num * -1
+        if (posNum > 1000000000) return ["-" + String((posNum / 1000000000)) + "bn"]
+        if (posNum > 1000000) return ["-" + String((posNum / 1000000)) + "m"]
+        if (posNum > 1000) return ["-" + String((posNum / 1000)) + "k"]
+        else {
+          return num.toLocaleString()
+        }
+      }
+      return num
+    }  
 
     d3.select("#graphicContainer").append("div").attr("id", makeId(key[index])).attr("class", "barGrid")
 
@@ -147,19 +199,19 @@ export default class SmallMultiples {
 
     d3.select(keyId).append("div").text(key[index]).attr("class", "chartSubTitle")
 
-    var svg = d3.select(keyId).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr("overflow", "hidden")
+    var svg = d3.select(keyId).append("svg").attr("width", self.width + self.margin.left + self.margin.right).attr("height", self.height + self.margin.top + self.margin.bottom).attr("overflow", "hidden")
     
-    var features = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    var features = svg.append("g").attr("transform", "translate(" + self.margin.left + "," + self.margin.top + ")")
     
     var keys = Object.keys(data[0])
 
-    var x = d3.scaleBand().range([0, width]).padding(0)
+    var x = d3.scaleBand().range([0, self.width]).padding(0)
 
-    var y = d3.scaleLinear().range([height, 0])
+    var y = d3.scaleLinear().range([self.height, 0])
 
     var duration = 1000;
 
-    var yMax = (this.showGroupMax) ? data : data.filter(item => item[self.groupVar] === key[index]);
+    var yMax = (self.showGroupMax) ? data : data.filter(item => item[self.groupVar] === key[index]);
 
     x.domain(data.map((d) => d[self.xVar]))
 
@@ -171,14 +223,14 @@ export default class SmallMultiples {
 
     var xAxis = d3.axisBottom(x).tickValues(ticks).tickFormat(d3.timeFormat("%d %b"))
 
-    var yAxis = d3.axisLeft(y).tickFormat((d) => d).ticks(5)
+    var yAxis = d3.axisLeft(y).tickFormat((d) => numberFormat(d)).ticks(3)
 
-    features.append("g").attr("class", "x").attr("transform", "translate(0," + height + ")").call(xAxis)
+    features.append("g").attr("class", "x").attr("transform", "translate(0," + self.height + ")").call(xAxis)
 
     features.append("g").attr("class", "y")
 
     function update() {
-
+      // console.log(self)
       yMax = (self.showGroupMax) ? data : data.filter(item => item[self.groupVar] === key[index]);
 
       y.domain(d3.extent(yMax, (d) => d[self.yVar]))
@@ -192,7 +244,7 @@ export default class SmallMultiples {
         .attr("class", "bar")
         .style("fill", () => "rgb(204, 10, 17)")
         .attr('height', 0)
-        .attr('y', height)
+        .attr('y', self.height)
         .merge(bars)
         .transition()
         .duration(duration)
@@ -208,9 +260,9 @@ export default class SmallMultiples {
             var text = self.mustache(self.template, { ...self.utilities,...d})
             self.tooltip.html(text)
             var tipWidth = document.querySelector("#tooltip").getBoundingClientRect().width
-            if (d3.event.pageX < (width / 2)) {
+            if (d3.event.pageX < (self.width / 2)) {
               self.tooltip.style("left", (d3.event.pageX + tipWidth / 2) + "px")
-            } else if (d3.event.pageX >= (width / 2)) {
+            } else if (d3.event.pageX >= (self.width / 2)) {
               self.tooltip.style("left", (d3.event.pageX - tipWidth) + "px")
             }
             self.tooltip.style("top", (d3.event.pageY) + "px")
@@ -228,7 +280,7 @@ export default class SmallMultiples {
         .transition()
         .duration(duration)
         .attr('height', 0)
-        .attr('y', height)
+        .attr('y', self.height)
         .remove();
 
       features.select('.y')

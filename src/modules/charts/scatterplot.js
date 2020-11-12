@@ -7,11 +7,19 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+
 var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
 
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 var ScatterPlot = /*#__PURE__*/function () {
   function ScatterPlot(data, d3) {
@@ -21,7 +29,7 @@ var ScatterPlot = /*#__PURE__*/function () {
     this.firstTime = true;
     this["default"] = null;
     this.database = null;
-    this.settings = null;
+    this.template = null;
     this.trendlines = null;
     this.trendline = null;
     this.tiptext = null;
@@ -41,16 +49,16 @@ var ScatterPlot = /*#__PURE__*/function () {
     this.label_col = null;
     var labels = []; // Assign
 
-    this.settings = data.sheets.settings;
+    this.template = data.sheets.template;
     this.key = null;
-    this.yTag = data.sheets.settings[0].y;
-    this.xTag = data.sheets.settings[0].x;
-    this.zero_line_x = data.sheets.settings[0].zero_line_x === "TRUE" ? true : false;
-    this.zero_line_y = data.sheets.settings[0].zero_line_y === "TRUE" ? true : false;
+    this.yTag = data.sheets.template[0].y;
+    this.xTag = data.sheets.template[0].x;
+    this.zero_line_x = data.sheets.template[0].zero_line_x === "TRUE" ? true : false;
+    this.zero_line_y = data.sheets.template[0].zero_line_y === "TRUE" ? true : false;
     this.database = data.sheets.database;
     this.database.forEach(function (d) {
-      d.x = +d[data.sheets.settings[0].x];
-      d.y = +d[data.sheets.settings[0].y];
+      d.x = +d[data.sheets.template[0].x];
+      d.y = +d[data.sheets.template[0].y];
 
       if ("label" in d) {
         if (d.label === "TRUE") {
@@ -58,13 +66,23 @@ var ScatterPlot = /*#__PURE__*/function () {
         }
       }
     });
+    this.utilities = {
+      decimals: function decimals(items) {
+        var nums = items.split(",");
+        return parseFloat(this[nums[0]]).toFixed(nums[1]);
+      },
+      nicedate: function nicedate(dte) {
+        var chuncks = this[dte];
+        return moment(chuncks).format('MMM D');
+      }
+    };
     this.labels = labels;
-    console.log(this.settings);
+    console.log(this.template);
     console.log(this.database);
     console.log(this.labels);
 
-    if (this.settings[0]["title"] != "") {
-      d3.select(".chartTitle").html(self.settings[0]["title"]);
+    if (this.template[0]["title"] != "") {
+      d3.select(".chartTitle").html(self.template[0]["title"]);
     }
 
     this.colourKey = d3.scaleOrdinal();
@@ -84,56 +102,56 @@ var ScatterPlot = /*#__PURE__*/function () {
       }
     }
 
-    if (this.settings[0].categories != "") {
+    if (this.template[0].categories != "") {
       this._createCats(d3);
     }
 
-    if (this.settings[0]["standfirst"] != "") {
-      d3.select("#standfirst").html(self.settings[0].standfirst);
+    if (this.template[0]["standfirst"] != "") {
+      d3.select("#standfirst").html(self.template[0].standfirst);
     }
 
-    if (this.settings[0]["x_format"] != "") {
-      this.x_format = this.settings[0]["x_format"];
+    if (this.template[0]["x_format"] != "") {
+      this.x_format = this.template[0]["x_format"];
     }
 
-    if (this.settings[0].trendline == "TRUE") {
+    if (this.template[0].trendline == "TRUE") {
       this.trendline = true;
       this.trendlines = data.sheets.trendline;
     } // Set the tooltip text
 
 
-    if (this.settings[0].tooltip != "") {
-      this.tiptext = this.settings[0].tooltip;
+    if (this.template[0].tooltip != "") {
+      this.tiptext = this.template[0].tooltip;
     } // Create the filter selectors if they have been set in the Googledoc
 
 
-    if (this.settings[0].filter != "") {
+    if (this.template[0].filter != "") {
       this._createFilters(d3);
     } // Create the category selectors if they have been set in the Googledoc
 
 
-    if (this.settings[0].x_axis_cross_y != "") {
-      this.x_axis_cross_y = this.settings[0].x_axis_cross_y;
+    if (this.template[0].x_axis_cross_y != "") {
+      this.x_axis_cross_y = this.template[0].x_axis_cross_y;
     }
 
-    if (this.settings[0].y_axis_cross_x != "") {
-      this.y_axis_cross_x = this.settings[0].y_axis_cross_x;
+    if (this.template[0].y_axis_cross_x != "") {
+      this.y_axis_cross_x = this.template[0].y_axis_cross_x;
     }
 
-    if (this.settings[0]["label"] != "") {
-      this.label_col = this.settings[0].label_col;
+    if (this.template[0]["label"] != "") {
+      this.label_col = this.template[0].label_col;
     }
 
-    if (this.settings[0]["x_label"] != "") {
-      this.x_label = this.settings[0].x_label;
+    if (this.template[0]["x_label"] != "") {
+      this.x_label = this.template[0].x_label;
     } else {
-      this.x_label = data.sheets.settings[0].x;
+      this.x_label = data.sheets.template[0].x;
     }
 
-    if (this.settings[0]["y_label"] != "") {
-      this.y_label = this.settings[0].y_label;
+    if (this.template[0]["y_label"] != "") {
+      this.y_label = this.template[0].y_label;
     } else {
-      this.y_label = data.sheets.settings[0].y;
+      this.y_label = data.sheets.template[0].y;
     }
 
     this.hasAnnotations = data.sheets.labels.length > 0 ? true : false;
@@ -143,7 +161,7 @@ var ScatterPlot = /*#__PURE__*/function () {
     }
 
     this.colourBlindUser = false;
-    d3.select("#scatterplot_chart_data_source").html(self.settings[0].source);
+    d3.select("#scatterplot_chart_data_source").html(self.template[0].source);
 
     this._render(d3);
 
@@ -168,8 +186,8 @@ var ScatterPlot = /*#__PURE__*/function () {
     value: function _createFilters(d3) {
       console.log("Inside the filter function");
       var self = this;
-      self.filter = self.settings[0].filter;
-      self["default"] = self.settings[0].default_filter;
+      self.filter = self.template[0].filter;
+      self["default"] = self.template[0].default_filter;
       var filters = [];
       self.database.forEach(function (item) {
         filters.indexOf(item[self.filter]) === -1 ? filters.push(item[self.filter]) : "";
@@ -187,7 +205,7 @@ var ScatterPlot = /*#__PURE__*/function () {
     key: "_createCats",
     value: function _createCats(d3) {
       var self = this;
-      self.cats = self.settings[0].categories;
+      self.cats = self.template[0].categories;
       var categories = [];
       var colourDomain = [];
       var colourRange = [];
@@ -489,16 +507,19 @@ var ScatterPlot = /*#__PURE__*/function () {
       }
 
       if (self.hasAnnotations) {
+        var _loop = function _loop() {
+          var scaled_x = self.annotations[i].scaled_x === "TRUE" ? true : false;
+          var position_x = scaled_x ? x(+self.annotations[i].x) : +self.annotations[i].x;
+          var scaled_y = self.annotations[i].scaled_y === "TRUE" ? true : false;
+          var position_y = scaled_y ? y(+self.annotations[i].y) : +self.annotations[i].y;
+          var rotation = self.annotations[i].rotation === "" ? 0 : self.annotations[i].rotation;
+          svg.append("text").attr("class", "annotations mobHide").attr("x", position_x).attr("y", position_y).style("text-anchor", self.annotations[i]["text-anchor"]).text(self.annotations[i].text).attr("transform", function (d) {
+            return "rotate(".concat(rotation, ",").concat(position_x, ",").concat(position_y, ")");
+          });
+        };
+
         for (var i = 0; i < self.annotations.length; i++) {
-          svg.append("text").attr("class", "annotations").attr("x", function (d) {
-            var scaled_x = self.annotations[i].scaled_x === "TRUE" ? true : false;
-            var position = scaled_x ? x(+self.annotations[i].x) : +self.annotations[i].x;
-            return position;
-          }).attr("y", function (d) {
-            var scaled_y = self.annotations[i].scaled_y === "TRUE" ? true : false;
-            var position = scaled_y ? y(+self.annotations[i].y) : +self.annotations[i].y;
-            return position;
-          }).style("text-anchor", self.annotations[i]["text-anchor"]).text(self.annotations[i].text);
+          _loop();
         }
       }
     }
@@ -577,9 +598,8 @@ var ScatterPlot = /*#__PURE__*/function () {
     key: "tipster",
     value: function tipster(d) {
       var self = this;
-      var template = Handlebars.compile(self.tiptext);
-      var html = template(d);
-      return html;
+      var text = self.mustache(self.tiptext, _objectSpread({}, self.utilities, {}, d));
+      return text;
     }
   }, {
     key: "tooltip",
@@ -635,6 +655,64 @@ var ScatterPlot = /*#__PURE__*/function () {
       return this.categories.filter(function (value) {
         return value.name == state;
       })[0].colour;
+    }
+  }, {
+    key: "mustache",
+    value: function mustache(template, self, parent, invert) {
+      var render = this.mustache;
+      var output = "";
+      var i;
+
+      function get(ctx, path) {
+        path = path.pop ? path : path.split(".");
+        ctx = ctx[path.shift()];
+        ctx = ctx != null ? ctx : "";
+        return 0 in path ? get(ctx, path) : ctx;
+      }
+
+      self = Array.isArray(self) ? self : self ? [self] : [];
+      self = invert ? 0 in self ? [] : [1] : self;
+
+      for (i = 0; i < self.length; i++) {
+        var childCode = '';
+        var depth = 0;
+        var inverted;
+        var ctx = (0, _typeof2["default"])(self[i]) == "object" ? self[i] : {};
+        ctx = Object.assign({}, parent, ctx);
+        ctx[""] = {
+          "": self[i]
+        };
+        template.replace(/([\s\S]*?)({{((\/)|(\^)|#)(.*?)}}|$)/g, function (match, code, y, z, close, invert, name) {
+          if (!depth) {
+            output += code.replace(/{{{(.*?)}}}|{{(!?)(&?)(>?)(.*?)}}/g, function (match, raw, comment, isRaw, partial, name) {
+              return raw ? get(ctx, raw) : isRaw ? get(ctx, name) : partial ? render(get(ctx, name), ctx) : !comment ? new Option(get(ctx, name)).innerHTML : "";
+            });
+            inverted = invert;
+          } else {
+            childCode += depth && !close || depth > 1 ? match : code;
+          }
+
+          if (close) {
+            if (! --depth) {
+              name = get(ctx, name);
+
+              if (/^f/.test((0, _typeof2["default"])(name))) {
+                output += name.call(ctx, childCode, function (template) {
+                  return render(template, ctx);
+                });
+              } else {
+                output += render(childCode, name, ctx, inverted);
+              }
+
+              childCode = "";
+            }
+          } else {
+            ++depth;
+          }
+        });
+      }
+
+      return output;
     }
   }]);
   return ScatterPlot;

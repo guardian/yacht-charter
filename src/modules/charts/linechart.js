@@ -225,19 +225,20 @@ var LineChart = function LineChart(results) {
       }
     });
   }); // console.log(data)
-  // if (isMobile) {
 
-  keys.forEach(function (key) {
-    var keyDiv = chartKey.append("div").attr("class", "keyDiv");
-    keyDiv.append("span").attr("class", "keyCircle").style("background-color", function () {
-      if (optionalKey.hasOwnProperty(key)) {
-        return optionalKey[key];
-      } else {
-        return color(key);
-      }
+  if (isMobile) {
+    keys.forEach(function (key) {
+      var keyDiv = chartKey.append("div").attr("class", "keyDiv");
+      keyDiv.append("span").attr("class", "keyCircle").style("background-color", function () {
+        if (optionalKey.hasOwnProperty(key)) {
+          return optionalKey[key];
+        } else {
+          return color(key);
+        }
+      });
+      keyDiv.append("span").attr("class", "keyText").text(key);
     });
-    keyDiv.append("span").attr("class", "keyText").text(key);
-  }); // }
+  }
 
   var parseTime = d3.timeParse(template[0]["dateFormat"]);
   var parsePeriods = d3.timeParse(template[0]["periodDateFormat"]);
@@ -381,42 +382,34 @@ var LineChart = function LineChart(results) {
     console.log(tempLabelData);
     var end = tempLabelData.length - 1;
     var lineLabelAlign = "start";
-    var lineLabelOffset = 0; // if (x(tempLabelData[tempLabelData.length - 1].index) > width - 20) {
-    //   lineLabelAlign = "end"
-    //   lineLabelOffset = -10
-    // }
-    // if (!isMobile) {
-    //   features.append("circle")
-    //   .attr("cy", function (d) {
-    //     return y(tempLabelData[tempLabelData.length - 1][key])
-    //   })
-    //   .attr("fill", function (d) {
-    //     if (optionalKey.hasOwnProperty(key)) {
-    //       return optionalKey[key]
-    //     } else {
-    //       return color(key)
-    //     }
-    //   })
-    //   .attr("cx", function (d) {
-    //     return x(tempLabelData[tempLabelData.length - 1][xVar])
-    //   })
-    //   .attr("r", 4)
-    //   .style("opacity", 1)
-    //   features.append("text")
-    //     .attr("class", "annotationText")
-    //     .attr("y", function (d) {
-    //       return y(tempLabelData[tempLabelData.length - 1][key]) + 4 + lineLabelOffset
-    //     })
-    //     .attr("x", function (d) {
-    //       console.log(x(tempLabelData[tempLabelData.length - 1][xVar]))
-    //       return x(tempLabelData[tempLabelData.length - 1][xVar]) + 5
-    //     })
-    //     .style("opacity", 1)
-    //     .attr("text-anchor", lineLabelAlign)
-    //     .text(function (d) {
-    //       return key
-    //     })
-    // }
+    var lineLabelOffset = 0;
+
+    if (x(tempLabelData[tempLabelData.length - 1].index) > width - 20) {
+      lineLabelAlign = "end";
+      lineLabelOffset = -10;
+    }
+
+    if (!isMobile) {
+      features.append("circle").attr("cy", function (d) {
+        return y(tempLabelData[tempLabelData.length - 1][key]);
+      }).attr("fill", function (d) {
+        if (optionalKey.hasOwnProperty(key)) {
+          return optionalKey[key];
+        } else {
+          return color(key);
+        }
+      }).attr("cx", function (d) {
+        return x(tempLabelData[tempLabelData.length - 1][xVar]);
+      }).attr("r", 4).style("opacity", 1);
+      features.append("text").attr("class", "annotationText").attr("y", function (d) {
+        return y(tempLabelData[tempLabelData.length - 1][key]) + 4 + lineLabelOffset;
+      }).attr("x", function (d) {
+        console.log(x(tempLabelData[tempLabelData.length - 1][xVar]));
+        return x(tempLabelData[tempLabelData.length - 1][xVar]) + 5;
+      }).style("opacity", 1).attr("text-anchor", lineLabelAlign).text(function (d) {
+        return key;
+      });
+    }
   });
 
   function textPadding(d) {

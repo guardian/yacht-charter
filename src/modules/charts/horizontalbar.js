@@ -142,8 +142,9 @@ var horizontalBar = /*#__PURE__*/function () {
       xVar = details[0]["xColumn"]; // keys.splice(keys.indexOf(xVar), 1);
     } else {
       xVar = keys[1]; // keys.splice(0, 1);
-    } // Check first entry and see if it looks like a string. True if string, false if number or number as string
+    }
 
+    console.log("xVar", xVar, "yVar", yVar); // Check first entry and see if it looks like a string. True if string, false if number or number as string
 
     var yNaN = isNaN(data[0][yVar]);
     console.log(yVar, keys);
@@ -308,7 +309,8 @@ var horizontalBar = /*#__PURE__*/function () {
     var wrapper = document.getElementById("outer-wrapper");
     var gradient = document.getElementById("gradientBar");
 
-    if (results.sheets.options.enableShowMore === "1") {
+    if (results.sheets.options[0].enableShowMore === "1") {
+      console.log("Show more button enabled");
       button.addEventListener("click", toggleButton);
     } else {
       button.remove();
