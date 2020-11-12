@@ -9,58 +9,17 @@ exports["default"] = void 0;
 
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
-var AnnotatedBarChart = function AnnotatedBarChart(results, d3) {
+var _numberFormat = require("../utilities/numberFormat");
+
+var AnnotatedBarChart = function AnnotatedBarChart(results) {
   (0, _classCallCheck2["default"])(this, AnnotatedBarChart);
   console.log(results);
   var clone = JSON.parse(JSON.stringify(results));
   var data = clone["sheets"]["data"];
   var details = clone["sheets"]["template"];
   var labels = clone["sheets"]["labels"];
-
-  function numberFormat(num) {
-    if (num > 0) {
-      if (num > 1000000000) {
-        return num / 1000000000 + "bn";
-      }
-
-      if (num > 1000000) {
-        return num / 1000000 + "m";
-      }
-
-      if (num > 1000) {
-        return num / 1000 + "k";
-      }
-
-      if (num % 1 != 0) {
-        return num.toFixed(2);
-      } else {
-        return num.toLocaleString();
-      }
-    }
-
-    if (num < 0) {
-      var posNum = num * -1;
-      if (posNum > 1000000000) return ["-" + String(posNum / 1000000000) + "bn"];
-      if (posNum > 1000000) return ["-" + String(posNum / 1000000) + "m"];
-      if (posNum > 1000) return ["-" + String(posNum / 1000) + "k"];else {
-        return num.toLocaleString();
-      }
-    }
-
-    return num;
-  }
-
-  var isMobile;
   var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-
-  if (windowWidth < 610) {
-    isMobile = true;
-  }
-
-  if (windowWidth >= 610) {
-    isMobile = false;
-  }
-
+  var isMobile = windowWidth < 610 ? true : false;
   var width = document.querySelector("#graphicContainer").getBoundingClientRect().width;
   var height = width * 0.5;
   var margin;
@@ -141,12 +100,12 @@ var AnnotatedBarChart = function AnnotatedBarChart(results, d3) {
   if (isMobile) {
     xAxis = d3.axisBottom(x).tickValues(ticks);
     yAxis = d3.axisLeft(y).tickFormat(function (d) {
-      return numberFormat(d);
+      return (0, _numberFormat.numberFormat)(d);
     }).ticks(5);
   } else {
     xAxis = d3.axisBottom(x).tickValues(ticks);
     yAxis = d3.axisLeft(y).tickFormat(function (d) {
-      return numberFormat(d);
+      return (0, _numberFormat.numberFormat)(d);
     });
   }
 

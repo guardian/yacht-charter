@@ -379,8 +379,21 @@ var LineChart = function LineChart(results) {
     var tempLabelData = keyData[key].filter(function (d) {
       return d != null;
     });
-    console.log(tempLabelData);
     var end = tempLabelData.length - 1;
+<<<<<<< HEAD
+    features.append("circle").attr("cy", function (d) {
+      return y(tempLabelData[tempLabelData.length - 1][key]);
+    }).attr("fill", function (d) {
+      if (optionalKey.hasOwnProperty(key)) {
+        return optionalKey[key];
+      } else {
+        return color(key);
+      }
+    }).attr("cx", function (d) {
+      return x(tempLabelData[tempLabelData.length - 1].index);
+    }).attr("r", 4).style("opacity", 1);
+=======
+>>>>>>> 19fbe1e1e73cc2b4699512a87391d6c0c1e546dd
     var lineLabelAlign = "start";
     var lineLabelOffset = 0;
 

@@ -7,8 +7,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
-var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
-
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 
 var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
@@ -19,12 +17,16 @@ var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/creat
 
 var _moment = _interopRequireDefault(require("moment"));
 
+var _mustache = _interopRequireDefault(require("../utilities/mustache"));
+
+var _helpers = _interopRequireDefault(require("../utilities/helpers"));
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 var SmallMultiples = /*#__PURE__*/function () {
-  function SmallMultiples(results, isMobile) {
+  function SmallMultiples(results) {
     var _this = this;
 
     (0, _classCallCheck2["default"])(this, SmallMultiples);
@@ -42,6 +44,7 @@ var SmallMultiples = /*#__PURE__*/function () {
       return d[_this.groupVar];
     })));
     var tooltip = details[0].tooltip != "" ? true : false;
+    var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
     data.forEach(function (d) {
       if (typeof d[self.yVar] == "string") {
         d[self.yVar] = +d[self.yVar];
@@ -57,20 +60,10 @@ var SmallMultiples = /*#__PURE__*/function () {
       this.tooltip = d3.select("body").append("div").attr("class", "tooltip").attr("id", "tooltip").style("position", "absolute").style("background-color", "white").style("opacity", 0);
     }
 
-    this.utilities = {
-      decimals: function decimals(items) {
-        var nums = items.split(",");
-        return parseFloat(this[nums[0]]).toFixed(nums[1]);
-      },
-      nicedate: function nicedate(dte) {
-        var chuncks = this[dte];
-        return (0, _moment["default"])(chuncks).format('MMM D');
-      }
-    };
     this.data = data;
     this.keys = keys;
     this.details = details;
-    this.isMobile = isMobile;
+    this.isMobile = windowWidth < 610 ? true : false;
     this.hasTooltip = tooltip;
     this.template = details[0].tooltip;
 
@@ -238,7 +231,7 @@ var SmallMultiples = /*#__PURE__*/function () {
         });
         d3.selectAll('.bar').on("mouseover", function (d) {
           if (tooltip) {
-            var text = self.mustache(self.template, _objectSpread({}, self.utilities, {}, d));
+            var text = (0, _mustache["default"])(self.template, _objectSpread({}, _helpers["default"], {}, d));
             self.tooltip.html(text);
             var tipWidth = document.querySelector("#tooltip").getBoundingClientRect().width;
 
@@ -264,64 +257,6 @@ var SmallMultiples = /*#__PURE__*/function () {
         return update();
       });
       update();
-    }
-  }, {
-    key: "mustache",
-    value: function mustache(template, self, parent, invert) {
-      var render = this.mustache;
-      var output = "";
-      var i;
-
-      function get(ctx, path) {
-        path = path.pop ? path : path.split(".");
-        ctx = ctx[path.shift()];
-        ctx = ctx != null ? ctx : "";
-        return 0 in path ? get(ctx, path) : ctx;
-      }
-
-      self = Array.isArray(self) ? self : self ? [self] : [];
-      self = invert ? 0 in self ? [] : [1] : self;
-
-      for (i = 0; i < self.length; i++) {
-        var childCode = '';
-        var depth = 0;
-        var inverted;
-        var ctx = (0, _typeof2["default"])(self[i]) == "object" ? self[i] : {};
-        ctx = Object.assign({}, parent, ctx);
-        ctx[""] = {
-          "": self[i]
-        };
-        template.replace(/([\s\S]*?)({{((\/)|(\^)|#)(.*?)}}|$)/g, function (match, code, y, z, close, invert, name) {
-          if (!depth) {
-            output += code.replace(/{{{(.*?)}}}|{{(!?)(&?)(>?)(.*?)}}/g, function (match, raw, comment, isRaw, partial, name) {
-              return raw ? get(ctx, raw) : isRaw ? get(ctx, name) : partial ? render(get(ctx, name), ctx) : !comment ? new Option(get(ctx, name)).innerHTML : "";
-            });
-            inverted = invert;
-          } else {
-            childCode += depth && !close || depth > 1 ? match : code;
-          }
-
-          if (close) {
-            if (! --depth) {
-              name = get(ctx, name);
-
-              if (/^f/.test((0, _typeof2["default"])(name))) {
-                output += name.call(ctx, childCode, function (template) {
-                  return render(template, ctx);
-                });
-              } else {
-                output += render(childCode, name, ctx, inverted);
-              }
-
-              childCode = "";
-            }
-          } else {
-            ++depth;
-          }
-        });
-      }
-
-      return output;
     }
   }]);
   return SmallMultiples;

@@ -17,7 +17,7 @@ export class Chart {
             new Ractive({
               target: "#app",
               template: templateHtml,
-              data: data.sheets.template[0]
+              data: (data.sheets.template[0]) ? data.sheets.template[0] : []
             })
 
             
@@ -57,12 +57,12 @@ export class Chart {
     case "scatterplot":
       import("./charts/scatterplot")
         .then((importedChartModule) => {
-          let instance = new importedChartModule.default(data, d3)
+          let instance = new importedChartModule.default(data)
           this._addListener(instance, data, type, importedChartModule)
         })
       break
-    case "stackedbarchart":
-      import("./charts/stackedbarchart")
+    case "stackedbar":
+      import("./charts/stackedbar")
         .then((importedChartModule) => {
           let instance = new importedChartModule.default(data)
           this._addListener(instance, data, type)
@@ -71,7 +71,7 @@ export class Chart {
     case "annotatedbarchart":
       import("./charts/annotatedbarchart")
         .then((importedChartModule) => {
-          let instance = new importedChartModule.default(data, d3)
+          let instance = new importedChartModule.default(data)
           this._addListener(instance, data, type, importedChartModule)
         })
       break
@@ -98,7 +98,7 @@ export class Chart {
     case "smallmultiples":
       import("./charts/smallmultiples")
         .then((importedChartModule) => {
-          let instance = new importedChartModule.default(data, isMobile)
+          let instance = new importedChartModule.default(data)
           this._addListener(instance, data, type, importedChartModule)
         })
       break
@@ -162,6 +162,9 @@ export class Chart {
     case "horizontalbar":
       instance = new importedChartModule.default(data)
       break
+    case "stackedbar":
+      instance.render()
+      break
     case "smallmultiples":
       instance.render()
       break
@@ -169,7 +172,7 @@ export class Chart {
       console.log("Table resize")
       break
     default:
-      instance = new importedChartModule.default(data, d3)
+      instance = new importedChartModule.default(data)
     }
   }
 

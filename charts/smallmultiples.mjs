@@ -1,8 +1,10 @@
 import moment from 'moment'
+import mustache from '../utilities/mustache'
+import helpers from '../utilities/helpers'
 
 export default class SmallMultiples {
 
-  constructor(results, isMobile) {
+  constructor(results) {
 
     console.log(results)
     var self = this
@@ -20,6 +22,7 @@ export default class SmallMultiples {
 
     var keys = [...new Set(data.map(d => d[this.groupVar]))]
     var tooltip = (details[0].tooltip != "") ? true : false ;
+    var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 
     data.forEach(function (d) {
       if (typeof d[self.yVar] == "string") {
@@ -41,24 +44,13 @@ export default class SmallMultiples {
           .style("opacity", 0)
     }
 
-    this.utilities = {
-      decimals: function(items) {
-        var nums = items.split(",")
-        return parseFloat(this[nums[0]]).toFixed(nums[1]);
-      },
-      nicedate: function(dte) {
-        var chuncks = this[dte]
-        return moment(chuncks).format('MMM D')
-      }
-    }
-
     this.data = data
 
     this.keys = keys
 
     this.details = details
 
-    this.isMobile = isMobile
+    this.isMobile = (windowWidth < 610) ? true : false ;
 
     this.hasTooltip = tooltip
 
@@ -257,7 +249,7 @@ export default class SmallMultiples {
       d3.selectAll('.bar')
         .on("mouseover", function(d) {
           if (tooltip) {
-            var text = self.mustache(self.template, { ...self.utilities,...d})
+            var text = mustache(self.template, { ...helpers,...d})
             self.tooltip.html(text)
             var tipWidth = document.querySelector("#tooltip").getBoundingClientRect().width
             if (d3.event.pageX < (self.width / 2)) {
@@ -296,63 +288,4 @@ export default class SmallMultiples {
 
   }
 
-  mustache(template, self, parent, invert) {
-    var render = this.mustache
-    var output = ""
-    var i
-
-    function get (ctx, path) {
-      path = path.pop ? path : path.split(".")
-      ctx = ctx[path.shift()]
-      ctx = ctx != null ? ctx : ""
-      return (0 in path) ? get(ctx, path) : ctx
-    }
-
-    self = Array.isArray(self) ? self : (self ? [self] : [])
-    self = invert ? (0 in self) ? [] : [1] : self
-    
-    for (i = 0; i < self.length; i++) {
-      var childCode = ''
-      var depth = 0
-      var inverted
-      var ctx = (typeof self[i] == "object") ? self[i] : {}
-      ctx = Object.assign({}, parent, ctx)
-      ctx[""] = {"": self[i]}
-      
-      template.replace(/([\s\S]*?)({{((\/)|(\^)|#)(.*?)}}|$)/g,
-        function(match, code, y, z, close, invert, name) {
-          if (!depth) {
-            output += code.replace(/{{{(.*?)}}}|{{(!?)(&?)(>?)(.*?)}}/g,
-              function(match, raw, comment, isRaw, partial, name) {
-                return raw ? get(ctx, raw)
-                  : isRaw ? get(ctx, name)
-                  : partial ? render(get(ctx, name), ctx)
-                  : !comment ? new Option(get(ctx, name)).innerHTML
-                  : ""
-              }
-            )
-            inverted = invert
-          } else {
-            childCode += depth && !close || depth > 1 ? match : code
-          }
-          if (close) {
-            if (!--depth) {
-              name = get(ctx, name)
-              if (/^f/.test(typeof name)) {
-                output += name.call(ctx, childCode, function (template) {
-                  return render(template, ctx)
-                })
-              } else {
-                output += render(childCode, name, ctx, inverted) 
-              }
-              childCode = ""
-            }
-          } else {
-            ++depth
-          }
-        }
-      )
-    }
-    return output
-  }
 }

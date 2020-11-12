@@ -1,6 +1,7 @@
+import { numberFormat } from '../utilities/numberFormat'
+
 export default class LineChart {
   constructor(results) {
-    console.log(results)
     let clone = JSON.parse(JSON.stringify(results))
     var data = clone["sheets"]["data"]
     var template = clone["sheets"]["template"]
@@ -61,27 +62,15 @@ export default class LineChart {
     }
     
 
-    d3.select("#footnote").html(template[0].footnote)
-
     var chartKey = d3.select("#chartKey")
 
-    var isMobile
     var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
 
-    if (windowWidth < 610) {
-      isMobile = true
-    }
-
-    if (windowWidth >= 610) {
-      isMobile = false
-    }
+    var isMobile = (windowWidth < 610) ? true : false ;
 
     var containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width
 
-
     var height = containerWidth * 0.6
-
-    console.log("width", containerWidth,"height", height)
 
     var margin
     if (template[0]["margin-top"]) {
@@ -109,9 +98,6 @@ export default class LineChart {
     //     }
     // }
     
-
-    console.log(lineLabelling);
-
     var breaks = "yes"
 
     if (template[0]["breaks"]) {
@@ -129,7 +115,6 @@ export default class LineChart {
       xVar = keys[0]
       keys.splice(0, 1)
     }
-    // console.log(xVar, keys)
 
   var colors;
   var colorsLong = ["#4daacf", "#5db88b", "#a2b13e", "#8a6929", "#b05cc6", "#c8a466", "#c35f95", "#ce592e", "#d23d5e", "#d89a34", "#7277ca", "#527b39", "#59b74b", "#c76c65", "#8a6929"]; 
@@ -149,6 +134,7 @@ export default class LineChart {
 
 
     d3.select("#graphicContainer svg").remove()
+
     chartKey.html("")
 
     var svg = d3.select("#graphicContainer").append("svg")
@@ -157,8 +143,8 @@ export default class LineChart {
       .attr("id", "svg")
       .attr("overflow", "hidden")
 
-
     if (lineLabelling && !isMobile) {
+
       var longestKey = keys.sort(function (a, b) { return b.length - a.length; })[0];
       
       d3.select("#dummyText").remove()
@@ -174,7 +160,6 @@ export default class LineChart {
 
       margin.right = margin.right + keyLength
 
-      console.log(margin.right, keyLength)
     }
 
     width = containerWidth - margin.left - margin.right
