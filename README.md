@@ -45,3 +45,12 @@ https://interactive.guim.co.uk/embed/iframeable/2019/01/reusable-stacked-bar-cha
 
 [Template](https://docs.google.com/spreadsheets/d/1zP8GkeyRVq6FH2vKDDRXFIS2gukYAr5h28DqdXeLY6w/edit#gid=0)
 
+### Scatterplot
+
+![Line chart](https://raw.githubusercontent.com/guardian/yacht-charter/master/imgs/scatterplot.png)
+
+### Treemap (with zooming etc)
+
+![Line chart](https://raw.githubusercontent.com/guardian/yacht-charter/master/imgs/treemap.png)
+
+
