@@ -6,7 +6,7 @@
 
 This makes responsive charts based on a Google sheet synced to S3 (manually via [visuals/docs](https://visuals.gutools.co.uk/docs/)), or a JSON object written directly to S3 (if you want to automate your chart making).
 
-It allows for responsive annotations, updating charts in place without changing embeds, trendlines, and a bunch of other formats and features not available in the basic chart tool. Is also allows charts to be created either via the google docs -> s3 system, or programatically for charts you'd like to keep constantly updated. It is however more complicated to use, and requires some technical knowledge.
+It allows for responsive annotations, updating charts in place without changing embed URLs, trendlines, and a bunch of other formats and features not available in the basic chart tool. Is also allows charts to be created either via the google docs -> s3 system, or programatically for charts you'd like to keep constantly updated. It is however more complicated to use, and requires some technical knowledge.
 
 To use:
 
