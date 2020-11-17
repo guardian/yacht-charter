@@ -30,6 +30,8 @@ https://interactive.guim.co.uk/embed/aus/2020/yacht-charter-v6/index.html?key=1J
 
 [Template](https://docs.google.com/spreadsheets/d/1JJpIH0NoTjM0FkJMDLLrRYj65liCFDFa8CK5j8OVtvo/)
 
+Features: annotations/labels, responsive annotations, trendlines
+
 ### Line chart
 
 ![Line chart](https://raw.githubusercontent.com/guardian/yacht-charter/master/imgs/line-chart.png)
