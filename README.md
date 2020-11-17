@@ -45,3 +45,34 @@ https://interactive.guim.co.uk/embed/iframeable/2019/01/reusable-stacked-bar-cha
 
 [Template](https://docs.google.com/spreadsheets/d/1zP8GkeyRVq6FH2vKDDRXFIS2gukYAr5h28DqdXeLY6w/edit#gid=0)
 
+### Horizontal bar chart
+
+![Line chart](https://raw.githubusercontent.com/guardian/yacht-charter/master/imgs/horizontal-bar.png)
+
+### Scatterplot
+
+![Line chart](https://raw.githubusercontent.com/guardian/yacht-charter/master/imgs/scatterplot.png)
+
+### Small multiples bar chart
+
+![Small multiples bar chart](https://raw.githubusercontent.com/guardian/yacht-charter/master/imgs/sm-barchart.png)
+
+### Table
+
+![Table](https://raw.githubusercontent.com/guardian/yacht-charter/master/imgs/table.png)
+
+---
+
+Not yet in main Yacht Charter repo, but using the same re-usable approach
+
+### Treemap with zooming (not yet merged into main Yacht Charter repo)
+
+![Tree map](https://raw.githubusercontent.com/guardian/yacht-charter/master/imgs/treemap.png)
+
+[embed url](https://interactive.guim.co.uk/embed/iframeable/2020/01/aus_political_party_donations_treemap-v3/html/index.html?key=1COfrldSAXYIRwOrcKOBU0-h3jGths9psaR3kgdnXgrU)
+
+### Beeswarm / timeline
+
+![Tree map](https://raw.githubusercontent.com/guardian/yacht-charter/master/imgs/beeswarm.png)
+
+[embed url](https://interactive.guim.co.uk/embed/iframeable/2019/07/timeline-chart/html/index.html?key=1nSs79DoUzALxGBlw0SUx9391rT7EZmejerd5yOEKIRw)
