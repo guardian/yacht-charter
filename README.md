@@ -24,11 +24,11 @@ https://interactive.guim.co.uk/embed/aus/2020/yacht-charter-v6/index.html?key=1J
 
 ![Stacked vertical bar chart](https://raw.githubusercontent.com/guardian/yacht-charter/master/imgs/bar-chart.png)
 
-[Live example](https://interactive.guim.co.uk/embed/iframeable/2019/01/reusable-stacked-bar-chart-v6/html/index.html?key=infection-source-vic-health-corona-2020-long-bar&location=yacht-charter-data)
+[Live example](https://interactive.guim.co.uk/embed/aus/2020/yacht-charter-v6/index.html?key=1JJpIH0NoTjM0FkJMDLLrRYj65liCFDFa8CK5j8OVtvo&location=docsdata)
 
-[Example data](https://docs.google.com/spreadsheets/d/1nySW3dnujGMcebNNzi7R5D6Z47P284S9sUafYDRJEkg/edit#gid=1454102594)
+[Example data](https://docs.google.com/spreadsheets/d/1JJpIH0NoTjM0FkJMDLLrRYj65liCFDFa8CK5j8OVtvo/edit#gid=1454102594)
 
-[Template](https://docs.google.com/spreadsheets/d/16mJQNYbURSBEEGUcxKSU4ztf881lWktJ61wtnbC-c2E/)
+[Template](https://docs.google.com/spreadsheets/d/1JJpIH0NoTjM0FkJMDLLrRYj65liCFDFa8CK5j8OVtvo/)
 
 ### Line chart
 
