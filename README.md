@@ -49,8 +49,8 @@ https://interactive.guim.co.uk/embed/iframeable/2019/01/reusable-stacked-bar-cha
 
 ![Line chart](https://raw.githubusercontent.com/guardian/yacht-charter/master/imgs/scatterplot.png)
 
-### Treemap (with zooming etc)
+### Treemap (not yet merged into main Yacht Charter repo)
 
 ![Line chart](https://raw.githubusercontent.com/guardian/yacht-charter/master/imgs/treemap.png)
 
-
+[embed url](https://interactive.guim.co.uk/embed/iframeable/2020/01/aus_political_party_donations_treemap-v3/html/index.html?key=1COfrldSAXYIRwOrcKOBU0-h3jGths9psaR3kgdnXgrU)
