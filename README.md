@@ -15,12 +15,7 @@ To use:
 3. Append the spreadsheet key to the following URL like so:
 
 ```
-https://interactive.guim.co.uk/embed/iframeable/2019/01/reusable-stacked-bar-chart-v6/html/index.html?key=1nySW3dnujGMcebNNzi7R5D6Z47P284S9sUafYDRJEkg&location=docsdata
-
-OR
-
-https://interactive.guim.co.uk/embed/iframeable/2019/01/reusable-stacked-bar-chart-v6/html/index.html?key=infection-source-vic-health-corona-2020-long-bar&location=yacht-charter-data
-
+https://interactive.guim.co.uk/embed/aus/2020/yacht-charter-v6/index.html?key=1JJpIH0NoTjM0FkJMDLLrRYj65liCFDFa8CK5j8OVtvo&location=docsdata
 ```
 
 ## Current chart templates available
