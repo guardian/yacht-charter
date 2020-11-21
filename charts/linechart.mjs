@@ -1,302 +1,280 @@
-import { numberFormat } from '../utilities/numberFormat'
+import { numberFormat } from "../utilities/numberFormat"
+import mustache from "../utilities/mustache"
+import helpers from "../utilities/helpers"
+
+/****** Example tooltip template */
+// `
+//   <b>{{#formatDate}}{{data.date}}{{/formatDate}}</b><br/>
+//   <b>Australia</b>: {{data.Australia}}<br/>
+//   <b>France</b>: {{data.France}}<br/>
+//   <b>Germany</b>: {{data.Germany}}<br/>
+//   <b>Italy</b>: {{data.Italy}}<br/>
+//   <b>Sweden</b>: {{data.Sweden}}<br/>
+//   <b>United Kingdom</b>: {{data.UnitedKingdom}}<br/>
+// `
+/****** end tooltip template */
+
+// default colours
+const colorsLong = ["#4daacf", "#5db88b", "#a2b13e", "#8a6929", "#b05cc6", "#c8a466", "#c35f95", "#ce592e", "#d23d5e", "#d89a34", "#7277ca", "#527b39", "#59b74b", "#c76c65", "#8a6929"]
+const colorsMedium = ["#000000","#0000ff","#9d02d7","#cd34b5","#ea5f94","#fa8775","#ffb14e","#ffd700"]
+const colorsShort = ["#ffb14e","#fa8775","#ea5f94","#cd34b5","#9d02d7","#0000ff"]
+
+function getLongestKeyLength($svg, keys, isMobile) {
+  if (!isMobile) {
+    d3.select("#dummyText").remove()
+    const longestKey = keys.sort(function (a, b) { return b.length - a.length; })[0]
+    const dummyText = $svg.append("text")
+      .attr("x", -50)
+      .attr("y", -50)
+      .attr("id", "dummyText")
+      .attr("class", "annotationText")
+      .text(longestKey)
+    return dummyText.node().getBBox().width
+  }
+  return 0
+}
 
 export default class LineChart {
   constructor(results) {
-    let clone = JSON.parse(JSON.stringify(results))
-    var data = clone["sheets"]["data"]
-    var template = clone["sheets"]["template"]
-    var labels = clone["sheets"]["labels"]
-    var periods = clone["sheets"]["periods"]
-    var userKey = clone["sheets"]["key"]
-    var options = clone["sheets"]["options"]
-    var optionalKey = {}
-    var x_axis_cross_y = null
+    const parsed = JSON.parse(JSON.stringify(results))
+    
+    this.data = parsed["sheets"]["data"]
+    this.keys = Object.keys(this.data[0])
+    this.xColumn = this.keys[0] // use first key, string or date
+    this.keys.splice(0, 1) // remove the first key
 
-    if (userKey.length > 1) {
-      userKey.forEach(function (d) {
-        optionalKey[d.key] = d.colour
+    this.template = parsed["sheets"]["template"]
+    this.meta = this.template[0]
+    this.labels = parsed["sheets"]["labels"]
+    this.periods = parsed["sheets"]["periods"]
+    this.userKey = parsed["sheets"]["key"]
+    this.options = parsed["sheets"]["options"]
+    this.tooltipTemplate = this.meta.tooltip
+    this.hasTooltipTemplate = this.tooltipTemplate && this.tooltipTemplate != "" ? true : false
+
+    this.x_axis_cross_y = null
+    this.colors = colorsLong
+    this.optionalKey = {}
+
+    this.$svg = null
+    this.$features = null
+    this.$tooltip = null
+    this.$chartKey = d3.select("#chartKey")
+
+    const windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+    this.isMobile = (windowWidth < 610) ? true : false 
+    this.containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width
+    this.margin = {
+      top: 0,
+      right: 0,
+      bottom: 20,
+      left: 40
+    }
+    this.width = this.containerWidth - this.margin.left - this.margin.right
+    this.height = (this.containerWidth * 0.6) - this.margin.top - this.margin.bottom
+
+    this.x = d3.scaleLinear().rangeRound([0, this.width])
+    this.y = d3.scaleLinear().rangeRound([this.height, 0])
+    this.xAxis = null
+    this.yAxis = null
+    this.color = d3.scaleOrdinal().range(this.colors)
+    this.min = null
+    this.max = null
+    this.lineGenerators = {}
+    this.parseTime = null
+    this.parsePeriods = null
+    this.hideNullValues = "yes"
+
+    this.chartValues = []
+    this.chartKeyData = {}
+    
+    this.setup()
+    this.render()
+  }
+
+  setup() {
+    // Remove previous svg
+    d3.select("#graphicContainer svg").remove()
+    this.$chartKey.html("")
+
+    // titles and source
+    d3.select("#chartTitle").text(this.meta.title)
+    d3.select("#subTitle").text(this.meta.subtitle)
+    if (this.meta.source != "") {
+      d3.select("#sourceText").html(" | Source: " + this.meta.source)
+    }
+
+    // parse optionalKey
+    if (this.userKey.length > 1) {
+      this.userKey.forEach(function (d) {
+        this.optionalKey[d.key] = d.colour
       })
     }
-    console.log("key",optionalKey)
 
-    function numberFormat(num) {
-      if (num > 0) {
-        if (num > 1000000000) {
-          return (num / 1000000000) + "bn"
-        }
-        if (num > 1000000) {
-          return (num / 1000000) + "m"
-        }
-        if (num > 1000) {
-          return (num / 1000) + "k"
-        }
-        if (num % 1 != 0) {
-          return num.toFixed(2)
-        } else {
-          return num.toLocaleString()
-        }
-      }
-      if (num < 0) {
-        var posNum = num * -1
-        if (posNum > 1000000000) return ["-" + String((posNum / 1000000000)) + "bn"]
-        if (posNum > 1000000) return ["-" + String((posNum / 1000000)) + "m"]
-        if (posNum > 1000) return ["-" + String((posNum / 1000)) + "k"]
-        else {
-          return num.toLocaleString()
-        }
-      }
-      return num
-    }
-
-    d3.select("#chartTitle").text(template[0].title)
-    d3.select("#subTitle").text(template[0].subtitle)
-    if (template[0].source != "") {
-      d3.select("#sourceText").html(" | Source: " + template[0].source)
-    }
-
-    if (template[0].x_axis_cross_y) {
-        if (template[0].x_axis_cross_y != "") {
-        x_axis_cross_y = +template[0].x_axis_cross_y
-        // x_axis_cross_y = null
+    // ?
+    if (this.meta.x_axis_cross_y) {
+      if (this.meta.x_axis_cross_y != "") {
+        this.x_axis_cross_y = +this.meta.x_axis_cross_y
       }
     }
+
+    // chart margins provided
+    if (this.meta["margin-top"]) {
+      this.margin = {
+        top: +this.meta["margin-top"],
+        right: +this.meta["margin-right"],
+        bottom: +this.meta["margin-bottom"],
+        left: +this.meta["margin-left"]
+      }
+    }
+
+    // chart line breaks
+    if (this.meta["breaks"]) {
+      this.hideNullValues = this.meta["breaks"]
+    }
+
+    // x axis type
+    if (this.meta["xColumn"]) {
+      this.xColumn = this.meta["xColumn"]
+      this.keys.splice(this.keys.indexOf(this.xColumn), 1)
+    }
+
+    // update x scale based on scale type
+    if (typeof this.data[0][this.xColumn] == "string") {
+      this.x = d3.scaleTime().rangeRound([0, this.width])
+    }
+
+    // update y scale if y scale type is provided
+    if (this.meta["yScaleType"]) {
+      this.y = d3[this.meta["yScaleType"]]().range([this.height, 0]).nice()
+    }
+
+    // use short colors if less than 6 keys
+    if (this.keys.length <= 5) {
+      this.colors = colorsShort
+      this.color = d3.scaleOrdinal().range(this.colors)
+    }
+
+    // parsers
+    this.parseTime = d3.timeParse(this.meta["dateFormat"])
+    this.parsePeriods = d3.timeParse(this.meta["periodDateFormat"])
     
-
-    var chartKey = d3.select("#chartKey")
-
-    var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-
-    var isMobile = (windowWidth < 610) ? true : false ;
-
-    var containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width
-
-    var height = containerWidth * 0.6
-
-    var margin
-    if (template[0]["margin-top"]) {
-      margin = {
-        top: +template[0]["margin-top"],
-        right: +template[0]["margin-right"],
-        bottom: +template[0]["margin-bottom"],
-        left: +template[0]["margin-left"]
-      }
-    } else {
-      margin = {
-        top: 0,
-        right: 0,
-        bottom: 20,
-        left: 40
-      }
-    }
-
-    var lineLabelling = false;
-    // if (options.length > 0) {
-    //     if (options[0]["lineLabelling"]) {
-    //       if (options[0]["lineLabelling"] != "") {
-    //         lineLabelling = (options[0]["lineLabelling"] === true);
-    //       }
-    //     }
-    // }
+    // tooltip div
+    this.$tooltip =
+      d3.select("body")
+        .append("div")
+        .attr("class", "tooltip")
+        .attr("id", "tooltip")
+        .style("position", "absolute")
+        .style("background-color", "white")
+        .style("opacity", 0)
     
-    var breaks = "yes"
+    // create svg
+    this.$svg =
+      d3.select("#graphicContainer")
+        .append("svg")
+        .attr("width", this.width + this.margin.left + this.margin.right)
+        .attr("height", this.height + this.margin.top + this.margin.bottom)
+        .attr("id", "svg")
+        .attr("overflow", "hidden")
+    
+    // update right margin and svg width based on the longest key
+    this.margin.right = this.margin.right + getLongestKeyLength(this.$svg, this.keys, this.isMobile)
+    this.$svg.attr('width', this.width + this.margin.left + this.margin.right)
 
-    if (template[0]["breaks"]) {
-      breaks = template[0]["breaks"]
-    }
-
-    var keys = Object.keys(data[0])
-
-    var xVar
-
-    if (template[0]["xColumn"]) {
-      xVar = template[0]["xColumn"]
-      keys.splice(keys.indexOf(xVar), 1)
-    } else {
-      xVar = keys[0]
-      keys.splice(0, 1)
-    }
-
-  var colors;
-  var colorsLong = ["#4daacf", "#5db88b", "#a2b13e", "#8a6929", "#b05cc6", "#c8a466", "#c35f95", "#ce592e", "#d23d5e", "#d89a34", "#7277ca", "#527b39", "#59b74b", "#c76c65", "#8a6929"]; 
-  var colorsMedium = ["#000000","#0000ff","#9d02d7","#cd34b5","#ea5f94","#fa8775","#ffb14e","#ffd700"]
-  var colorsShort = ["#ffb14e","#fa8775","#ea5f94","#cd34b5","#9d02d7","#0000ff"]
-  var colors = ["#4daacf", "#5db88b", "#a2b13e", "#8a6929", "#b05cc6", "#c8a466", "#c35f95", "#ce592e", "#d23d5e", "#d89a34", "#7277ca", "#527b39", "#59b74b", "#c76c65", "#8a6929"]; // var colors = ["#000000","#0000ff","#9d02d7","#cd34b5","#ea5f94","#fa8775","#ffb14e","#ffd700"]
-
-  if (keys.length <= 5) {
-    colors = colorsShort;
-  }
-
-  else {
-    colors = colorsLong
-  }
-    var width = containerWidth - margin.left - margin.right,
-    height = height - margin.top - margin.bottom
-
-
-    d3.select("#graphicContainer svg").remove()
-
-    chartKey.html("")
-
-    var svg = d3.select("#graphicContainer").append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .attr("id", "svg")
-      .attr("overflow", "hidden")
-
-    if (lineLabelling && !isMobile) {
-
-      var longestKey = keys.sort(function (a, b) { return b.length - a.length; })[0];
+    // group for chart features
+    this.$features =
+      this.$svg
+        .append("g")
+        .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
+    
+    this.keys.forEach((key) => {
+      // setup how to draw line
+      this.lineGenerators[key] = d3.line()
+        .x((d) => {
+          return this.x(d[this.xColumn])
+        })
+        .y((d) => {
+          return this.y(d[key])
+        })
       
-      d3.select("#dummyText").remove()
-
-      var dummyText = svg.append("text")
-                      .attr("x", -50)
-                      .attr("y", -50)
-                      .attr("id", "dummyText")
-                      .attr("class", "annotationText")
-                      .text(longestKey)
-
-      var keyLength = dummyText.node().getBBox().width                
-
-      margin.right = margin.right + keyLength
-
-    }
-
-    width = containerWidth - margin.left - margin.right
-
-    svg.attr("width", width + margin.left + margin.right)  
-
-    var features = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-
-    var x
-
-    if (typeof data[0][xVar] == "string") {
-      x = d3.scaleTime().rangeRound([0, width])
-    } else {
-      x = d3.scaleLinear().rangeRound([0, width])
-    }
-
-    var y
-
-    if (template[0]["yScaleType"]) {
-      y = d3[template[0]["yScaleType"]]().range([height, 0]).nice()
-    } else {
-      y = d3.scaleLinear()
-        .rangeRound([height, 0])
-    }
-
-    var color = d3.scaleOrdinal()
-      .range(colors)
-
-    var lineGenerators = {}
-    var allValues = []
-
-    keys.forEach(function (key) {
-      if (breaks === "yes") {
-        lineGenerators[key] = d3.line()
-          .defined(function (d) {
-            return d
-          })
-          .x(function (d) {
-            return x(d[xVar])
-          })
-          .y(function (d) {
-            return y(d[key])
-          })
-      } else {
-        lineGenerators[key] = d3.line()
-          .x(function (d) {
-            return x(d[xVar])
-          })
-          .y(function (d) {
-            return y(d[key])
-          })
+      if (this.hideNullValues === "yes") {
+        this.lineGenerators[key].defined(function (d) {
+          return d
+        })
       }
 
-
-      data.forEach(function (d) {
+      // get all chart values for each key
+      this.data.forEach((d) => {
         if (typeof d[key] == "string") {
-
           if (d[key].includes(",")) {
             if (!isNaN((d[key]).replace(/,/g, ""))) {
               d[key] = +(d[key]).replace(/,/g, "")
-              allValues.push(d[key])
+              this.chartValues.push(d[key])
             }
-
           } else if (d[key] != "") {
-
             if (!isNaN(d[key])) {
               d[key] = +d[key]
-              allValues.push(d[key])
+              this.chartValues.push(d[key])
             }
           } else if (d[key] == "") {
             d[key] = null
           }
-
         } else {
-          allValues.push(d[key])
+          this.chartValues.push(d[key])
         }
-
-
       })
-
     })
 
-    // console.log(data)
+    if (this.isMobile) {
+      this.keys.forEach((key) => {
+        const $keyDiv =
+          this.$chartKey
+            .append("div")
+              .attr("class", "keyDiv")
 
-    if (isMobile) {
-      keys.forEach(function (key) {
+        $keyDiv
+          .append("span")
+            .attr("class", "keyCircle")
+            .style("background-color", () => {
+              if (this.optionalKey.hasOwnProperty(key)) {
+                return this.optionalKey[key]
+              } else {
+                return this.color(key)
+              }
+            })
 
-        var keyDiv = chartKey.append("div")
-          .attr("class", "keyDiv")
-
-        keyDiv.append("span")
-          .attr("class", "keyCircle")
-          .style("background-color", function () {
-            if (optionalKey.hasOwnProperty(key)) {
-              return optionalKey[key]
-            } else {
-              return color(key)
-            }
-          })
-
-        keyDiv.append("span")
-          .attr("class", "keyText")
-          .text(key)
-
+        $keyDiv
+          .append("span")
+            .attr("class", "keyText")
+            .text(key)
       })
     }
 
-    var parseTime = d3.timeParse(template[0]["dateFormat"])
-    var parsePeriods = d3.timeParse(template[0]["periodDateFormat"])
-
-    data.forEach(function (d) {
-      if (typeof d[xVar] == "string") {
-        d[xVar] = parseTime(d[xVar])
+    this.data.forEach((d) => {
+      if (typeof d[this.xColumn] == "string") {
+        d[this.xColumn] = this.parseTime(d[this.xColumn])
       }
     })
 
-    var keyData = {}
+    this.keys.forEach((key) => {
+      this.chartKeyData[key] = []
 
-    keys.forEach(function (key) {
-      keyData[key] = []
-
-      data.forEach(function (d) {
+      this.data.forEach((d) => {
         if (d[key] != null) {
           let newData = {}
-          newData[xVar] = d[xVar]
+          newData[this.xColumn] = d[this.xColumn]
           newData[key] = d[key]
-          keyData[key].push(newData)
+          this.chartKeyData[key].push(newData)
         } else {
-          keyData[key].push(null)
+          this.chartKeyData[key].push(null)
         }
-
       })
     })
 
-    labels.forEach(function (d) {
+    this.labels.forEach((d) => {
       if (typeof d.x == "string") {
-        d.x = parseTime(d.x)
+        d.x = this.parseTime(d.x)
       }
 
       if (typeof d.y == "string") {
@@ -306,84 +284,61 @@ export default class LineChart {
       if (typeof d.offset == "string") {
         d.offset = +d.offset
       }
-
     })
 
-    periods.forEach(function (d) {
+    this.periods.forEach((d) => {
       if (typeof d.start == "string") {
-        d.start = parsePeriods(d.start)
-        d.end = parsePeriods(d.end)
+        d.start = this.parsePeriods(d.start)
+        d.end = this.parsePeriods(d.end)
         d.middle = new Date((d.start.getTime() + d.end.getTime()) / 2)
       }
     })
 
-    var min
-    var max = d3.max(allValues);
-
-
-    if (template[0]["minY"]) {
-        if (template[0]["minY"] != "") {
-          console.log("yeg ")
-          min = parseInt(template[0]["minY"])
-        }
-
-        else {
-          min = d3.min(allValues)
-      }
-    }
+    // determine y min/max of the chart
+    this.max = d3.max(this.chartValues)
+    this.min =
+      this.meta["minY"] && this.meta["minY"] !== ""
+        ? parseInt(this.meta["minY"])
+        : d3.min(this.chartValues)
     
-    else {
-      min = d3.min(allValues)
-    }
-    x.domain(d3.extent(data, function (d) {
-      return d[xVar]
+    // setup x and y axis domains
+    this.x.domain(d3.extent(this.data, (d) => {
+      return d[this.xColumn]
     }))
+    this.y.domain([this.min, this.max])
 
-    console.log(min, max)
-    y.domain([min, max])
-
-    var xAxis
-    var yAxis
-
-    var yTicks
-
-    if (template[0]["yScaleType"] == "scaleLog") {
-         yAxis = d3.axisLeft(y).tickFormat(function (d) {
+    // setup x and y axis
+    const xTicks = this.isMobile ? 4 : 6
+    const yTicks = this.meta["yScaleType"] === "scaleLog" ? 3 : 5
+    this.xAxis = d3.axisBottom(this.x).ticks(xTicks)
+    this.yAxis =
+      d3.axisLeft(this.y)
+        .tickFormat(function (d) {
           return numberFormat(d)
-        }).ticks(3)
-    }
+        })
+        .ticks(yTicks)
+  }
 
-    else {
-      yAxis = d3.axisLeft(y).tickFormat(function (d) {
-          return numberFormat(d)
-        }).ticks(5)
-    }
-
-    if (isMobile) {
-      xAxis = d3.axisBottom(x).ticks(4)
-  
-    } else {
-      xAxis = d3.axisBottom(x).ticks(6)
-    }
-
+  render() {
+    // Remove 
     d3.selectAll(".periodLine").remove()
     d3.selectAll(".periodLabel").remove()
 
-    features.selectAll(".periodLine")
-      .data(periods)
+    this.$features.selectAll(".periodLine")
+      .data(this.periods)
       .enter().append("line")
-      .attr("x1", function (d) {
-        return x(d.start)
+      .attr("x1", (d) => {
+        return this.x(d.start)
       })
       .attr("y1", 0)
-      .attr("x2", function (d) {
-        return x(d.start)
+      .attr("x2", (d) => {
+        return this.x(d.start)
       })
-      .attr("y2", height)
+      .attr("y2", this.height)
       .attr("class", "periodLine mobHide")
       .attr("stroke", "#bdbdbd")
-      .attr("opacity", function (d) {
-        if (d.start < x.domain()[0]) {
+      .attr("opacity", (d) => {
+        if (d.start < this.x.domain()[0]) {
           return 0
         } else {
           return 1
@@ -392,83 +347,79 @@ export default class LineChart {
       })
       .attr("stroke-width", 1)
 
-    features.selectAll(".periodLine")
-      .data(periods)
+    this.$features.selectAll(".periodLine")
+      .data(this.periods)
       .enter().append("line")
-      .attr("x1", function (d) {
-        return x(d.end)
+      .attr("x1", (d) => {
+        return this.x(d.end)
       })
       .attr("y1", 0)
-      .attr("x2", function (d) {
-        return x(d.end)
+      .attr("x2", (d) => {
+        return this.x(d.end)
       })
-      .attr("y2", height)
+      .attr("y2", this.height)
       .attr("class", "periodLine mobHide")
       .attr("stroke", "#bdbdbd")
-      .attr("opacity", function (d) {
-        if (d.end > x.domain()[1]) {
+      .attr("opacity", (d) => {
+        if (d.end > this.x.domain()[1]) {
           return 0
         } else {
           return 1
         }
-
       })
       .attr("stroke-width", 1)
-
-    features.selectAll(".periodLabel")
-      .data(periods)
+    
+    this.$features.selectAll(".periodLabel")
+      .data(this.periods)
       .enter().append("text")
-      .attr("x", function (d) {
+      .attr("x", (d) => {
         if (d.labelAlign == "middle") {
-          return x(d.middle)
+          return this.x(d.middle)
         } else if (d.labelAlign == "start") {
-          return x(d.start) + 5
+          return this.x(d.start) + 5
         }
 
       })
       .attr("y", -5)
-      .attr("text-anchor", function (d) {
+      .attr("text-anchor", (d) => {
         return d.labelAlign
 
       })
       .attr("class", "periodLabel mobHide")
       .attr("opacity", 1)
-      .text(function (d) {
+      .text((d) => {
         return d.label
       })
-
-    features.append("g")
+    
+    this.$features.append("g")
       .attr("class", "x")
-      .attr("transform", function () {
-
-        if (x_axis_cross_y != null) {
-
-          return "translate(0," + y(x_axis_cross_y) + ")"
+      .attr("transform", () => {
+        if (this.x_axis_cross_y != null) {
+          return "translate(0," + this.y(this.x_axis_cross_y) + ")"
         } else {
-
-          return "translate(0," + height + ")"
+          return "translate(0," + this.height + ")"
         }
       })
-      .call(xAxis)
-
-    features.append("g")
+      .call(this.xAxis)
+    
+    this.$features.append("g")
       .attr("class", "y")
-      .call(yAxis)
+      .call(this.yAxis)
 
-    features.append("text")
+    this.$features.append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", "0.71em")
       .attr("fill", "#767676")
       .attr("text-anchor", "end")
-      .text(template[0].yAxisLabel)
+      .text(this.meta.yAxisLabel)
 
-    features.append("text")
-      .attr("x", width)
-      .attr("y", height - 6)
+    this.$features.append("text")
+      .attr("x", this.width)
+      .attr("y", this.height - 6)
       .attr("fill", "#767676")
       .attr("text-anchor", "end")
-      .text(template[0].xAxisLabel)
+      .text(this.meta.xAxisLabel)
 
     d3.selectAll(".tick line")
       .attr("stroke", "#767676")
@@ -480,143 +431,211 @@ export default class LineChart {
       .attr("stroke", "#767676")
 
 
-    keys.forEach(function (key) {
-
-      features.append("path")
-        .datum(keyData[key])
+    this.keys.forEach((key) => {
+      this.$features.append("path")
+        .datum(this.chartKeyData[key])
         .attr("fill", "none")
-        .attr("stroke", function (d) {
-          if (optionalKey.hasOwnProperty(key)) {
-            return optionalKey[key]
+        .attr("stroke", (d) => {
+          if (this.optionalKey.hasOwnProperty(key)) {
+            return this.optionalKey[key]
           } else {
-            return color(key)
+            return this.color(key)
           }
-
         })
         .attr("stroke-linejoin", "round")
         .attr("stroke-linecap", "round")
         .attr("stroke-width", 2)
-        .attr("d", lineGenerators[key])
+        .attr("d", this.lineGenerators[key])
 
 
-      var tempLabelData = keyData[key].filter(d => d != null)
-      console.log(tempLabelData)
-      var end = tempLabelData.length - 1
+      const tempLabelData = this.chartKeyData[key].filter(d => d != null)
+      let lineLabelAlign = "start"
+      let lineLabelOffset = 0
 
-      
-
-      var lineLabelAlign = "start"
-      var lineLabelOffset = 0
-
-      if (x(tempLabelData[tempLabelData.length - 1].index) > width - 20) {
+      if (this.x(tempLabelData[tempLabelData.length - 1].index) > this.width - 20) {
         lineLabelAlign = "end"
         lineLabelOffset = -10
       }
 
-      if (!isMobile) {
-
-        features.append("circle")
-        .attr("cy", function (d) {
-          return y(tempLabelData[tempLabelData.length - 1][key])
-        })
-        .attr("fill", function (d) {
-          if (optionalKey.hasOwnProperty(key)) {
-            return optionalKey[key]
-          } else {
-            return color(key)
-          }
-
-        })
-        .attr("cx", function (d) {
-          return x(tempLabelData[tempLabelData.length - 1][xVar])
-        })
-        .attr("r", 4)
-        .style("opacity", 1)
-
-        features.append("text")
-          .attr("class", "annotationText")
-          .attr("y", function (d) {
-            return y(tempLabelData[tempLabelData.length - 1][key]) + 4 + lineLabelOffset
+      if (!this.isMobile) {
+        this.$features
+          .append("circle")
+          .attr("cy", (d) => {
+            return this.y(tempLabelData[tempLabelData.length - 1][key])
           })
-          .attr("x", function (d) {
-            console.log(x(tempLabelData[tempLabelData.length - 1][xVar]))
-            return x(tempLabelData[tempLabelData.length - 1][xVar]) + 5
+          .attr("fill", (d) => {
+            if (this.optionalKey.hasOwnProperty(key)) {
+              return this.optionalKey[key]
+            } else {
+              return this.color(key)
+            }
+          })
+          .attr("cx", (d) => {
+            return this.x(tempLabelData[tempLabelData.length - 1][this.xColumn])
+          })
+          .attr("r", 4)
+          .style("opacity", 1)
+
+        this.$features
+          .append("text")
+          .attr("class", "annotationText")
+          .attr("y", (d) => {
+            return this.y(tempLabelData[tempLabelData.length - 1][key]) + 4 + lineLabelOffset
+          })
+          .attr("x", (d) => {
+            return this.x(tempLabelData[tempLabelData.length - 1][this.xColumn]) + 5
           })
           .style("opacity", 1)
           .attr("text-anchor", lineLabelAlign)
-          .text(function (d) {
+          .text((d) => {
             return key
           })
-      }
-
-
-
+      }  
     })
 
+    if (this.hasTooltipTemplate) {
+      this.drawHoverFeature()
+    }
+
+    this.drawAnnotation()
+  }
+
+  drawHoverFeature() {
+    const self = this
+    const $hoverLine = this.$features
+      .append("line")
+      .attr("x1", 0)
+      .attr("y1", 0)
+      .attr("x2", 0)
+      .attr("y2", this.height)
+      .style("opacity", 0)
+      .style("stroke", "#333")
+      .style("stroke-dasharray", 4)
+    
+    const $hoverLayerRect = this.$features
+      .append("rect")
+      .attr("width", this.width)
+      .attr("height", this.height)
+      .style("opacity", 0)
+
+    // handle mouse hover event
+    $hoverLayerRect
+      .on("mousemove touchmove", function (d) {
+        const bisectDate = d3.bisector(d => d.date).left,
+          x0 = self.x.invert(d3.mouse(this)[0]),
+          i = bisectDate(self.data, x0, 1),
+          tooltipData = {
+            data: { date: x0 }
+          }
+
+        self.keys.forEach((key) => {
+          const data = self.chartKeyData[key],
+            d0 = data[i - 1],
+            d1 = data[i]
+          
+          if (d0 && d1) {
+            d = x0 - d0.date > d1.date - x0 ? d1 : d0
+          } else {
+            d = d0
+          }
+
+          // remove spacing in keys
+          tooltipData.data[key.replace(/\s+/g, "")] = d[key]
+        })
+
+
+        // render html using mustache
+        const text = mustache(self.tooltipTemplate, { ...helpers, ...tooltipData })
+        self.$tooltip.html(text)
+        
+        // render tooltip from left or right depending on mouse position
+        const tipWidth = document
+          .querySelector("#tooltip")
+          .getBoundingClientRect().width
+        
+        if (d3.event.pageX < self.width / 2) {
+          self.$tooltip.style("left", d3.event.pageX + "px")
+        } else if (d3.event.pageX >= self.width / 2) {
+          self.$tooltip.style("left", d3.event.pageX - tipWidth + "px")
+        }
+        
+        self.$tooltip
+          .style("top", d3.event.pageY + "px")
+          .transition()
+          .duration(200)
+          .style("opacity", 0.9)
+        
+        $hoverLine
+          .attr("x1", self.x(x0))
+          .attr("x2", self.x(x0))
+          .style("opacity", 0.5)
+      })
+      .on("mouseout", function () {
+        self.$tooltip
+          .transition()
+          .duration(500)
+          .style("opacity", 0)
+        
+          $hoverLine.style("opacity", 0)
+      })
+  }
+
+  drawAnnotation() {
     function textPadding(d) {
-      if (d.offset > 0) {
-        return 6
-      } else {
-        return -2
-      }
+      return d.offset > 0 ? 6 : -2
     }
 
     function textPaddingMobile(d) {
-      if (d.offset > 0) {
-        return 8
-      } else {
-        return 4
-      }
+      return d.offset > 0 ? 8 : 4
     }
 
+    const $footerAnnotations = d3.select("#footerAnnotations")
+    $footerAnnotations.html("")
 
-    features.selectAll(".annotationLine")
-      .data(labels)
-      .enter().append("line")
-      .attr("class", "annotationLine")
-      .attr("x1", function (d) {
-        return x(d.x)
-      })
-      .attr("y1", function (d) {
-        return y(d.y)
-      })
-      .attr("x2", function (d) {
-        return x(d.x)
-      })
-      .attr("y2", function (d) {
-        return y(d.offset)
-      })
-      .style("opacity", 1)
-      .attr("stroke", "#000")
-
-    var footerAnnotations = d3.select("#footerAnnotations")
-
-    footerAnnotations.html("")
-
-    if (isMobile) {
-
-      features.selectAll(".annotationCircles")
-        .data(labels)
+    this.$features
+      .selectAll(".annotationLine")
+      .data(this.labels)
+      .enter()
+      .append("line")
+        .attr("class", "annotationLine")
+        .attr("x1", function (d) {
+          return this.x(d.x)
+        })
+        .attr("y1", function (d) {
+          return this.y(d.y)
+        })
+        .attr("x2", function (d) {
+          return this.x(d.x)
+        })
+        .attr("y2", function (d) {
+          return this.y(d.offset)
+        })
+        .style("opacity", 1)
+        .attr("stroke", "#000")
+    
+    if (this.isMobile) {
+      this.$features.selectAll(".annotationCircles")
+        .data(this.labels)
         .enter().append("circle")
         .attr("class", "annotationCircle")
         .attr("cy", function (d) {
-          return y(d.offset) + textPadding(d) / 2
+          return this.y(d.offset) + textPadding(d) / 2
         })
         .attr("cx", function (d) {
-          return x(d.x)
+          return this.x(d.x)
         })
         .attr("r", 8)
         .attr("fill", "#000")
-
-      features.selectAll(".annotationTextMobile")
-        .data(labels)
+      
+      this.$features.selectAll(".annotationTextMobile")
+        .data(this.labels)
         .enter().append("text")
         .attr("class", "annotationTextMobile")
         .attr("y", function (d) {
-          return y(d.offset) + textPaddingMobile(d)
+          return this.y(d.offset) + textPaddingMobile(d)
         })
         .attr("x", function (d) {
-          return x(d.x)
+          return this.x(d.x)
         })
         .style("text-anchor", "middle")
         .style("opacity", 1)
@@ -624,43 +643,40 @@ export default class LineChart {
         .text(function (d, i) {
           return i + 1
         })
-
-      if (labels.length > 0) {
-        footerAnnotations.append("span")
+      
+      if (this.labels.length > 0) {
+        $footerAnnotations.append("span")
           .attr("class", "annotationFooterHeader")
           .text("Notes: ")
       }
 
-      labels.forEach(function (d, i) {
-
-        footerAnnotations.append("span")
+      this.labels.forEach(function (d, i) {
+        $footerAnnotations.append("span")
           .attr("class", "annotationFooterNumber")
           .text(i + 1 + " - ")
 
-        if (i < labels.length - 1) {
-          footerAnnotations.append("span")
+        if (i < this.labels.length - 1) {
+          $footerAnnotations.append("span")
             .attr("class", "annotationFooterText")
             .text(d.text + ", ")
         } else {
-          footerAnnotations.append("span")
+          $footerAnnotations.append("span")
             .attr("class", "annotationFooterText")
             .text(d.text)
         }
-
       })
-
     } else {
 
-      features.selectAll(".annotationText")
-        .data(labels)
+      this.$features.selectAll(".annotationText")
+        .data(this.labels)
         .enter().append("text")
         .attr("class", "annotationText")
         .attr("y", function (d) {
           console.log(textPadding(d))
-          return y(d.offset) + -1*textPadding(d)
+          return this.y(d.offset) + -1*textPadding(d)
         })
         .attr("x", function (d) {
-          return x(d.x)
+          return this.x(d.x)
         })
         .style("text-anchor", function (d) {
           return d.align
@@ -669,7 +685,6 @@ export default class LineChart {
         .text(function (d) {
           return d.text
         })
-
     }
-  } // end init
+  }
 }
