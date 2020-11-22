@@ -106,7 +106,7 @@ export default class LineChart {
 
     // parse optionalKey
     if (this.userKey.length > 1) {
-      this.userKey.forEach(function (d) {
+      this.userKey.forEach((d) => {
         this.optionalKey[d.key] = d.colour
       })
     }
@@ -598,17 +598,18 @@ export default class LineChart {
       .enter()
       .append("line")
         .attr("class", "annotationLine")
-        .attr("x1", function (d) {
+        .attr("x1", (d) => {
           return this.x(d.x)
         })
-        .attr("y1", function (d) {
+        .attr("y1", (d) => {
           return this.y(d.y)
         })
-        .attr("x2", function (d) {
+        .attr("x2", (d) => {
           return this.x(d.x)
         })
-        .attr("y2", function (d) {
-          return this.y(d.offset)
+        .attr("y2", (d) => {
+          const yPos = this.y(d.offset)
+          return yPos <= -15 ? -15 : yPos
         })
         .style("opacity", 1)
         .attr("stroke", "#000")
@@ -618,10 +619,10 @@ export default class LineChart {
         .data(this.labels)
         .enter().append("circle")
         .attr("class", "annotationCircle")
-        .attr("cy", function (d) {
+        .attr("cy", (d) => {
           return this.y(d.offset) + textPadding(d) / 2
         })
-        .attr("cx", function (d) {
+        .attr("cx", (d) => {
           return this.x(d.x)
         })
         .attr("r", 8)
@@ -631,16 +632,16 @@ export default class LineChart {
         .data(this.labels)
         .enter().append("text")
         .attr("class", "annotationTextMobile")
-        .attr("y", function (d) {
+        .attr("y", (d) => {
           return this.y(d.offset) + textPaddingMobile(d)
         })
-        .attr("x", function (d) {
+        .attr("x", (d) => {
           return this.x(d.x)
         })
         .style("text-anchor", "middle")
         .style("opacity", 1)
         .attr("fill", "#FFF")
-        .text(function (d, i) {
+        .text((d, i) => {
           return i + 1
         })
       
@@ -650,7 +651,7 @@ export default class LineChart {
           .text("Notes: ")
       }
 
-      this.labels.forEach(function (d, i) {
+      this.labels.forEach((d, i) => {
         $footerAnnotations.append("span")
           .attr("class", "annotationFooterNumber")
           .text(i + 1 + " - ")
@@ -666,25 +667,28 @@ export default class LineChart {
         }
       })
     } else {
-
-      this.$features.selectAll(".annotationText")
+      this.$features
+        .selectAll(".annotationText2")
         .data(this.labels)
-        .enter().append("text")
-        .attr("class", "annotationText")
-        .attr("y", function (d) {
-          console.log(textPadding(d))
-          return this.y(d.offset) + -1*textPadding(d)
-        })
-        .attr("x", function (d) {
-          return this.x(d.x)
-        })
-        .style("text-anchor", function (d) {
-          return d.align
-        })
-        .style("opacity", 1)
-        .text(function (d) {
-          return d.text
-        })
+        .enter()
+        .append("text")
+          .attr("class", "annotationText2")
+          .attr("y", (d) => {
+            const yPos = this.y(d.offset)
+            return yPos <= -10 ? -10 : yPos + -1*textPadding(d)
+          })
+          .attr("x", (d) => {
+            const yPos = this.y(d.offset)
+            const xPos = this.x(d.x)
+            return yPos <= -10 ? xPos - 5 : xPos
+          })
+          .style("text-anchor", (d) => {
+            return d.align
+          })
+          .style("opacity", 1)
+          .text((d) => {
+            return d.text
+          })
     }
   }
 }

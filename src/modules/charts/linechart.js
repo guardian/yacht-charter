@@ -125,7 +125,7 @@ var LineChart = /*#__PURE__*/function () {
 
       if (this.userKey.length > 1) {
         this.userKey.forEach(function (d) {
-          this.optionalKey[d.key] = d.colour;
+          _this.optionalKey[d.key] = d.colour;
         });
       } // ?
 
@@ -452,6 +452,8 @@ var LineChart = /*#__PURE__*/function () {
   }, {
     key: "drawAnnotation",
     value: function drawAnnotation() {
+      var _this3 = this;
+
       function textPadding(d) {
         return d.offset > 0 ? 6 : -2;
       }
@@ -463,25 +465,27 @@ var LineChart = /*#__PURE__*/function () {
       var $footerAnnotations = d3.select("#footerAnnotations");
       $footerAnnotations.html("");
       this.$features.selectAll(".annotationLine").data(this.labels).enter().append("line").attr("class", "annotationLine").attr("x1", function (d) {
-        return this.x(d.x);
+        return _this3.x(d.x);
       }).attr("y1", function (d) {
-        return this.y(d.y);
+        return _this3.y(d.y);
       }).attr("x2", function (d) {
-        return this.x(d.x);
+        return _this3.x(d.x);
       }).attr("y2", function (d) {
-        return this.y(d.offset);
+        var yPos = _this3.y(d.offset);
+
+        return yPos <= -15 ? -15 : yPos;
       }).style("opacity", 1).attr("stroke", "#000");
 
       if (this.isMobile) {
         this.$features.selectAll(".annotationCircles").data(this.labels).enter().append("circle").attr("class", "annotationCircle").attr("cy", function (d) {
-          return this.y(d.offset) + textPadding(d) / 2;
+          return _this3.y(d.offset) + textPadding(d) / 2;
         }).attr("cx", function (d) {
-          return this.x(d.x);
+          return _this3.x(d.x);
         }).attr("r", 8).attr("fill", "#000");
         this.$features.selectAll(".annotationTextMobile").data(this.labels).enter().append("text").attr("class", "annotationTextMobile").attr("y", function (d) {
-          return this.y(d.offset) + textPaddingMobile(d);
+          return _this3.y(d.offset) + textPaddingMobile(d);
         }).attr("x", function (d) {
-          return this.x(d.x);
+          return _this3.x(d.x);
         }).style("text-anchor", "middle").style("opacity", 1).attr("fill", "#FFF").text(function (d, i) {
           return i + 1;
         });
@@ -493,18 +497,23 @@ var LineChart = /*#__PURE__*/function () {
         this.labels.forEach(function (d, i) {
           $footerAnnotations.append("span").attr("class", "annotationFooterNumber").text(i + 1 + " - ");
 
-          if (i < this.labels.length - 1) {
+          if (i < _this3.labels.length - 1) {
             $footerAnnotations.append("span").attr("class", "annotationFooterText").text(d.text + ", ");
           } else {
             $footerAnnotations.append("span").attr("class", "annotationFooterText").text(d.text);
           }
         });
       } else {
-        this.$features.selectAll(".annotationText").data(this.labels).enter().append("text").attr("class", "annotationText").attr("y", function (d) {
-          console.log(textPadding(d));
-          return this.y(d.offset) + -1 * textPadding(d);
+        this.$features.selectAll(".annotationText2").data(this.labels).enter().append("text").attr("class", "annotationText2").attr("y", function (d) {
+          var yPos = _this3.y(d.offset);
+
+          return yPos <= -10 ? -10 : yPos + -1 * textPadding(d);
         }).attr("x", function (d) {
-          return this.x(d.x);
+          var yPos = _this3.y(d.offset);
+
+          var xPos = _this3.x(d.x);
+
+          return yPos <= -10 ? xPos - 5 : xPos;
         }).style("text-anchor", function (d) {
           return d.align;
         }).style("opacity", 1).text(function (d) {
