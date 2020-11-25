@@ -59,6 +59,25 @@ export default class ScatterPlot {
       }
     })
 
+    this.margin = null
+
+    if (this.template[0]["margin-top"]) {
+    this.margin = {
+      top: +this.template[0]["margin-top"],
+      right: +this.template[0]["margin-right"],
+      bottom: +this.template[0]["margin-bottom"],
+      left: +this.template[0]["margin-left"]
+    };
+  } else {
+   this.margin  = {
+      top: 0,
+      right: 0,
+      bottom: 20,
+      left: 40
+    };
+  }
+
+
     this.utilities = {
       decimals: function(items) {
         var nums = items.split(",")
@@ -185,7 +204,7 @@ export default class ScatterPlot {
       this._render(d3)
     })
 
-    this.resizer()
+    // this.resizer()
   }
 
   _createFilters(d3) {
@@ -326,6 +345,7 @@ export default class ScatterPlot {
   }
 
   resizer(d3) {
+    var self = this
     window.addEventListener("resize", function () {
 
       clearTimeout(document.body.data)
@@ -334,7 +354,7 @@ export default class ScatterPlot {
 
         console.log("Resize the chart")
 
-        this._render(d3)
+        self._render(d3)
 
       }, 800)
 
@@ -353,14 +373,9 @@ export default class ScatterPlot {
     var width = document.querySelector("#graphicContainer").getBoundingClientRect().width
     var height = (isMobile) ? width * 0.7 : width * 0.5
 
-    var margin = {
-        top: 20,
-        right: 20,
-        bottom: 35,
-        left: 45
-      },
-      width = width - margin.left - margin.right,
-      height = height - margin.top - margin.bottom
+
+      width = width - self.margin.left - self.margin.right,
+      height = height - self.margin.top - self.margin.bottom
 
     // Filter the data if the filter value has been set in the Googledoc
     if (self.filter != null) {
@@ -398,13 +413,12 @@ export default class ScatterPlot {
       yAxis = d3.axisLeft(y) //d3.svg.axis().scale(y).orient("left");
 
     var svg = d3.select("#graphicContainer").append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .attr("preserveAspectRatio", "xMinYMin meet")
-      .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+      .attr("width", width + self.margin.left + self.margin.right)
+      .attr("height", height + self.margin.top + self.margin.bottom)
+      .attr("viewBox", `0 0 ${width + self.margin.left + self.margin.right} ${height + self.margin.top +self. margin.bottom}`)
       .classed("svg-content", true)
       .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+      .attr("transform", "translate(" + self.margin.left + "," + self.margin.top + ")")
 
 
     // Get the values for the X Axis using all the values from the database (This means you can flip between categories and compare values on the same axis)

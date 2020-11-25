@@ -77,7 +77,7 @@ export default class horizontalBar {
     }
 
     var width = document.querySelector("#graphicContainer").getBoundingClientRect().width
-    var height = data.length * 70
+    var height = data.length * 60
     var margin
 
     if (details[0]["margin-top"]) {
@@ -179,7 +179,7 @@ export default class horizontalBar {
     })
 
     var x = d3.scaleLinear().range([0, width])
-    var y = d3.scaleBand().range([0, height]).paddingInner(0.3).paddingOuter(0.3)
+    var y = d3.scaleBand().range([0, height]).paddingInner(0.4).paddingOuter(0.4)
 
     y.domain(data.map(function (d) {
       return d[yVar]

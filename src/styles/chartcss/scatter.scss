@@ -36,7 +36,7 @@ html {
   a {
     color:#005689;
     text-decoration: none !important;
-    border-bottom: 0.0625rem solid #dcdcdc;
+    border-bottom: 0.0625em solid #dcdcdc;
     -webkit-transition: border-color 0.15s ease-out;
     transition: border-color 0.15s ease-out;
   }
@@ -59,7 +59,7 @@ html {
     margin:0;
   }
 
-  h1 {
+/*  h1 {
     font-family: "Guardian Egyptian Web",Georgia,serif;
     font-size: 32px;
     font-weight: normal;
@@ -69,32 +69,32 @@ html {
 
   h2 {
     font-family: "Guardian Egyptian Web",Georgia,serif;
-    font-size: 1.2rem;
+    font-size: 1.2em;
     font-weight: normal;
     color: black;
     font-weight:900;
   }
-
-  .chartTitle {
-    font-size:1.25rem;
-    line-height:1.375rem;
-    padding-bottom:.45rem;
+*/
+/*  .chartTitle {
+    font-size:1.25em;
+    line-height:1.375em;
+    padding-bottom:.45em;
     font-weight:600;
     color:#000;
-  }
+  }*/
 
   .borderBottom {
     border-bottom:1px solid #dcdcdc;
-    padding-bottom:.45rem;
+    padding-bottom:.45em;
   }
 
   .borderTop {
     border-top:1px solid #dcdcdc;
-    padding-top:.45rem;
+    padding-top:.45em;
   }
 
 
-  .chartSans, .axis text, .label {
+  .chartSans, .axis text, .axis .label {
     font-size:12px;
     line-height:1em;
     color:#767676;
@@ -104,13 +104,13 @@ html {
 
 
   @media (max-width: 450px) {
-   .chartSans, .axis text, .label {
+   .chartSans, .axis text,.axis .label {
       font-size:8px;
     }
 
-    .dot-label {
+  /*  .dot-label {
     display: none;
-    }
+    }*/
 
 }
 
@@ -119,8 +119,8 @@ html {
     font-size:10px;
   }
 
-  .subTitle {
-    font-size:1rem;
+  /*.subTitle {
+    font-size:1em;
     color:#808080;
     font-weight:bold;
     font-family:'Guardian Text Sans Web', 'Agate Sans', sans-serif;
@@ -131,10 +131,10 @@ html {
     line-height: 16px;
     color: rgb(118, 118, 118);
     font-family: 'Guardian Text Sans Web', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
-  }
+  }*/
 
   .chartNotes { 
-    font-size:0.9rem; 
+    font-size:0.9em; 
     color:#767676;
     font-family:'Guardian Text Sans Web', 'Agate Sans', sans-serif;
   }
@@ -147,7 +147,7 @@ html {
 
   .btn {
     background-color: #eaeaea;
-    border-radius: 62.5rem;
+    border-radius: 62.5em;
     border: none;
     display: inline-block;
     outline: 0;
@@ -176,12 +176,12 @@ html {
     padding-top:1px;
     color:#767676;
     font-family:'Guardian Text Sans Web', arial, sans-serif;
-    font-size:.75rem;
+    font-size:.75em;
     position:relative;
   }
 
   .gu-graphic-footer p {
-    font-size:.75rem;
+    font-size:.75em;
     margin:0;
     display:inline-block
   }
@@ -235,7 +235,7 @@ html {
 
   #loading {
     font-family: "Guardian Egyptian Web",Georgia,serif;
-    font-size:1.1rem;
+    font-size:1.1em;
     color:#000;
   }
 
@@ -259,7 +259,7 @@ html {
   }
 
   .keyText {
-    font-size:0.8rem;
+    font-size:0.8em;
     margin-top: 5px;
   }
 
@@ -309,7 +309,7 @@ html {
   @media (max-width: 750px) {
 
     .chartSans {
-      font-size:0.7rem;
+      font-size:0.7em;
     }
 
   }
@@ -323,8 +323,8 @@ html {
     border-color: black;
     border-style: solid;
     padding: 10px;
-    line-height: 1.1rem;
-    font-size: 0.9rem;
+    line-height: 1.1em;
+    font-size: 0.9em;
   }
 
 }

@@ -9,9 +9,10 @@ exports["default"] = void 0;
 
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
+var _numberFormat = require("../utilities/numberFormat");
+
 var LineChart = function LineChart(results) {
   (0, _classCallCheck2["default"])(this, LineChart);
-  console.log(results);
   var clone = JSON.parse(JSON.stringify(results));
   var data = clone["sheets"]["data"];
   var template = clone["sheets"]["template"];
@@ -76,22 +77,11 @@ var LineChart = function LineChart(results) {
     }
   }
 
-  d3.select("#footnote").html(template[0].footnote);
   var chartKey = d3.select("#chartKey");
-  var isMobile;
   var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-
-  if (windowWidth < 610) {
-    isMobile = true;
-  }
-
-  if (windowWidth >= 610) {
-    isMobile = false;
-  }
-
+  var isMobile = windowWidth < 610 ? true : false;
   var containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width;
   var height = containerWidth * 0.6;
-  console.log("width", containerWidth, "height", height);
   var margin;
 
   if (template[0]["margin-top"]) {
@@ -118,7 +108,6 @@ var LineChart = function LineChart(results) {
   //     }
   // }
 
-  console.log(lineLabelling);
   var breaks = "yes";
 
   if (template[0]["breaks"]) {
@@ -134,8 +123,7 @@ var LineChart = function LineChart(results) {
   } else {
     xVar = keys[0];
     keys.splice(0, 1);
-  } // console.log(xVar, keys)
-
+  }
 
   var colors;
   var colorsLong = ["#4daacf", "#5db88b", "#a2b13e", "#8a6929", "#b05cc6", "#c8a466", "#c35f95", "#ce592e", "#d23d5e", "#d89a34", "#7277ca", "#527b39", "#59b74b", "#c76c65", "#8a6929"];
@@ -163,7 +151,6 @@ var LineChart = function LineChart(results) {
     var dummyText = svg.append("text").attr("x", -50).attr("y", -50).attr("id", "dummyText").attr("class", "annotationText").text(longestKey);
     var keyLength = dummyText.node().getBBox().width;
     margin.right = margin.right + keyLength;
-    console.log(margin.right, keyLength);
   }
 
   width = containerWidth - margin.left - margin.right;
@@ -379,21 +366,8 @@ var LineChart = function LineChart(results) {
     var tempLabelData = keyData[key].filter(function (d) {
       return d != null;
     });
+    console.log(tempLabelData);
     var end = tempLabelData.length - 1;
-<<<<<<< HEAD
-    features.append("circle").attr("cy", function (d) {
-      return y(tempLabelData[tempLabelData.length - 1][key]);
-    }).attr("fill", function (d) {
-      if (optionalKey.hasOwnProperty(key)) {
-        return optionalKey[key];
-      } else {
-        return color(key);
-      }
-    }).attr("cx", function (d) {
-      return x(tempLabelData[tempLabelData.length - 1].index);
-    }).attr("r", 4).style("opacity", 1);
-=======
->>>>>>> 19fbe1e1e73cc2b4699512a87391d6c0c1e546dd
     var lineLabelAlign = "start";
     var lineLabelOffset = 0;
 
