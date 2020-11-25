@@ -14,6 +14,13 @@ var helpers = {
   
   nicerdate: function() {
     return moment(this.data.index).format('MMM D')
+  },
+
+  // format date as month day (i.e. Jan 30)
+  // - value should be a valid date string
+  formatDate: function (value, render) {
+    var date = new Date(render(value));
+    return moment(date).format("MMM D");
   }
 
 }
