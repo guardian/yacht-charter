@@ -186,6 +186,20 @@ html {
   #outer-wrapper .dot-label {
     fill: #767676;
     font-size: 10px; }
+  #outer-wrapper .subTitle {
+    font-size: 1rem;
+    color: #808080;
+    font-weight: bold;
+    font-family: 'Guardian Text Sans Web', 'Agate Sans', sans-serif; }
+  #outer-wrapper .footer {
+    font-size: 12px;
+    line-height: 16px;
+    color: #767676;
+    font-family: 'Guardian Text Sans Web', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif; }
+  #outer-wrapper .chartNotes {
+    font-size: 0.9rem;
+    color: #767676;
+    font-family: 'Guardian Text Sans Web', 'Agate Sans', sans-serif; }
   #outer-wrapper .center {
     margin-right: auto;
     margin-left: auto;

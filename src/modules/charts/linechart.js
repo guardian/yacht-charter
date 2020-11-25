@@ -93,7 +93,7 @@ var LineChart = /*#__PURE__*/function () {
     this.y = d3.scaleLinear().rangeRound([this.height, 0]);
     this.xAxis = null;
     this.yAxis = null;
-    this.color = d3.scaleOrdinal().range(this.colors);
+    this.xVar = this.color = d3.scaleOrdinal().range(this.colors);
     this.min = null;
     this.max = null;
     this.lineGenerators = {};
@@ -402,19 +402,18 @@ var LineChart = /*#__PURE__*/function () {
     key: "drawHoverFeature",
     value: function drawHoverFeature() {
       var self = this;
+      var xColumn = this.xColumn;
       var $hoverLine = this.$features.append("line").attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", this.height).style("opacity", 0).style("stroke", "#333").style("stroke-dasharray", 4);
       var $hoverLayerRect = this.$features.append("rect").attr("width", this.width).attr("height", this.height).style("opacity", 0); // handle mouse hover event
 
       $hoverLayerRect.on("mousemove touchmove", function (d) {
         var bisectDate = d3.bisector(function (d) {
-          return d.date;
+          return d[xColumn];
         }).left,
             x0 = self.x.invert(d3.mouse(this)[0]),
             i = bisectDate(self.data, x0, 1),
             tooltipData = {
-          data: {
-            date: x0
-          }
+          data: (0, _defineProperty2["default"])({}, xColumn, x0)
         };
         self.keys.forEach(function (key) {
           var data = self.chartKeyData[key],
@@ -422,16 +421,17 @@ var LineChart = /*#__PURE__*/function () {
               d1 = data[i];
 
           if (d0 && d1) {
-            d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+            d = x0 - d0[xColumn] > d1[xColumn] - x0 ? d1 : d0;
           } else {
             d = d0;
           } // remove spacing in keys
+          // tooltipData.data[key.replace(/\s+/g, "")] = d[key]
 
 
-          tooltipData.data[key.replace(/\s+/g, "")] = d[key];
+          tooltipData.data[key] = d[key];
         }); // render html using mustache
 
-        var text = (0, _mustache["default"])(self.tooltipTemplate, _objectSpread({}, _helpers["default"], {}, tooltipData));
+        var text = (0, _mustache["default"])(self.tooltipTemplate, _objectSpread({}, _helpers["default"], {}, tooltipData.data));
         self.$tooltip.html(text); // render tooltip from left or right depending on mouse position
 
         var tipWidth = document.querySelector("#tooltip").getBoundingClientRect().width;

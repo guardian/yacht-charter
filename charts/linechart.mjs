@@ -77,6 +77,7 @@ export default class LineChart {
     this.y = d3.scaleLinear().rangeRound([this.height, 0])
     this.xAxis = null
     this.yAxis = null
+    this.xVar = 
     this.color = d3.scaleOrdinal().range(this.colors)
     this.min = null
     this.max = null
@@ -502,6 +503,7 @@ export default class LineChart {
 
   drawHoverFeature() {
     const self = this
+    const xColumn = this.xColumn
     const $hoverLine = this.$features
       .append("line")
       .attr("x1", 0)
@@ -521,11 +523,12 @@ export default class LineChart {
     // handle mouse hover event
     $hoverLayerRect
       .on("mousemove touchmove", function (d) {
-        const bisectDate = d3.bisector(d => d.date).left,
+        
+        const bisectDate = d3.bisector(d => d[xColumn]).left,
           x0 = self.x.invert(d3.mouse(this)[0]),
           i = bisectDate(self.data, x0, 1),
           tooltipData = {
-            data: { date: x0 }
+            data: { [xColumn]: x0 }
           }
 
         self.keys.forEach((key) => {
@@ -534,18 +537,18 @@ export default class LineChart {
             d1 = data[i]
           
           if (d0 && d1) {
-            d = x0 - d0.date > d1.date - x0 ? d1 : d0
+            d = x0 - d0[xColumn] > d1[xColumn] - x0 ? d1 : d0
           } else {
             d = d0
           }
 
           // remove spacing in keys
-          tooltipData.data[key.replace(/\s+/g, "")] = d[key]
+          // tooltipData.data[key.replace(/\s+/g, "")] = d[key]
+          tooltipData.data[key] = d[key]
         })
 
-
         // render html using mustache
-        const text = mustache(self.tooltipTemplate, { ...helpers, ...tooltipData })
+        const text = mustache(self.tooltipTemplate, { ...helpers, ...tooltipData.data })
         self.$tooltip.html(text)
         
         // render tooltip from left or right depending on mouse position
