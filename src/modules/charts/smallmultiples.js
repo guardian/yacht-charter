@@ -1,1 +1,265 @@
-"use strict";function ownKeys(t,e){var r=Object.keys(t);if(Object.getOwnPropertySymbols){var i=Object.getOwnPropertySymbols(t);e&&(i=i.filter(function(e){return Object.getOwnPropertyDescriptor(t,e).enumerable})),r.push.apply(r,i)}return r}function _objectSpread(t){for(var e=1;e<arguments.length;e++){var r=null!=arguments[e]?arguments[e]:{};e%2?ownKeys(Object(r),!0).forEach(function(e){(0,_defineProperty2.default)(t,e,r[e])}):Object.getOwnPropertyDescriptors?Object.defineProperties(t,Object.getOwnPropertyDescriptors(r)):ownKeys(Object(r)).forEach(function(e){Object.defineProperty(t,e,Object.getOwnPropertyDescriptor(r,e))})}return t}var _interopRequireDefault=require("@babel/runtime/helpers/interopRequireDefault");Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var _defineProperty2=_interopRequireDefault(require("@babel/runtime/helpers/defineProperty")),_toConsumableArray2=_interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray")),_classCallCheck2=_interopRequireDefault(require("@babel/runtime/helpers/classCallCheck")),_createClass2=_interopRequireDefault(require("@babel/runtime/helpers/createClass")),_moment=_interopRequireDefault(require("moment")),_mustache=_interopRequireDefault(require("../utilities/mustache")),_helpers=_interopRequireDefault(require("../utilities/helpers")),SmallMultiples=function(){function t(e){var r=this;(0,_classCallCheck2.default)(this,t),console.log(e);var i=this,a=e.sheets.data,n=e.sheets.template,o=e.sheets.options,l=Object.keys(a[0]);console.log(l),this.groupVar=l[1],this.xVar=l[0],this.yVar=l[2];var s=(0,_toConsumableArray2.default)(new Set(a.map(function(t){return t[r.groupVar]}))),u=""!=n[0].tooltip,c=Math.max(document.documentElement.clientWidth,window.innerWidth||0);a.forEach(function(t){if("string"==typeof t[i.yVar]&&(t[i.yVar]=+t[i.yVar]),"string"==typeof t[i.xVar]){var e=d3.timeParse("%Y-%m-%d");t[i.xVar]=e(t[i.xVar])}}),u&&(this.tooltip=d3.select("body").append("div").attr("class","tooltip").attr("id","tooltip").style("position","absolute").style("background-color","white").style("opacity",0)),this.data=a,this.keys=s,this.details=n,this.isMobile=c<610,this.hasTooltip=u,this.template=n[0].tooltip,"group"==o[0].scaleBy?this.showGroupMax=!0:(this.showGroupMax=!1,d3.select("#switch").html("Show max scale for group")),d3.select("#switch").on("click",function(){i.showGroupMax=!i.showGroupMax;var t=i.showGroupMax?"Show max scale for each chart":"Show max scale for group";d3.select(this).html(t)});var h;h=n[0]["margin-top"]?{top:+n[0]["margin-top"],right:+n[0]["margin-right"],bottom:+n[0]["margin-bottom"],left:+n[0]["margin-left"]}:{top:0,right:0,bottom:20,left:50},this.margin=h,this.width,this.height,this.render()}return(0,_createClass2.default)(t,[{key:"render",value:function(){var t=this,e=document.querySelector("#graphicContainer").getBoundingClientRect().width;console.log("containerWidth",e);var r;r=e<=500?1:e<=750?2:3,console.log(r);var i=document.querySelector("#graphicContainer").getBoundingClientRect().width/r;console.log("width",i);var a=200;t.isMobile&&(a=150),t.width=i-t.margin.left-t.margin.right,t.height=a-t.margin.top-t.margin.bottom,d3.select("#graphicContainer").selectAll("svg").remove(),d3.select("#graphicContainer").html("");for(var n=0;n<this.keys.length;n++)this._drawSmallChart(t.data,n,t.keys,t.details,t.isMobile,t.hasTooltip)}},{key:"_drawSmallChart",value:function(t,e,r,i,a,n){function o(t){return t.replace(/ /g,"_")}function l(t){if(t>0)return t>1e9?t/1e9+"bn":t>1e6?t/1e6+"m":t>1e3?t/1e3+"k":t%1!=0?t.toFixed(2):t.toLocaleString();if(t<0){var e=-1*t;return e>1e9?["-"+String(e/1e9)+"bn"]:e>1e6?["-"+String(e/1e6)+"m"]:e>1e3?["-"+String(e/1e3)+"k"]:t.toLocaleString()}return t}function s(){y=u.showGroupMax?t:t.filter(function(t){return t[u.groupVar]===r[e]}),m.domain(d3.extent(y,function(t){return t[u.yVar]}));var i=d.selectAll(".bar").data(t.filter(function(t){return t[u.groupVar]===r[e]}));i.enter().append("rect").attr("class","bar").style("fill",function(){return"rgb(204, 10, 17)"}).attr("height",0).attr("y",u.height).merge(i).transition().duration(f).attr("x",function(t){return g(t[u.xVar])}).attr("y",function(t){return m(Math.max(t[u.yVar],0))}).attr("width",g.bandwidth()).attr("height",function(t){return Math.abs(m(t[u.yVar])-m(0))}),d3.selectAll(".bar").on("mouseover",function(t){if(n){var e=(0,_mustache.default)(u.template,_objectSpread({},_helpers.default,{},t));u.tooltip.html(e);var r=document.querySelector("#tooltip").getBoundingClientRect().width;d3.event.pageX<u.width/2?u.tooltip.style("left",d3.event.pageX+r/2+"px"):d3.event.pageX>=u.width/2&&u.tooltip.style("left",d3.event.pageX-r+"px"),u.tooltip.style("top",d3.event.pageY+"px"),u.tooltip.transition().duration(200).style("opacity",.9)}}).on("mouseout",function(){n&&u.tooltip.transition().duration(500).style("opacity",0)}),i.exit().transition().duration(f).attr("height",0).attr("y",u.height).remove(),d.select(".y").transition().duration(f).call(x)}var u=this;d3.select("#graphicContainer").append("div").attr("id",o(r[e])).attr("class","barGrid");var c="#",h=c.concat(o(r[e]));d3.select(h).append("div").text(r[e]).attr("class","chartSubTitle");var p=d3.select(h).append("svg").attr("width",u.width+u.margin.left+u.margin.right).attr("height",u.height+u.margin.top+u.margin.bottom).attr("overflow","hidden"),d=p.append("g").attr("transform","translate("+u.margin.left+","+u.margin.top+")"),g=(Object.keys(t[0]),d3.scaleBand().range([0,u.width]).padding(0)),m=d3.scaleLinear().range([u.height,0]),f=1e3,y=u.showGroupMax?t:t.filter(function(t){return t[u.groupVar]===r[e]});g.domain(t.map(function(t){return t[u.xVar]})),m.domain(d3.extent(y,function(t){return t[u.yVar]})).nice();var b=Math.round(g.domain().length/3),v=g.domain().filter(function(t,e){return!(e%b)||e===g.domain().length-1}),w=d3.axisBottom(g).tickValues(v).tickFormat(d3.timeFormat("%d %b")),x=d3.axisLeft(m).tickFormat(function(t){return l(t)}).ticks(3);d.append("g").attr("class","x").attr("transform","translate(0,"+u.height+")").call(w),d.append("g").attr("class","y"),document.getElementById("switch").addEventListener("click",function(){return s()}),s()}}]),t}();exports.default=SmallMultiples;
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+
+var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _moment = _interopRequireDefault(require("moment"));
+
+var _mustache = _interopRequireDefault(require("../utilities/mustache"));
+
+var _helpers = _interopRequireDefault(require("../utilities/helpers"));
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+var SmallMultiples = /*#__PURE__*/function () {
+  function SmallMultiples(results) {
+    var _this = this;
+
+    (0, _classCallCheck2["default"])(this, SmallMultiples);
+    console.log(results);
+    var self = this;
+    var data = results.sheets.data;
+    var details = results.sheets.template;
+    var options = results.sheets.options;
+    var dataKeys = Object.keys(data[0]);
+    console.log(dataKeys);
+    this.groupVar = dataKeys[1];
+    this.xVar = dataKeys[0];
+    this.yVar = dataKeys[2];
+    var keys = (0, _toConsumableArray2["default"])(new Set(data.map(function (d) {
+      return d[_this.groupVar];
+    })));
+    var tooltip = details[0].tooltip != "" ? true : false;
+    var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    data.forEach(function (d) {
+      if (typeof d[self.yVar] == "string") {
+        d[self.yVar] = +d[self.yVar];
+      }
+
+      if (typeof d[self.xVar] == "string") {
+        var timeParse = d3.timeParse("%Y-%m-%d");
+        d[self.xVar] = timeParse(d[self.xVar]);
+      }
+    });
+
+    if (tooltip) {
+      this.tooltip = d3.select("body").append("div").attr("class", "tooltip").attr("id", "tooltip").style("position", "absolute").style("background-color", "white").style("opacity", 0);
+    }
+
+    this.data = data;
+    this.keys = keys;
+    this.details = details;
+    this.isMobile = windowWidth < 610 ? true : false;
+    this.hasTooltip = tooltip;
+    this.template = details[0].tooltip;
+
+    if (options[0]['scaleBy'] == "group") {
+      this.showGroupMax = true;
+    } else {
+      this.showGroupMax = false;
+      d3.select("#switch").html("Show max scale for group");
+    }
+
+    d3.select("#switch").on("click", function () {
+      self.showGroupMax = self.showGroupMax ? false : true;
+      var label = self.showGroupMax ? "Show max scale for each chart" : "Show max scale for group";
+      d3.select(this).html(label);
+    });
+    var margin;
+
+    if (details[0]["margin-top"]) {
+      margin = {
+        top: +details[0]["margin-top"],
+        right: +details[0]["margin-right"],
+        bottom: +details[0]["margin-bottom"],
+        left: +details[0]["margin-left"]
+      };
+    } else {
+      margin = {
+        top: 0,
+        right: 0,
+        bottom: 20,
+        left: 50
+      };
+    }
+
+    this.margin = margin;
+    this.width;
+    this.height;
+    this.render();
+  }
+
+  (0, _createClass2["default"])(SmallMultiples, [{
+    key: "render",
+    value: function render() {
+      var self = this;
+      var containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width;
+      console.log("containerWidth", containerWidth);
+      var numCols;
+
+      if (containerWidth <= 500) {
+        numCols = 1;
+      } else if (containerWidth <= 750) {
+        numCols = 2;
+      } else {
+        numCols = 3;
+      }
+
+      console.log(numCols);
+      var width = document.querySelector("#graphicContainer").getBoundingClientRect().width / numCols;
+      console.log("width", width);
+      var height = 200;
+
+      if (self.isMobile) {
+        height = 150;
+      }
+
+      self.width = width - self.margin.left - self.margin.right;
+      self.height = height - self.margin.top - self.margin.bottom;
+      d3.select("#graphicContainer").selectAll("svg").remove();
+      d3.select("#graphicContainer").html("");
+
+      for (var keyIndex = 0; keyIndex < this.keys.length; keyIndex++) {
+        this._drawSmallChart(self.data, keyIndex, self.keys, self.details, self.isMobile, self.hasTooltip);
+      }
+    }
+  }, {
+    key: "_drawSmallChart",
+    value: function _drawSmallChart(data, index, key, details, isMobile, tooltip) {
+      var self = this;
+
+      function makeId(str) {
+        return str.replace(/ /g, '_');
+      }
+
+      function numberFormat(num) {
+        if (num > 0) {
+          if (num > 1000000000) {
+            return num / 1000000000 + "bn";
+          }
+
+          if (num > 1000000) {
+            return num / 1000000 + "m";
+          }
+
+          if (num > 1000) {
+            return num / 1000 + "k";
+          }
+
+          if (num % 1 != 0) {
+            return num.toFixed(2);
+          } else {
+            return num.toLocaleString();
+          }
+        }
+
+        if (num < 0) {
+          var posNum = num * -1;
+          if (posNum > 1000000000) return ["-" + String(posNum / 1000000000) + "bn"];
+          if (posNum > 1000000) return ["-" + String(posNum / 1000000) + "m"];
+          if (posNum > 1000) return ["-" + String(posNum / 1000) + "k"];else {
+            return num.toLocaleString();
+          }
+        }
+
+        return num;
+      }
+
+      d3.select("#graphicContainer").append("div").attr("id", makeId(key[index])).attr("class", "barGrid");
+      var hashString = "#";
+      var keyId = hashString.concat(makeId(key[index]));
+      d3.select(keyId).append("div").text(key[index]).attr("class", "chartSubTitle");
+      var svg = d3.select(keyId).append("svg").attr("width", self.width + self.margin.left + self.margin.right).attr("height", self.height + self.margin.top + self.margin.bottom).attr("overflow", "hidden");
+      var features = svg.append("g").attr("transform", "translate(" + self.margin.left + "," + self.margin.top + ")");
+      var keys = Object.keys(data[0]);
+      var x = d3.scaleBand().range([0, self.width]).padding(0);
+      var y = d3.scaleLinear().range([self.height, 0]);
+      var duration = 1000;
+      var yMax = self.showGroupMax ? data : data.filter(function (item) {
+        return item[self.groupVar] === key[index];
+      });
+      x.domain(data.map(function (d) {
+        return d[self.xVar];
+      }));
+      y.domain(d3.extent(yMax, function (d) {
+        return d[self.yVar];
+      })).nice();
+      var tickMod = Math.round(x.domain().length / 3);
+      var ticks = x.domain().filter(function (d, i) {
+        return !(i % tickMod) || i === x.domain().length - 1;
+      });
+      var xAxis = d3.axisBottom(x).tickValues(ticks).tickFormat(d3.timeFormat("%d %b"));
+      var yAxis = d3.axisLeft(y).tickFormat(function (d) {
+        return numberFormat(d);
+      }).ticks(3);
+      features.append("g").attr("class", "x").attr("transform", "translate(0," + self.height + ")").call(xAxis);
+      features.append("g").attr("class", "y");
+
+      function update() {
+        // console.log(self)
+        yMax = self.showGroupMax ? data : data.filter(function (item) {
+          return item[self.groupVar] === key[index];
+        });
+        y.domain(d3.extent(yMax, function (d) {
+          return d[self.yVar];
+        }));
+        var bars = features.selectAll(".bar").data(data.filter(function (d) {
+          return d[self.groupVar] === key[index];
+        }));
+        bars.enter().append("rect").attr("class", "bar").style("fill", function () {
+          return "rgb(204, 10, 17)";
+        }).attr('height', 0).attr('y', self.height).merge(bars).transition().duration(duration).attr("x", function (d) {
+          return x(d[self.xVar]);
+        }).attr("y", function (d) {
+          return y(Math.max(d[self.yVar], 0));
+        }).attr("width", x.bandwidth()).attr("height", function (d) {
+          return Math.abs(y(d[self.yVar]) - y(0));
+        });
+        d3.selectAll('.bar').on("mouseover", function (d) {
+          if (tooltip) {
+            var text = (0, _mustache["default"])(self.template, _objectSpread({}, _helpers["default"], {}, d));
+            self.tooltip.html(text);
+            var tipWidth = document.querySelector("#tooltip").getBoundingClientRect().width;
+
+            if (d3.event.pageX < self.width / 2) {
+              self.tooltip.style("left", d3.event.pageX + tipWidth / 2 + "px");
+            } else if (d3.event.pageX >= self.width / 2) {
+              self.tooltip.style("left", d3.event.pageX - tipWidth + "px");
+            }
+
+            self.tooltip.style("top", d3.event.pageY + "px");
+            self.tooltip.transition().duration(200).style("opacity", .9);
+          }
+        }).on("mouseout", function () {
+          if (tooltip) {
+            self.tooltip.transition().duration(500).style("opacity", 0);
+          }
+        });
+        bars.exit().transition().duration(duration).attr('height', 0).attr('y', self.height).remove();
+        features.select('.y').transition().duration(duration).call(yAxis);
+      }
+
+      document.getElementById("switch").addEventListener("click", function () {
+        return update();
+      });
+      update();
+    }
+  }]);
+  return SmallMultiples;
+}();
+
+exports["default"] = SmallMultiples;
