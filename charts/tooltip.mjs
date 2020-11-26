@@ -1,57 +1,43 @@
-const tooltips = {
-  prepareTooltip(d3) {
-    d3.select("#graphicContainer").append("div")
+class Tooltip {
+  constructor($body) {
+    this.$el = $body
+      .append("div")
       .attr("class", "tooltip")
       .attr("width", "100px")
       .attr("id", "tooltip")
       .style("position", "absolute")
       .style("background-color", "white")
-      .style("opacity", 0)
-  },
+      .style("opacity", 0);
+  }
 
-  bindTooltip(els, data, d3, formatNumber) {
-    let rootBoundingRect = document.querySelector("#graphicContainer")
-      .getBoundingClientRect()
-    let width = rootBoundingRect.width
+  show(text, containerWidth) {
+    this.$el.html(text);
+    const tipWidth = this.$el.node().getBoundingClientRect().width;
 
-    // console.log(data)
+    if (d3.event.pageX < containerWidth / 2) {
+      this.$el.style("left", d3.event.pageX + tipWidth / 2 + "px");
+    } else if (d3.event.pageX >= containerWidth / 2) {
+      this.$el.style("left", d3.event.pageX - tipWidth + "px");
+    }
 
-    let tooltip = d3.select("#tooltip")
+    this.$el.style("top", d3.event.pageY + "px");
+    this.$el.transition().duration(200).style("opacity", 0.9);
+  }
 
-    els.on("mouseover", function (d) {
-      let text = `<b>${d.display + " " + formatNumber(d.value)}</b>`
-      console.log(text)
-      tooltip.transition()
-        .duration(200)
-        .style("opacity", .9)
+  hide() {
+    this.$el.transition().duration(500).style("opacity", 0);
+  }
 
-      tooltip.html(text)
-
-      let boundingRect = this.getBoundingClientRect()
-
-      let xCoordinate = (boundingRect.left - rootBoundingRect.left)
-      let yCoordinate = (boundingRect.top - rootBoundingRect.top + 20)
-      let half = width / 2
-
-      if (xCoordinate < half) {
-        tooltip.style("left", (xCoordinate + 50) + "px")
-      } else {
-        tooltip.style("left", (xCoordinate - 50) + "px")
-      }
-
-      // tooltip.style("left", (d3.mouse(this)[0] + tipWidth/2) + "px");
-      tooltip.style("top", (yCoordinate) + "px")
-
-    })
-
-    els.on("mouseout", function () {
-
-      tooltip.transition()
-        .duration(500)
-        .style("opacity", 0)
-
-    })
+  bindEvents($bindEl, containerWidth, templateRender) {
+    const self = this;
+    $bindEl
+      .on("mouseover", function (d) {
+        self.show(templateRender(d), containerWidth);
+      })
+      .on("mouseout", () => {
+        this.hide();
+      });
   }
 }
 
-export default tooltips
+export default Tooltip;
