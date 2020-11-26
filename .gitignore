@@ -4,6 +4,7 @@ bower_components/
 .local/
 yarn.lock
 .DS_Store
+.nova
 
 dist/*.js
 dist/*.css
