@@ -1,1 +1,193 @@
-"use strict";var _interopRequireDefault=require("@babel/runtime/helpers/interopRequireDefault");Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var _classCallCheck2=_interopRequireDefault(require("@babel/runtime/helpers/classCallCheck")),_numberFormat=require("../utilities/numberFormat"),AnnotatedBarChart=function t(e){function n(t){return t.y2>0?12:-2}function a(t){return t.y2>0?12:4}(0,_classCallCheck2.default)(this,t),console.log(e);var r,o=JSON.parse(JSON.stringify(e)),i=o.sheets.data,l=o.sheets.template,c=o.sheets.labels,s=Math.max(document.documentElement.clientWidth,window.innerWidth||0),u=s<610,d=document.querySelector("#graphicContainer").getBoundingClientRect().width,f=.5*d;r=l[0]["margin-top"]?{top:+l[0]["margin-top"],right:+l[0]["margin-right"],bottom:+l[0]["margin-bottom"],left:+l[0]["margin-left"]}:{top:0,right:0,bottom:20,left:40},d=d-r.left-r.right,f=f-r.top-r.bottom,d3.select("#chartTitle").text(l[0].title),d3.select("#subTitle").text(l[0].subtitle),d3.select("#sourceText").html(l[0].source),d3.select("#footnote").html(l[0].footnote),d3.select("#graphicContainer svg").remove(),d3.select("#chartKey").html("");var p,h=d3.select("#graphicContainer").append("svg").attr("width",d+r.left+r.right).attr("height",f+r.top+r.bottom).attr("id","svg").attr("overflow","hidden"),m=h.append("g").attr("transform","translate("+r.left+","+r.top+")"),x=Object.keys(i[0]);l[0].xColumn?(p=l[0].xColumn,x.splice(x.indexOf(p),1)):(p=x[0],x.splice(0,1)),console.log(p,x),i.forEach(function(t){"string"==typeof t[p]&&(t[p]=+t[p]),x.forEach(function(e){t[e]=+t[e]})}),c.forEach(function(t){t.x=+t.x,t.y=+t.y,t.y2=+t.y2}),console.log(c);var g=d3.scaleBand().range([0,d]).paddingInner(.08),b=d3.scaleLinear().range([f,0]);g.domain(i.map(function(t){return t[p]})),b.domain(d3.extent(i,function(t){return t[x[0]]})).nice();var y,C,F=g.domain().filter(function(t,e){return!(e%10)});u&&(F=g.domain().filter(function(t,e){return!(e%20)})),u?(y=d3.axisBottom(g).tickValues(F),C=d3.axisLeft(b).tickFormat(function(t){return(0,_numberFormat.numberFormat)(t)}).ticks(5)):(y=d3.axisBottom(g).tickValues(F),C=d3.axisLeft(b).tickFormat(function(t){return(0,_numberFormat.numberFormat)(t)})),m.append("g").attr("class","x").attr("transform","translate(0,"+f+")").call(y),m.append("g").attr("class","y").call(C),m.selectAll(".bar").data(i).enter().append("rect").attr("class","bar").attr("x",function(t){return g(t[p])}).style("fill",function(){return"rgb(204, 10, 17)"}).attr("y",function(t){return b(Math.max(t[x[0]],0))}).attr("width",g.bandwidth()).attr("height",function(t){return Math.abs(b(t[x[0]])-b(0))}),m.selectAll(".annotationLine").data(c).enter().append("line").attr("class","annotationLine").attr("x1",function(t){return g(t.x)+g.bandwidth()/2}).attr("y1",function(t){return b(t.y)}).attr("x2",function(t){return g(t.x)+g.bandwidth()/2}).attr("y2",function(t){return b(t.y2)}).style("opacity",1).attr("stroke","#000");var v=d3.select("#footerAnnotations");v.html(""),u?(m.selectAll(".annotationCircles").data(c).enter().append("circle").attr("class","annotationCircle").attr("cy",function(t){return b(t.y2)+n(t)/2}).attr("cx",function(t){return g(t.x)+g.bandwidth()/2}).attr("r",8).attr("fill","#000"),m.selectAll(".annotationTextMobile").data(c).enter().append("text").attr("class","annotationTextMobile").attr("y",function(t){return b(t.y2)+a(t)}).attr("x",function(t){return g(t.x)+g.bandwidth()/2}).style("text-anchor","middle").style("opacity",1).attr("fill","#FFF").text(function(t,e){return e+1}),console.log(c.length),c.length>0&&v.append("span").attr("class","annotationFooterHeader").text("Notes: "),c.forEach(function(t,e){v.append("span").attr("class","annotationFooterNumber").text(e+1+" - "),e<c.length-1?v.append("span").attr("class","annotationFooterText").text(t.text+", "):v.append("span").attr("class","annotationFooterText").text(t.text)})):m.selectAll(".annotationText").data(c).enter().append("text").attr("class","annotationText").attr("y",function(t){return b(t.y2)}).attr("x",function(t){return g(t.x)+g.bandwidth()/2}).style("text-anchor",function(t){return t.align}).style("opacity",1).text(function(t){return t.text})};exports.default=AnnotatedBarChart;
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _numberFormat = require("../utilities/numberFormat");
+
+var AnnotatedBarChart = function AnnotatedBarChart(results) {
+  (0, _classCallCheck2["default"])(this, AnnotatedBarChart);
+  console.log(results);
+  var clone = JSON.parse(JSON.stringify(results));
+  var data = clone["sheets"]["data"];
+  var details = clone["sheets"]["template"];
+  var labels = clone["sheets"]["labels"];
+  var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+  var isMobile = windowWidth < 610 ? true : false;
+  var width = document.querySelector("#graphicContainer").getBoundingClientRect().width;
+  var height = width * 0.5;
+  var margin;
+
+  if (details[0]["margin-top"]) {
+    margin = {
+      top: +details[0]["margin-top"],
+      right: +details[0]["margin-right"],
+      bottom: +details[0]["margin-bottom"],
+      left: +details[0]["margin-left"]
+    };
+  } else {
+    margin = {
+      top: 0,
+      right: 0,
+      bottom: 20,
+      left: 40
+    };
+  }
+
+  width = width - margin.left - margin.right, height = height - margin.top - margin.bottom;
+  d3.select("#chartTitle").text(details[0].title);
+  d3.select("#subTitle").text(details[0].subtitle);
+  d3.select("#sourceText").html(details[0].source);
+  d3.select("#footnote").html(details[0].footnote);
+  d3.select("#graphicContainer svg").remove();
+  var chartKey = d3.select("#chartKey");
+  chartKey.html("");
+  var svg = d3.select("#graphicContainer").append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr("id", "svg").attr("overflow", "hidden");
+  var features = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  var keys = Object.keys(data[0]);
+  var xVar;
+
+  if (details[0]["xColumn"]) {
+    xVar = details[0]["xColumn"];
+    keys.splice(keys.indexOf(xVar), 1);
+  } else {
+    xVar = keys[0];
+    keys.splice(0, 1);
+  }
+
+  console.log(xVar, keys);
+  data.forEach(function (d) {
+    if (typeof d[xVar] == "string") {
+      d[xVar] = +d[xVar];
+    }
+
+    keys.forEach(function (key) {
+      d[key] = +d[key];
+    });
+  });
+  labels.forEach(function (d) {
+    d.x = +d.x;
+    d.y = +d.y;
+    d.y2 = +d.y2;
+  });
+  console.log(labels);
+  var x = d3.scaleBand().range([0, width]).paddingInner(0.08);
+  var y = d3.scaleLinear().range([height, 0]);
+  x.domain(data.map(function (d) {
+    return d[xVar];
+  }));
+  y.domain(d3.extent(data, function (d) {
+    return d[keys[0]];
+  })).nice();
+  var xAxis;
+  var yAxis;
+  var ticks = x.domain().filter(function (d, i) {
+    return !(i % 10);
+  });
+
+  if (isMobile) {
+    ticks = x.domain().filter(function (d, i) {
+      return !(i % 20);
+    });
+  }
+
+  if (isMobile) {
+    xAxis = d3.axisBottom(x).tickValues(ticks);
+    yAxis = d3.axisLeft(y).tickFormat(function (d) {
+      return (0, _numberFormat.numberFormat)(d);
+    }).ticks(5);
+  } else {
+    xAxis = d3.axisBottom(x).tickValues(ticks);
+    yAxis = d3.axisLeft(y).tickFormat(function (d) {
+      return (0, _numberFormat.numberFormat)(d);
+    });
+  }
+
+  features.append("g").attr("class", "x").attr("transform", "translate(0," + height + ")").call(xAxis);
+  features.append("g").attr("class", "y").call(yAxis);
+  features.selectAll(".bar").data(data).enter().append("rect").attr("class", "bar").attr("x", function (d) {
+    return x(d[xVar]);
+  }).style("fill", function () {
+    return "rgb(204, 10, 17)";
+  }).attr("y", function (d) {
+    return y(Math.max(d[keys[0]], 0)); // return y(d[keys[0]])
+  }).attr("width", x.bandwidth()).attr("height", function (d) {
+    return Math.abs(y(d[keys[0]]) - y(0));
+  });
+
+  function textPadding(d) {
+    if (d.y2 > 0) {
+      return 12;
+    } else {
+      return -2;
+    }
+  }
+
+  function textPaddingMobile(d) {
+    if (d.y2 > 0) {
+      return 12;
+    } else {
+      return 4;
+    }
+  }
+
+  features.selectAll(".annotationLine").data(labels).enter().append("line").attr("class", "annotationLine").attr("x1", function (d) {
+    return x(d.x) + x.bandwidth() / 2;
+  }).attr("y1", function (d) {
+    return y(d.y);
+  }).attr("x2", function (d) {
+    return x(d.x) + x.bandwidth() / 2;
+  }).attr("y2", function (d) {
+    return y(d.y2);
+  }).style("opacity", 1).attr("stroke", "#000");
+  var footerAnnotations = d3.select("#footerAnnotations");
+  footerAnnotations.html("");
+
+  if (isMobile) {
+    features.selectAll(".annotationCircles").data(labels).enter().append("circle").attr("class", "annotationCircle").attr("cy", function (d) {
+      return y(d.y2) + textPadding(d) / 2;
+    }).attr("cx", function (d) {
+      return x(d.x) + x.bandwidth() / 2;
+    }).attr("r", 8).attr("fill", "#000");
+    features.selectAll(".annotationTextMobile").data(labels).enter().append("text").attr("class", "annotationTextMobile").attr("y", function (d) {
+      return y(d.y2) + textPaddingMobile(d);
+    }).attr("x", function (d) {
+      return x(d.x) + x.bandwidth() / 2;
+    }).style("text-anchor", "middle").style("opacity", 1).attr("fill", "#FFF").text(function (d, i) {
+      return i + 1;
+    });
+    console.log(labels.length);
+
+    if (labels.length > 0) {
+      footerAnnotations.append("span").attr("class", "annotationFooterHeader").text("Notes: ");
+    }
+
+    labels.forEach(function (d, i) {
+      footerAnnotations.append("span").attr("class", "annotationFooterNumber").text(i + 1 + " - ");
+
+      if (i < labels.length - 1) {
+        footerAnnotations.append("span").attr("class", "annotationFooterText").text(d.text + ", ");
+      } else {
+        footerAnnotations.append("span").attr("class", "annotationFooterText").text(d.text);
+      }
+    });
+  } else {
+    features.selectAll(".annotationText").data(labels).enter().append("text").attr("class", "annotationText").attr("y", function (d) {
+      return y(d.y2);
+    }).attr("x", function (d) {
+      return x(d.x) + x.bandwidth() / 2;
+    }).style("text-anchor", function (d) {
+      return d.align;
+    }).style("opacity", 1).text(function (d) {
+      return d.text;
+    });
+  }
+};
+
+exports["default"] = AnnotatedBarChart;

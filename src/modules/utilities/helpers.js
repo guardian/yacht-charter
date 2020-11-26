@@ -21,6 +21,13 @@ var helpers = {
   formatDate: function (value, render) {
     var date = new Date(render(value));
     return moment(date).format("MMM D");
+  },
+
+  // In future, make helper functions do specific date formats, and name accordingly
+
+  dateYear: function (value, render) {
+    var date = new Date(render(value));
+    return moment(date).format("Y");
   }
 
 }

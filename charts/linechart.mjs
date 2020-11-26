@@ -64,16 +64,18 @@ export default class LineChart {
     const windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
     this.isMobile = (windowWidth < 610) ? true : false 
     this.containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width
+    console.log("containerWidth", this.containerWidth)
     this.margin = {
       top: 0,
       right: 0,
       bottom: 20,
       left: 40
     }
+
     this.width = this.containerWidth - this.margin.left - this.margin.right
     this.height = (this.containerWidth * 0.6) - this.margin.top - this.margin.bottom
 
-    this.x = d3.scaleLinear().rangeRound([0, this.width])
+    
     this.y = d3.scaleLinear().rangeRound([this.height, 0])
     this.xAxis = null
     this.yAxis = null
@@ -140,10 +142,7 @@ export default class LineChart {
       this.keys.splice(this.keys.indexOf(this.xColumn), 1)
     }
 
-    // update x scale based on scale type
-    if (typeof this.data[0][this.xColumn] == "string") {
-      this.x = d3.scaleTime().rangeRound([0, this.width])
-    }
+    
 
     // update y scale if y scale type is provided
     if (this.meta["yScaleType"]) {
@@ -170,6 +169,10 @@ export default class LineChart {
         .style("background-color", "white")
         .style("opacity", 0)
     
+    console.log("containerWidth", this.containerWidth)
+    console.log("width", this.width)
+    console.log("margin", this.margin)    
+
     // create svg
     this.$svg =
       d3.select("#graphicContainer")
@@ -181,7 +184,21 @@ export default class LineChart {
     
     // update right margin and svg width based on the longest key
     this.margin.right = this.margin.right + getLongestKeyLength(this.$svg, this.keys, this.isMobile)
+    this.width = this.containerWidth - this.margin.left - this.margin.right
     this.$svg.attr('width', this.width + this.margin.left + this.margin.right)
+
+    // moved x scale definition to here to fix resize issues
+
+    this.x = d3.scaleLinear().rangeRound([0, this.width])
+
+    // update x scale based on scale type
+    if (typeof this.data[0][this.xColumn] == "string") {
+      this.x = d3.scaleTime().rangeRound([0, this.width])
+    }
+
+    console.log("containerWidth", this.containerWidth)
+    console.log("width", this.width)
+    console.log("svgWidth", this.width + this.margin.left + this.margin.right)  
 
     // group for chart features
     this.$features =
