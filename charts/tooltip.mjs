@@ -28,6 +28,13 @@ class Tooltip {
     this.$el.transition().duration(500).style("opacity", 0)
   }
 
+  /***
+    Bind events to target element. 
+    - $bindEl: Element to trigger the mouse events
+    - containerWidth: width of area where hover events should trigger
+    - templateRender: function to return the tooltip text.
+      (Usually this passes in the data and the mustache template will render the output)
+  -------------*/
   bindEvents($bindEl, containerWidth, templateRender) {
     const self = this
     $bindEl
