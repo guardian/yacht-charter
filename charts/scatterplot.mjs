@@ -1,5 +1,6 @@
-export default class ScatterPlot {
+import mustache from "../utilities/mustache"
 
+export default class ScatterPlot {
   constructor(data) {
     var self = this
 
@@ -20,9 +21,35 @@ export default class ScatterPlot {
     this.y_axis_cross_x = null
     this.x_label = null
     this.y_label = null
-    this.colours = ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6"]
-    this.greyScale = ["#bdbdbd", "#bdbdbd", "#bdbdbd", "#bdbdbd", "#bdbdbd", "#bdbdbd", "#bdbdbd", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"]
-    this.symbolTypes = ["symbolCircle",
+    this.colours = [
+      "#a6cee3",
+      "#1f78b4",
+      "#b2df8a",
+      "#33a02c",
+      "#fb9a99",
+      "#e31a1c",
+      "#fdbf6f",
+      "#ff7f00",
+      "#cab2d6"
+    ]
+    this.greyScale = [
+      "#bdbdbd",
+      "#bdbdbd",
+      "#bdbdbd",
+      "#bdbdbd",
+      "#bdbdbd",
+      "#bdbdbd",
+      "#bdbdbd",
+      "#FFFFFF",
+      "#FFFFFF",
+      "#FFFFFF",
+      "#FFFFFF",
+      "#FFFFFF",
+      "#FFFFFF",
+      "#FFFFFF"
+    ]
+    this.symbolTypes = [
+      "symbolCircle",
       "symbolCross",
       "symbolDiamond",
       "symbolSquare",
@@ -46,8 +73,10 @@ export default class ScatterPlot {
     this.key = null
     this.yTag = data.sheets.template[0].y
     this.xTag = data.sheets.template[0].x
-    this.zero_line_x = (data.sheets.template[0].zero_line_x === "TRUE") ? true : false
-    this.zero_line_y = (data.sheets.template[0].zero_line_y === "TRUE") ? true : false
+    this.zero_line_x =
+      data.sheets.template[0].zero_line_x === "TRUE" ? true : false
+    this.zero_line_y =
+      data.sheets.template[0].zero_line_y === "TRUE" ? true : false
     this.database = data.sheets.database
     this.database.forEach(function (d) {
       d.x = +d[data.sheets.template[0].x]
@@ -62,33 +91,31 @@ export default class ScatterPlot {
     this.margin = null
 
     if (this.template[0]["margin-top"]) {
-    this.margin = {
-      top: +this.template[0]["margin-top"],
-      right: +this.template[0]["margin-right"],
-      bottom: +this.template[0]["margin-bottom"],
-      left: +this.template[0]["margin-left"]
-    };
-  } else {
-   this.margin  = {
-      top: 0,
-      right: 0,
-      bottom: 20,
-      left: 40
-    };
-  }
-
-
-    this.utilities = {
-      decimals: function(items) {
-        var nums = items.split(",")
-        return parseFloat(this[nums[0]]).toFixed(nums[1]);
-      },
-      nicedate: function(dte) {
-        var chuncks = this[dte]
-        return moment(chuncks).format('MMM D')
+      this.margin = {
+        top: +this.template[0]["margin-top"],
+        right: +this.template[0]["margin-right"],
+        bottom: +this.template[0]["margin-bottom"],
+        left: +this.template[0]["margin-left"]
+      }
+    } else {
+      this.margin = {
+        top: 0,
+        right: 0,
+        bottom: 20,
+        left: 40
       }
     }
 
+    this.utilities = {
+      decimals: function (items) {
+        var nums = items.split(",")
+        return parseFloat(this[nums[0]]).toFixed(nums[1])
+      },
+      nicedate: function (dte) {
+        var chuncks = this[dte]
+        return moment(chuncks).format("MMM D")
+      }
+    }
 
     this.labels = labels
     console.log(this.template)
@@ -114,9 +141,7 @@ export default class ScatterPlot {
           colourRange.push(d.colour)
         })
 
-        this.colourKey
-          .domain(colourDomain)
-          .range(colourRange)
+        this.colourKey.domain(colourDomain).range(colourRange)
       }
     }
 
@@ -133,24 +158,18 @@ export default class ScatterPlot {
     }
 
     if (this.template[0].trendline == "TRUE") {
-
       this.trendline = true
       this.trendlines = data.sheets.trendline
-
     }
 
     // Set the tooltip text
     if (this.template[0].tooltip != "") {
-
       this.tiptext = this.template[0].tooltip
-
     }
 
     // Create the filter selectors if they have been set in the Googledoc
     if (this.template[0].filter != "") {
-
       this._createFilters(d3)
-
     }
 
     // Create the category selectors if they have been set in the Googledoc
@@ -179,13 +198,10 @@ export default class ScatterPlot {
       this.y_label = data.sheets.template[0].y
     }
 
-
-    this.hasAnnotations = (data.sheets.labels.length > 0) ? true : false
+    this.hasAnnotations = data.sheets.labels.length > 0 ? true : false
 
     if (this.hasAnnotations) {
-
       this.annotations = data.sheets.labels
-
     }
 
     this.colourBlindUser = false
@@ -194,13 +210,16 @@ export default class ScatterPlot {
     this._render(d3)
 
     d3.selectAll("#colourBlind").on("click", function () {
-      self.colourBlindUser = (self.colourBlindUser) ? false : true
+      self.colourBlindUser = self.colourBlindUser ? false : true
       if (self.colourBlindUser) {
         d3.select("#colourBlind").text("colour")
       } else {
         d3.select("#colourBlind").text("greyscale")
       }
-      d3.select("#key").classed("colourvision", !d3.select("#key").classed("colourvision"))
+      d3.select("#key").classed(
+        "colourvision",
+        !d3.select("#key").classed("colourvision")
+      )
       this._render(d3)
     })
 
@@ -208,7 +227,6 @@ export default class ScatterPlot {
   }
 
   _createFilters(d3) {
-
     console.log("Inside the filter function")
 
     var self = this
@@ -220,27 +238,29 @@ export default class ScatterPlot {
     var filters = []
 
     self.database.forEach(function (item) {
-
-      filters.indexOf(item[self.filter]) === -1 ? filters.push(item[self.filter]) : ""
-
+      filters.indexOf(item[self.filter]) === -1
+        ? filters.push(item[self.filter])
+        : ""
     })
 
     var html = ""
 
     for (var i = 0; i < filters.length; i++) {
-
       // Create the categories legend
-      html += "<div data-filter=\"" + filters[i] + "\" class=\"btn filter " + ((i == 0) ? "currentfilter" : "") + "\">" + filters[i] + "</div>"
-
+      html +=
+        '<div data-filter="' +
+        filters[i] +
+        '" class="btn filter ' +
+        (i == 0 ? "currentfilter" : "") +
+        '">' +
+        filters[i] +
+        "</div>"
     }
 
     d3.select("#graphicContainer").html(html)
-
-
   }
 
   _createCats(d3) {
-
     var self = this
 
     self.cats = self.template[0].categories
@@ -250,10 +270,13 @@ export default class ScatterPlot {
     var colourRange = []
     var fillRange = []
 
-    self.database.forEach((item) => categories.indexOf(item[self.cats]) === -1 ? categories.push(item[self.cats]) : "")
+    self.database.forEach((item) =>
+      categories.indexOf(item[self.cats]) === -1
+        ? categories.push(item[self.cats])
+        : ""
+    )
 
     while (self.symbolTypes.length < categories.length) {
-
       self.symbolTypes = [...self.symbolTypes, ...self.symbolTypes]
     }
 
@@ -264,7 +287,6 @@ export default class ScatterPlot {
     var symap = new Map(syms)
 
     this.symbolKey = (cat) => {
-
       symbolGenerator.type(d3[symap.get(cat)])
 
       return symbolGenerator()
@@ -273,109 +295,100 @@ export default class ScatterPlot {
     var html = ""
 
     if (this.key != null) {
-
       if (this.key[0].key != "") {
-
         this.key.forEach(function (d, i) {
-
-          html += "<div class=\"keyDiv\"><span data-cat=\"" + d.key + "\" class=\"keyCircle\" style=\"background: " + d.colour + "\"></span>"
-          html += " <span class=\"keyText\">" + d.key + "</span></div>"
+          html +=
+            '<div class="keyDiv"><span data-cat="' +
+            d.key +
+            '" class="keyCircle" style="background: ' +
+            d.colour +
+            '"></span>'
+          html += ' <span class="keyText">' + d.key + "</span></div>"
         })
-
       }
-
     } else {
-
       for (var i = 0; i < categories.length; i++) {
-
         colourDomain.push(categories[i])
         colourRange.push(self.colours[i])
-
       }
 
-      this.colourKey
-        .domain(colourDomain)
-        .range(colourRange)
+      this.colourKey.domain(colourDomain).range(colourRange)
 
-      this.greyKey
-        .domain(colourDomain)
-        .range(this.greyScale)
+      this.greyKey.domain(colourDomain).range(this.greyScale)
 
-
-      html += "<div class=\"colour_blind_key\">"
+      html += '<div class="colour_blind_key">'
 
       for (var i = 0; i < categories.length; i++) {
-
         // colourDomain.push(categories[i])
         // colourRange.push(self.colours[i])
 
-        html += "<div class=\"keyDiv\"><span data-cat=\"" + categories[i] + "\" class=\"keySymbol\"><svg width=\"12\" height=\"12\" viewBox=\"-6 -6 12 12\"><path d=\"" + self.symbolKey(categories[i]) + "\" stroke=\"#000\" stroke-width=\"1px\" fill=\"" + this.greyKey(categories[i]) + "\" /></svg></span>"
-        html += " <span class=\"keyText\">" + categories[i] + "</span></div>"
-
+        html +=
+          '<div class="keyDiv"><span data-cat="' +
+          categories[i] +
+          '" class="keySymbol"><svg width="12" height="12" viewBox="-6 -6 12 12"><path d="' +
+          self.symbolKey(categories[i]) +
+          '" stroke="#000" stroke-width="1px" fill="' +
+          this.greyKey(categories[i]) +
+          '" /></svg></span>'
+        html += ' <span class="keyText">' + categories[i] + "</span></div>"
       }
 
-      html += "</div><div class=\"colour_vision_key\">"
-
+      html += '</div><div class="colour_vision_key">'
 
       for (var i = 0; i < categories.length; i++) {
-
-        html += "<div class=\"keyDiv\"><span data-cat=\"" + categories[i] + "\" class=\"keyCircle\" style=\"background: " + self.colours[i] + "\"></span>"
-        html += " <span class=\"keyText\">" + categories[i] + "</span></div>"
-
+        html +=
+          '<div class="keyDiv"><span data-cat="' +
+          categories[i] +
+          '" class="keyCircle" style="background: ' +
+          self.colours[i] +
+          '"></span>'
+        html += ' <span class="keyText">' + categories[i] + "</span></div>"
       }
 
       html += "</div>"
-
-
-
     }
 
     d3.select("#key").html(html)
-
   }
 
   labelizer(text) {
-
     var text = text.replace(/_/g, " ")
 
     return text.replace(/\w\S*/g, function (txt) {
       return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
     })
-
   }
 
   resizer(d3) {
     var self = this
     window.addEventListener("resize", function () {
-
       clearTimeout(document.body.data)
 
       document.body.data = setTimeout(function () {
-
         console.log("Resize the chart")
 
         self._render(d3)
-
       }, 800)
-
     })
-
   }
 
   _render(d3) {
-
     var self = this
 
     var isMobile
-    var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-    isMobile = (windowWidth < 610) ? true : false
+    var windowWidth = Math.max(
+      document.documentElement.clientWidth,
+      window.innerWidth || 0
+    )
+    isMobile = windowWidth < 610 ? true : false
 
-    var width = document.querySelector("#graphicContainer").getBoundingClientRect().width
-    var height = (isMobile) ? width * 0.7 : width * 0.5
+    var width = document
+      .querySelector("#graphicContainer")
+      .getBoundingClientRect().width
+    var height = isMobile ? width * 0.7 : width * 0.5
 
-
-      width = width - self.margin.left - self.margin.right,
-      height = height - self.margin.top - self.margin.bottom
+    ;(width = width - self.margin.left - self.margin.right),
+      (height = height - self.margin.top - self.margin.bottom)
 
     // Filter the data if the filter value has been set in the Googledoc
     if (self.filter != null) {
@@ -412,14 +425,23 @@ export default class ScatterPlot {
       }, // data -> display
       yAxis = d3.axisLeft(y) //d3.svg.axis().scale(y).orient("left");
 
-    var svg = d3.select("#graphicContainer").append("svg")
+    var svg = d3
+      .select("#graphicContainer")
+      .append("svg")
       .attr("width", width + self.margin.left + self.margin.right)
       .attr("height", height + self.margin.top + self.margin.bottom)
-      .attr("viewBox", `0 0 ${width + self.margin.left + self.margin.right} ${height + self.margin.top +self. margin.bottom}`)
+      .attr(
+        "viewBox",
+        `0 0 ${width + self.margin.left + self.margin.right} ${
+          height + self.margin.top + self.margin.bottom
+        }`
+      )
       .classed("svg-content", true)
       .append("g")
-      .attr("transform", "translate(" + self.margin.left + "," + self.margin.top + ")")
-
+      .attr(
+        "transform",
+        "translate(" + self.margin.left + "," + self.margin.top + ")"
+      )
 
     // Get the values for the X Axis using all the values from the database (This means you can flip between categories and compare values on the same axis)
     var xRange = self.database.map(function (d) {
@@ -457,17 +479,19 @@ export default class ScatterPlot {
     x.domain(xLabels)
     y.domain(yLabels)
 
-    var tooltip = d3.select("body").append("div")
+    var tooltip = d3
+      .select("body")
+      .append("div")
       .attr("class", "tipster")
       .style("position", "absolute")
       .style("background-color", "white")
       .style("opacity", 0)
 
     // x-axis
-    svg.append("g")
+    svg
+      .append("g")
       .attr("class", "x axis")
       .attr("transform", function () {
-
         if (self.x_axis_cross_y != null) {
           return "translate(0," + y(self.x_axis_cross_y) + ")"
         } else {
@@ -483,14 +507,13 @@ export default class ScatterPlot {
       .text(self.x_label)
 
     // y-axis
-    svg.append("g")
+    svg
+      .append("g")
       .attr("class", "y axis")
       .attr("transform", function () {
-
         if (self.y_axis_cross_x != null) {
           return "translate(" + x(self.y_axis_cross_x) + ",0)"
         }
-
       })
       .call(yAxis)
       .append("text")
@@ -502,8 +525,8 @@ export default class ScatterPlot {
       .text(self.y_label)
 
     if (self.zero_line_x) {
-
-      svg.append("line")
+      svg
+        .append("line")
         .attr("class", "zeroline")
         .attr("x1", function () {
           return x(0)
@@ -520,12 +543,11 @@ export default class ScatterPlot {
         .attr("stroke", "lightgrey")
         .attr("stroke-width", 1)
         .style("opacity", 1)
-
     }
 
     if (self.zero_line_y) {
-
-      svg.append("line")
+      svg
+        .append("line")
         .attr("class", "zeroline")
         .attr("x1", function () {
           return 0
@@ -542,12 +564,13 @@ export default class ScatterPlot {
         .attr("stroke", "lightgrey")
         .attr("stroke-width", 1)
         .style("opacity", 1)
-
     }
 
-    svg.selectAll(".dot-label")
+    svg
+      .selectAll(".dot-label")
       .data(self.labels)
-      .enter().append("text")
+      .enter()
+      .append("text")
       .attr("class", "dot-label")
       .attr("x", xMap)
       .attr("dy", 15)
@@ -557,10 +580,9 @@ export default class ScatterPlot {
         return d[self.label_col]
       })
 
-
     if (self.colourBlindUser) {
-
-      svg.selectAll(".dot")
+      svg
+        .selectAll(".dot")
         .data(self.target)
         .enter()
         .append("path")
@@ -581,32 +603,29 @@ export default class ScatterPlot {
           return self.symbolKey(d[self.cats])
         })
         .on("mouseover", function (d) {
-
           if (self.tiptext != null) {
-            tooltip.transition()
-              .duration(200)
-              .style("opacity", .9)
+            tooltip.transition().duration(200).style("opacity", 0.9)
 
-            tooltip.html(self.tipster(d))
+            tooltip
+              .html(self.tipster(d))
               .style("left", self.tooltip(d3.event.pageX, width) + "px")
-              .style("top", ((isMobile) ? height / 2 : d3.event.pageY + 10) + "px")
+              .style(
+                "top",
+                (isMobile ? height / 2 : d3.event.pageY + 10) + "px"
+              )
           }
-
         })
         .on("mouseout", function () {
           if (self.tiptext != null) {
-            tooltip.transition()
-              .duration(500)
-              .style("opacity", 0)
+            tooltip.transition().duration(500).style("opacity", 0)
           }
-
         })
-
     } else {
-
-      svg.selectAll(".dot")
+      svg
+        .selectAll(".dot")
         .data(self.target)
-        .enter().append("circle")
+        .enter()
+        .append("circle")
         .attr("class", function (d) {
           return "dot " + d[self.cats]
         })
@@ -614,77 +633,58 @@ export default class ScatterPlot {
         .attr("cx", xMap)
         .attr("cy", yMap)
         .style("fill", function (d) {
-          return (self.cats == null) ? "#4bc6df" : self.colourKey(d[self.cats])
+          return self.cats == null ? "#4bc6df" : self.colourKey(d[self.cats])
         })
         .attr("stroke", function (d) {
-
           if (d.label != "") {
             return "#000"
           } else {
             return "#bdbdbd"
           }
-
-
         })
         .attr("stroke-width", function () {
           return "1px"
         })
         .on("mouseover", function (d) {
-
           if (self.tiptext != null) {
-            tooltip.transition()
-              .duration(200)
-              .style("opacity", .9)
+            tooltip.transition().duration(200).style("opacity", 0.9)
 
-            tooltip.html(self.tipster(d))
+            tooltip
+              .html(self.tipster(d))
               .style("left", self.tooltip(d3.event.pageX, width) + "px")
-              .style("top", ((isMobile) ? height / 2 : d3.event.pageY + 10) + "px")
+              .style(
+                "top",
+                (isMobile ? height / 2 : d3.event.pageY + 10) + "px"
+              )
           }
-
         })
         .on("mouseout", function (d) {
-
           if (self.tiptext != null) {
-            tooltip.transition()
-              .duration(500)
-              .style("opacity", 0)
+            tooltip.transition().duration(500).style("opacity", 0)
           }
-
         })
-
     }
 
     if (self.filter != null) {
-
       d3.selectAll(".filter").on("click", self.filters)
-
     }
 
     if (self.cats != null) {
-
-      var user = (self.colourBlindUser) ? ".keySymbol" : ".keyCircle"
+      var user = self.colourBlindUser ? ".keySymbol" : ".keyCircle"
 
       d3.selectAll(user).on("click", self.stated)
-
     }
 
     // Add the trendline if it has been specified
     if (self.trendline) {
-
       var trendline = self.trendlines.filter(function (value) {
-
         return value.trendline == self.default
-
       })
 
       if (trendline.length == 0) {
-
         trendline = self.trendlines.filter(function (value) {
-
           return value.trendline == "default"
-
         })
-
       }
 
       console.log(trendline)
@@ -693,13 +693,11 @@ export default class ScatterPlot {
       var x2 = parseFloat(trendline[0].max_x)
       var y2 = parseFloat(trendline[0].max_y)
 
-      var trendData = [
-        [x1, y1, x2, y2]
-      ]
-      var trendline = svg.selectAll(".trendline")
-        .data(trendData)
+      var trendData = [[x1, y1, x2, y2]]
+      var trendline = svg.selectAll(".trendline").data(trendData)
 
-      trendline.enter()
+      trendline
+        .enter()
         .append("line")
         .attr("class", "trendline")
         .attr("x1", function (d) {
@@ -717,40 +715,37 @@ export default class ScatterPlot {
         .attr("stroke", "black")
         .attr("stroke-width", 1)
         .style("opacity", 1)
-        .style("stroke-dasharray", ("3, 3"))
-
+        .style("stroke-dasharray", "3, 3")
     }
 
-
-
     if (self.hasAnnotations) {
-
       for (var i = 0; i < self.annotations.length; i++) {
+        let scaled_x = self.annotations[i].scaled_x === "TRUE" ? true : false
+        let position_x = scaled_x
+          ? x(+self.annotations[i].x)
+          : +self.annotations[i].x
+        let scaled_y = self.annotations[i].scaled_y === "TRUE" ? true : false
+        let position_y = scaled_y
+          ? y(+self.annotations[i].y)
+          : +self.annotations[i].y
+        let rotation =
+          self.annotations[i].rotation === "" ? 0 : self.annotations[i].rotation
 
-        let scaled_x = (self.annotations[i].scaled_x === "TRUE") ? true : false
-        let position_x = (scaled_x) ? x(+self.annotations[i].x) : +self.annotations[i].x
-        let scaled_y = (self.annotations[i].scaled_y === "TRUE") ? true : false
-        let position_y = (scaled_y) ? y(+self.annotations[i].y) : +self.annotations[i].y
-        let rotation = (self.annotations[i].rotation === "") ? 0 : self.annotations[i].rotation
-
-        svg.append("text")
+        svg
+          .append("text")
           .attr("class", "annotations mobHide")
           .attr("x", position_x)
           .attr("y", position_y)
           .style("text-anchor", self.annotations[i]["text-anchor"])
           .text(self.annotations[i].text)
-          .attr("transform", function(d) {
+          .attr("transform", function (d) {
             return `rotate(${rotation},${position_x},${position_y})`
           })
-
       }
-
     }
-
   }
 
   calcLinear(data, x, y, minX, minY) {
-
     //console.log(data, x, y, minX, minY)
     /////////
     //SLOPE//
@@ -781,7 +776,7 @@ export default class ScatterPlot {
       sum = sum + pt.mult
       xSum = xSum + pt.x
       ySum = ySum + pt.y
-      sumSq = sumSq + (pt.x * pt.x)
+      sumSq = sumSq + pt.x * pt.x
     })
     var a = sum * n
     var b = xSum * ySum
@@ -822,44 +817,31 @@ export default class ScatterPlot {
         x: (minY - b) / m
       }
     }
-
   }
 
-
   bufferize(min, max) {
+    var buffer = ((max - min) / 100) * 5
 
-    var buffer = (max - min) / 100 * 5
-
-    return [(min - buffer), (max + buffer)]
-
+    return [min - buffer, max + buffer]
   }
 
   tipster(d) {
-
     var self = this
-    var text = self.mustache(self.tiptext, { ...self.utilities,...d})
+    var text = mustache(self.tiptext, { ...self.utilities, ...d })
     return text
-
   }
 
   tooltip(pos, width) {
-
     var self = this
 
     if (width < 500) {
-
-      return (width / 2) - 100
-
+      return width / 2 - 100
     } else {
-
-      return ((pos > width / 2) ? pos - 235 : pos + 5)
-
+      return pos > width / 2 ? pos - 235 : pos + 5
     }
-
   }
 
   stated() {
-
     var self = this
 
     var currElement = d3.select(this)
@@ -876,25 +858,26 @@ export default class ScatterPlot {
     var currCircles = d3.selectAll("#graphicContainer .dot." + cat)
 
     // Target the trendline for a specific cat
-    var trendline = d3.selectAll("#graphicContainer .trendline." + cat);
+    var trendline = d3.selectAll("#graphicContainer .trendline." + cat)
 
-    (alreadyIsActive) ? currCircles.style("display", "block"): currCircles.style("display", "none");
+    alreadyIsActive
+      ? currCircles.style("display", "block")
+      : currCircles.style("display", "none")
 
-    (alreadyIsActive) ? trendline.style("opacity", 0.7): trendline.style("opacity", 0)
+    alreadyIsActive
+      ? trendline.style("opacity", 0.7)
+      : trendline.style("opacity", 0)
 
     if (self.categories != undefined) {
-
       self.categories.filter(function (value) {
         if (value.name == cat) {
           value.status = alreadyIsActive
         }
       })
-
     }
   }
 
   _filters(d3) {
-
     var self = this
 
     var currElement = d3.select(this)
@@ -904,73 +887,9 @@ export default class ScatterPlot {
     var alreadyIsActive = d3.select(this).classed(activeClass)
     d3.select(this).classed(activeClass, !alreadyIsActive)
     self._render(d3)
-
   }
 
   _colorize(state) {
-
     return this.categories.filter((value) => value.name == state)[0].colour
-
   }
-
-  mustache(template, self, parent, invert) {
-    var render = this.mustache
-    var output = ""
-    var i
-
-    function get (ctx, path) {
-      path = path.pop ? path : path.split(".")
-      ctx = ctx[path.shift()]
-      ctx = ctx != null ? ctx : ""
-      return (0 in path) ? get(ctx, path) : ctx
-    }
-
-    self = Array.isArray(self) ? self : (self ? [self] : [])
-    self = invert ? (0 in self) ? [] : [1] : self
-    
-    for (i = 0; i < self.length; i++) {
-      var childCode = ''
-      var depth = 0
-      var inverted
-      var ctx = (typeof self[i] == "object") ? self[i] : {}
-      ctx = Object.assign({}, parent, ctx)
-      ctx[""] = {"": self[i]}
-      
-      template.replace(/([\s\S]*?)({{((\/)|(\^)|#)(.*?)}}|$)/g,
-        function(match, code, y, z, close, invert, name) {
-          if (!depth) {
-            output += code.replace(/{{{(.*?)}}}|{{(!?)(&?)(>?)(.*?)}}/g,
-              function(match, raw, comment, isRaw, partial, name) {
-                return raw ? get(ctx, raw)
-                  : isRaw ? get(ctx, name)
-                  : partial ? render(get(ctx, name), ctx)
-                  : !comment ? new Option(get(ctx, name)).innerHTML
-                  : ""
-              }
-            )
-            inverted = invert
-          } else {
-            childCode += depth && !close || depth > 1 ? match : code
-          }
-          if (close) {
-            if (!--depth) {
-              name = get(ctx, name)
-              if (/^f/.test(typeof name)) {
-                output += name.call(ctx, childCode, function (template) {
-                  return render(template, ctx)
-                })
-              } else {
-                output += render(childCode, name, ctx, inverted) 
-              }
-              childCode = ""
-            }
-          } else {
-            ++depth
-          }
-        }
-      )
-    }
-    return output
-  }
-
 }
