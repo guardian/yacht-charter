@@ -86,9 +86,9 @@ export default class LineChart {
     this.userKey = parsed["sheets"]["key"]
     this.options = parsed["sheets"]["options"]
     this.tooltipTemplate = this.meta.tooltip
-
     this.hasTooltipTemplate =
       this.tooltipTemplate && this.tooltipTemplate != "" ? true : false
+    this.tooltip = new Tooltip(d3.select("body"))
 
     this.x_axis_cross_y = null
     this.colors = colorsLong
@@ -96,7 +96,6 @@ export default class LineChart {
 
     this.$svg = null
     this.$features = null
-    this. = new Tooltip(d3.select("body"))
     this.$chartKey = d3.select("#chartKey")
 
     const windowWidth = Math.max(
