@@ -1,71 +1,53 @@
+@import "tooltip";
+
 .barGrid {
-	float:left;
-	width:32.9%;
-	padding-bottom:15px;
+  float: left;
+  width: 32.9%;
+  padding-bottom: 15px;
 }
 
 .row {
-	margin-bottom:20px; 
+  margin-bottom: 20px;
 }
 
 .row:after {
-	content: " ";
-	visibility: hidden;
-	display: block;
-	height: 0;
-	clear: both;
+  content: " ";
+  visibility: hidden;
+  display: block;
+  height: 0;
+  clear: both;
 }
 
 @media (max-width: 750px) {
-
-.barGrid {
-	width:49.9%;
-	margin:0;
+  .barGrid {
+    width: 49.9%;
+    margin: 0;
+  }
 }
-
-}
-
 
 @media (max-width: 500px) {
-	.barGrid {
-		width:100%;
-		margin:0;
-	}
-
-}
-
-.tooltip {
-	position: absolute !important;
-	width: 150px;
-	pointer-events: none;
-	background-color: white;
-	border: 1px;
-	border-color: black;
-	border-style: solid;
-	padding: 10px;
-	font-family: 'Guardian Text Sans Web', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
-	font-size: 12px;
-	line-height: 14px;
+  .barGrid {
+    width: 100%;
+    margin: 0;
+  }
 }
 
 .smallMultiples {
-
-	.btn {
-	    background-color: #c70000;
-	    border-radius: 62.5rem;
-	    border: none;
-	    display: inline-block;
-	    outline: 0;
-	    box-sizing: border-box;
-	    font-size: 12px;
-	    line-height: 16px;
-	    font-family: 'Guardian Text Sans Web', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
-	    color: #FFF;
-	    padding: 4px 10px;
-	    margin: 1px 1px;
-	    text-align: right;
-	    cursor: pointer;
-	}
-	
-
+  .btn {
+    background-color: #c70000;
+    border-radius: 62.5rem;
+    border: none;
+    display: inline-block;
+    outline: 0;
+    box-sizing: border-box;
+    font-size: 12px;
+    line-height: 16px;
+    font-family: "Guardian Text Sans Web", "Helvetica Neue", Helvetica, Arial,
+      "Lucida Grande", sans-serif;
+    color: #fff;
+    padding: 4px 10px;
+    margin: 1px 1px;
+    text-align: right;
+    cursor: pointer;
+  }
 }
