@@ -271,12 +271,9 @@ export default class StackedBarChart {
       const templateRender = (d) => {
         return mustache(template, { ...helpers, ...d })
       }
-      this.tooltip.bindEvents(
-        d3.selectAll(".barPart"),
-        width,
-        templateRender,
-        50
-      )
+      this.tooltip.bindEvents(d3.selectAll(".barPart"), width, templateRender, {
+        leftOffset: 50
+      })
     }
 
     if (hasTrendline) {

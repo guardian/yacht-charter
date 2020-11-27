@@ -14,19 +14,29 @@ class Tooltip {
     Show tooltip. 
     - text: HTML string to display
     - containerWidth: width of area where hover events should trigger
-    - offset: Number - pixels to offset from mouse x
+    - pos (optional): {
+        left: Number,
+        top: Number,
+        leftOffset: Number,
+        topOffset: Number
+      } - Provide overrides for left/top positions
   -------------*/
-  show(html, containerWidth, offset) {
+  show(html, containerWidth, pos) {
     this.$el.html(html)
+
     const tipWidth = this.$el.node().getBoundingClientRect().width
+    const left = pos && pos.left ? pos.left : d3.event.pageX
+    const top = pos && pos.top ? pos.top : d3.event.pageY
+    const leftOffset = pos && pos.leftOffset ? pos.leftOffset : 0
+    const topOffset = pos && pos.topOffset ? pos.topOffset : 0
 
     if (d3.event.pageX < containerWidth / 2) {
-      this.$el.style("left", d3.event.pageX + (offset || 0) + "px")
+      this.$el.style("left", `${left + leftOffset}px`)
     } else if (d3.event.pageX >= containerWidth / 2) {
-      this.$el.style("left", d3.event.pageX - tipWidth + "px")
+      this.$el.style("left", `${left + leftOffset - tipWidth}px`)
     }
 
-    this.$el.style("top", d3.event.pageY + "px")
+    this.$el.style("top", `${top + topOffset}px`)
     this.$el.transition().duration(200).style("opacity", 0.9)
   }
 
@@ -36,20 +46,20 @@ class Tooltip {
 
   /***
     Bind events to target element. 
-    - $bindEl: Element that trigger the mouse events
+    - $bindEls: Elements that trigger the mouse events
     - containerWidth: width of area where hover events should trigger
     - templateRender: accepts function, string or number. Function to return the tooltip text.
       (Usually this passes in the data and the mustache template will render the output)
   -------------*/
-  bindEvents($bindEl, containerWidth, templateRender, offset) {
+  bindEvents($bindEls, containerWidth, templateRender, pos) {
     const self = this
-    $bindEl
+    $bindEls
       .on("mouseover", function (d) {
         const tooltipText =
           typeof templateRender === "function"
             ? templateRender(d, this)
             : templateRender
-        self.show(tooltipText, containerWidth, offset)
+        self.show(tooltipText, containerWidth, pos)
       })
       .on("mouseout", () => {
         this.hide()
