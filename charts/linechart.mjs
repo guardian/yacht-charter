@@ -96,7 +96,7 @@ export default class LineChart {
 
     this.$svg = null
     this.$features = null
-    this.$tooltip = new Tooltip(d3.select("body"))
+    this. = new Tooltip(d3.select("body"))
     this.$chartKey = d3.select("#chartKey")
 
     const windowWidth = Math.max(
@@ -617,7 +617,7 @@ export default class LineChart {
         const x0 = self.x.invert(d3.mouse(this)[0])
         const tooltipText = templateRender(d, this)
 
-        self.$tooltip.show(tooltipText, self.width)
+        self.tooltip.show(tooltipText, self.width)
 
         $hoverLine
           .attr("x1", self.x(x0))
@@ -625,7 +625,7 @@ export default class LineChart {
           .style("opacity", 0.5)
       })
       .on("mouseout", function () {
-        self.$tooltip.hide()
+        self.tooltip.hide()
         $hoverLine.style("opacity", 0)
       })
   }
