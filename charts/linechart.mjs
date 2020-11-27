@@ -85,16 +85,8 @@ export default class LineChart {
     this.periods = parsed["sheets"]["periods"]
     this.userKey = parsed["sheets"]["key"]
     this.options = parsed["sheets"]["options"]
-    // this.tooltipTemplate = this.meta.tooltip
-    this.tooltipTemplate = `
-  <b>{{#formatDate}}{{date}}{{/formatDate}}</b><br/>
-  <b>Australia</b>: {{Australia}}<br/>
-  <b>France</b>: {{France}}<br/>
-  <b>Germany</b>: {{Germany}}<br/>
-  <b>Italy</b>: {{Italy}}<br/>
-  <b>Sweden</b>: {{Sweden}}<br/>
-  <b>United Kingdom</b>: {{United Kingdom}}<br/>
-`
+    this.tooltipTemplate = this.meta.tooltip
+
     this.hasTooltipTemplate =
       this.tooltipTemplate && this.tooltipTemplate != "" ? true : false
 
