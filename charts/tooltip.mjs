@@ -36,7 +36,7 @@ class Tooltip {
 
   /***
     Bind events to target element. 
-    - $bindEl: Element to trigger the mouse events
+    - $bindEl: Element that trigger the mouse events
     - containerWidth: width of area where hover events should trigger
     - templateRender: accepts function, string or number. Function to return the tooltip text.
       (Usually this passes in the data and the mustache template will render the output)
