@@ -31,9 +31,9 @@ class Tooltip {
     const topOffset = pos && pos.topOffset ? pos.topOffset : 0
 
     if (d3.event.pageX < containerWidth / 2) {
-      this.$el.style("left", `${left + leftOffset}px`)
+      this.$el.style("left", `${left + leftOffset + tipWidth / 2}px`)
     } else if (d3.event.pageX >= containerWidth / 2) {
-      this.$el.style("left", `${left - leftOffset - tipWidth}px`)
+      this.$el.style("left", `${left - tipWidth}px`)
     }
 
     this.$el.style("top", `${top + topOffset}px`)
