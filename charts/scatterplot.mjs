@@ -1,3 +1,4 @@
+import Tooltip from "./tooltip"
 import helpers from "../utilities/helpers"
 import mustache from "../utilities/mustache"
 
@@ -469,13 +470,7 @@ export default class ScatterPlot {
     x.domain(xLabels)
     y.domain(yLabels)
 
-    var tooltip = d3
-      .select("body")
-      .append("div")
-      .attr("class", "tipster")
-      .style("position", "absolute")
-      .style("background-color", "white")
-      .style("opacity", 0)
+    this.tooltip = new Tooltip(d3.select("body"), "tipster")
 
     // x-axis
     svg
@@ -570,8 +565,13 @@ export default class ScatterPlot {
         return d[self.label_col]
       })
 
+    let $dots = null
+    const templateRender = (d) => {
+      return mustache(this.tiptext, { ...helpers, ...d })
+    }
+
     if (self.colourBlindUser) {
-      svg
+      $dots = svg
         .selectAll(".dot")
         .data(self.target)
         .enter()
@@ -592,26 +592,8 @@ export default class ScatterPlot {
         .attr("d", function (d) {
           return self.symbolKey(d[self.cats])
         })
-        .on("mouseover", function (d) {
-          if (self.tiptext != null) {
-            tooltip.transition().duration(200).style("opacity", 0.9)
-
-            tooltip
-              .html(self.tipster(d))
-              .style("left", self.tooltip(d3.event.pageX, width) + "px")
-              .style(
-                "top",
-                (isMobile ? height / 2 : d3.event.pageY + 10) + "px"
-              )
-          }
-        })
-        .on("mouseout", function () {
-          if (self.tiptext != null) {
-            tooltip.transition().duration(500).style("opacity", 0)
-          }
-        })
     } else {
-      svg
+      $dots = svg
         .selectAll(".dot")
         .data(self.target)
         .enter()
@@ -635,25 +617,14 @@ export default class ScatterPlot {
         .attr("stroke-width", function () {
           return "1px"
         })
-        .on("mouseover", function (d) {
-          if (self.tiptext != null) {
-            tooltip.transition().duration(200).style("opacity", 0.9)
-
-            tooltip
-              .html(self.tipster(d))
-              .style("left", self.tooltip(d3.event.pageX, width) + "px")
-              .style(
-                "top",
-                (isMobile ? height / 2 : d3.event.pageY + 10) + "px"
-              )
-          }
-        })
-        .on("mouseout", function (d) {
-          if (self.tiptext != null) {
-            tooltip.transition().duration(500).style("opacity", 0)
-          }
-        })
     }
+
+    // bind tooltip events
+    this.tooltip.bindEvents($dots, width, templateRender, {
+      top: isMobile ? height / 2 : null,
+      topOffset: isMobile ? null : 10,
+      leftOffset: 5
+    })
 
     if (self.filter != null) {
       d3.selectAll(".filter").on("click", self.filters)
@@ -813,22 +784,6 @@ export default class ScatterPlot {
     var buffer = ((max - min) / 100) * 5
 
     return [min - buffer, max + buffer]
-  }
-
-  tipster(d) {
-    var self = this
-    var text = mustache(self.tiptext, { ...helpers, ...d })
-    return text
-  }
-
-  tooltip(pos, width) {
-    var self = this
-
-    if (width < 500) {
-      return width / 2 - 100
-    } else {
-      return pos > width / 2 ? pos - 235 : pos + 5
-    }
   }
 
   stated() {

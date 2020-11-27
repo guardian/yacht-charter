@@ -1,8 +1,8 @@
 class Tooltip {
-  constructor($body) {
+  constructor($body, className) {
     this.$el = $body
       .append("div")
-      .attr("class", "tooltip")
+      .attr("class", className || "tooltip")
       .attr("width", "100px")
       .attr("id", "tooltip")
       .style("position", "absolute")
@@ -33,7 +33,7 @@ class Tooltip {
     if (d3.event.pageX < containerWidth / 2) {
       this.$el.style("left", `${left + leftOffset}px`)
     } else if (d3.event.pageX >= containerWidth / 2) {
-      this.$el.style("left", `${left + leftOffset - tipWidth}px`)
+      this.$el.style("left", `${left - leftOffset - tipWidth}px`)
     }
 
     this.$el.style("top", `${top + topOffset}px`)
