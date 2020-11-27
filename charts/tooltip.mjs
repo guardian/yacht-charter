@@ -10,12 +10,18 @@ class Tooltip {
       .style("opacity", 0)
   }
 
-  show(text, containerWidth) {
-    this.$el.html(text)
+  /***
+    Show tooltip. 
+    - text: HTML string to display
+    - containerWidth: width of area where hover events should trigger
+    - offset: Number - pixels to offset from mouse x
+  -------------*/
+  show(html, containerWidth, offset) {
+    this.$el.html(html)
     const tipWidth = this.$el.node().getBoundingClientRect().width
 
     if (d3.event.pageX < containerWidth / 2) {
-      this.$el.style("left", d3.event.pageX + tipWidth / 2 + "px")
+      this.$el.style("left", d3.event.pageX + (offset || 0) + "px")
     } else if (d3.event.pageX >= containerWidth / 2) {
       this.$el.style("left", d3.event.pageX - tipWidth + "px")
     }
@@ -32,14 +38,18 @@ class Tooltip {
     Bind events to target element. 
     - $bindEl: Element to trigger the mouse events
     - containerWidth: width of area where hover events should trigger
-    - templateRender: function to return the tooltip text.
+    - templateRender: accepts function, string or number. Function to return the tooltip text.
       (Usually this passes in the data and the mustache template will render the output)
   -------------*/
-  bindEvents($bindEl, containerWidth, templateRender) {
+  bindEvents($bindEl, containerWidth, templateRender, offset) {
     const self = this
     $bindEl
       .on("mouseover", function (d) {
-        self.show(templateRender(d), containerWidth)
+        const tooltipText =
+          typeof templateRender === "function"
+            ? templateRender(d, this)
+            : templateRender
+        self.show(tooltipText, containerWidth, offset)
       })
       .on("mouseout", () => {
         this.hide()
