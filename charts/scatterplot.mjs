@@ -1,3 +1,4 @@
+import helpers from "../utilities/helpers"
 import mustache from "../utilities/mustache"
 
 export default class ScatterPlot {
@@ -103,17 +104,6 @@ export default class ScatterPlot {
         right: 0,
         bottom: 20,
         left: 40
-      }
-    }
-
-    this.utilities = {
-      decimals: function (items) {
-        var nums = items.split(",")
-        return parseFloat(this[nums[0]]).toFixed(nums[1])
-      },
-      nicedate: function (dte) {
-        var chuncks = this[dte]
-        return moment(chuncks).format("MMM D")
       }
     }
 
@@ -827,7 +817,7 @@ export default class ScatterPlot {
 
   tipster(d) {
     var self = this
-    var text = mustache(self.tiptext, { ...self.utilities, ...d })
+    var text = mustache(self.tiptext, { ...helpers, ...d })
     return text
   }
 
