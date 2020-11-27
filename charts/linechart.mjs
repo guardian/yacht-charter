@@ -1,29 +1,65 @@
 import { numberFormat } from "../utilities/numberFormat"
 import mustache from "../utilities/mustache"
 import helpers from "../utilities/helpers"
+import Tooltip from "./tooltip"
 
 /****** Example tooltip template */
 // `
-//   <b>{{#formatDate}}{{data.date}}{{/formatDate}}</b><br/>
-//   <b>Australia</b>: {{data.Australia}}<br/>
-//   <b>France</b>: {{data.France}}<br/>
-//   <b>Germany</b>: {{data.Germany}}<br/>
-//   <b>Italy</b>: {{data.Italy}}<br/>
-//   <b>Sweden</b>: {{data.Sweden}}<br/>
-//   <b>United Kingdom</b>: {{data.UnitedKingdom}}<br/>
+//   <b>{{#formatDate}}{{date}}{{/formatDate}}</b><br/>
+//   <b>Australia</b>: {{Australia}}<br/>
+//   <b>France</b>: {{France}}<br/>
+//   <b>Germany</b>: {{Germany}}<br/>
+//   <b>Italy</b>: {{Italy}}<br/>
+//   <b>Sweden</b>: {{Sweden}}<br/>
+//   <b>United Kingdom</b>: {{United Kingdom}}<br/>
 // `
 /****** end tooltip template */
 
 // default colours
-const colorsLong = ["#4daacf", "#5db88b", "#a2b13e", "#8a6929", "#b05cc6", "#c8a466", "#c35f95", "#ce592e", "#d23d5e", "#d89a34", "#7277ca", "#527b39", "#59b74b", "#c76c65", "#8a6929"]
-const colorsMedium = ["#000000","#0000ff","#9d02d7","#cd34b5","#ea5f94","#fa8775","#ffb14e","#ffd700"]
-const colorsShort = ["#ffb14e","#fa8775","#ea5f94","#cd34b5","#9d02d7","#0000ff"]
+const colorsLong = [
+  "#4daacf",
+  "#5db88b",
+  "#a2b13e",
+  "#8a6929",
+  "#b05cc6",
+  "#c8a466",
+  "#c35f95",
+  "#ce592e",
+  "#d23d5e",
+  "#d89a34",
+  "#7277ca",
+  "#527b39",
+  "#59b74b",
+  "#c76c65",
+  "#8a6929"
+]
+const colorsMedium = [
+  "#000000",
+  "#0000ff",
+  "#9d02d7",
+  "#cd34b5",
+  "#ea5f94",
+  "#fa8775",
+  "#ffb14e",
+  "#ffd700"
+]
+const colorsShort = [
+  "#ffb14e",
+  "#fa8775",
+  "#ea5f94",
+  "#cd34b5",
+  "#9d02d7",
+  "#0000ff"
+]
 
 function getLongestKeyLength($svg, keys, isMobile) {
   if (!isMobile) {
     d3.select("#dummyText").remove()
-    const longestKey = keys.sort(function (a, b) { return b.length - a.length; })[0]
-    const dummyText = $svg.append("text")
+    const longestKey = keys.sort(function (a, b) {
+      return b.length - a.length
+    })[0]
+    const dummyText = $svg
+      .append("text")
       .attr("x", -50)
       .attr("y", -50)
       .attr("id", "dummyText")
@@ -37,7 +73,7 @@ function getLongestKeyLength($svg, keys, isMobile) {
 export default class LineChart {
   constructor(results) {
     const parsed = JSON.parse(JSON.stringify(results))
-    
+
     this.data = parsed["sheets"]["data"]
     this.keys = Object.keys(this.data[0])
     this.xColumn = this.keys[0] // use first key, string or date
@@ -49,8 +85,18 @@ export default class LineChart {
     this.periods = parsed["sheets"]["periods"]
     this.userKey = parsed["sheets"]["key"]
     this.options = parsed["sheets"]["options"]
-    this.tooltipTemplate = this.meta.tooltip
-    this.hasTooltipTemplate = this.tooltipTemplate && this.tooltipTemplate != "" ? true : false
+    // this.tooltipTemplate = this.meta.tooltip
+    this.tooltipTemplate = `
+  <b>{{#formatDate}}{{date}}{{/formatDate}}</b><br/>
+  <b>Australia</b>: {{Australia}}<br/>
+  <b>France</b>: {{France}}<br/>
+  <b>Germany</b>: {{Germany}}<br/>
+  <b>Italy</b>: {{Italy}}<br/>
+  <b>Sweden</b>: {{Sweden}}<br/>
+  <b>United Kingdom</b>: {{United Kingdom}}<br/>
+`
+    this.hasTooltipTemplate =
+      this.tooltipTemplate && this.tooltipTemplate != "" ? true : false
 
     this.x_axis_cross_y = null
     this.colors = colorsLong
@@ -58,12 +104,17 @@ export default class LineChart {
 
     this.$svg = null
     this.$features = null
-    this.$tooltip = null
+    this.$tooltip = new Tooltip(d3.select("body"))
     this.$chartKey = d3.select("#chartKey")
 
-    const windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-    this.isMobile = (windowWidth < 610) ? true : false 
-    this.containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width
+    const windowWidth = Math.max(
+      document.documentElement.clientWidth,
+      window.innerWidth || 0
+    )
+    this.isMobile = windowWidth < 610 ? true : false
+    this.containerWidth = document
+      .querySelector("#graphicContainer")
+      .getBoundingClientRect().width
     console.log("containerWidth", this.containerWidth)
     this.margin = {
       top: 0,
@@ -73,14 +124,13 @@ export default class LineChart {
     }
 
     this.width = this.containerWidth - this.margin.left - this.margin.right
-    this.height = (this.containerWidth * 0.6) - this.margin.top - this.margin.bottom
+    this.height =
+      this.containerWidth * 0.6 - this.margin.top - this.margin.bottom
 
-    
     this.y = d3.scaleLinear().rangeRound([this.height, 0])
     this.xAxis = null
     this.yAxis = null
-    this.xVar = 
-    this.color = d3.scaleOrdinal().range(this.colors)
+    this.xVar = this.color = d3.scaleOrdinal().range(this.colors)
     this.min = null
     this.max = null
     this.lineGenerators = {}
@@ -90,7 +140,7 @@ export default class LineChart {
 
     this.chartValues = []
     this.chartKeyData = {}
-    
+
     this.setup()
     this.render()
   }
@@ -142,8 +192,6 @@ export default class LineChart {
       this.keys.splice(this.keys.indexOf(this.xColumn), 1)
     }
 
-    
-
     // update y scale if y scale type is provided
     if (this.meta["yScaleType"]) {
       this.y = d3[this.meta["yScaleType"]]().range([this.height, 0]).nice()
@@ -158,34 +206,26 @@ export default class LineChart {
     // parsers
     this.parseTime = d3.timeParse(this.meta["dateFormat"])
     this.parsePeriods = d3.timeParse(this.meta["periodDateFormat"])
-    
-    // tooltip div
-    this.$tooltip =
-      d3.select("body")
-        .append("div")
-        .attr("class", "tooltip")
-        .attr("id", "tooltip")
-        .style("position", "absolute")
-        .style("background-color", "white")
-        .style("opacity", 0)
-    
+
     console.log("containerWidth", this.containerWidth)
     console.log("width", this.width)
-    console.log("margin", this.margin)    
+    console.log("margin", this.margin)
 
     // create svg
-    this.$svg =
-      d3.select("#graphicContainer")
-        .append("svg")
-        .attr("width", this.width + this.margin.left + this.margin.right)
-        .attr("height", this.height + this.margin.top + this.margin.bottom)
-        .attr("id", "svg")
-        .attr("overflow", "hidden")
-    
+    this.$svg = d3
+      .select("#graphicContainer")
+      .append("svg")
+      .attr("width", this.width + this.margin.left + this.margin.right)
+      .attr("height", this.height + this.margin.top + this.margin.bottom)
+      .attr("id", "svg")
+      .attr("overflow", "hidden")
+
     // update right margin and svg width based on the longest key
-    this.margin.right = this.margin.right + getLongestKeyLength(this.$svg, this.keys, this.isMobile)
+    this.margin.right =
+      this.margin.right +
+      getLongestKeyLength(this.$svg, this.keys, this.isMobile)
     this.width = this.containerWidth - this.margin.left - this.margin.right
-    this.$svg.attr('width', this.width + this.margin.left + this.margin.right)
+    this.$svg.attr("width", this.width + this.margin.left + this.margin.right)
 
     // moved x scale definition to here to fix resize issues
 
@@ -198,24 +238,27 @@ export default class LineChart {
 
     console.log("containerWidth", this.containerWidth)
     console.log("width", this.width)
-    console.log("svgWidth", this.width + this.margin.left + this.margin.right)  
+    console.log("svgWidth", this.width + this.margin.left + this.margin.right)
 
     // group for chart features
-    this.$features =
-      this.$svg
-        .append("g")
-        .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
-    
+    this.$features = this.$svg
+      .append("g")
+      .attr(
+        "transform",
+        "translate(" + this.margin.left + "," + this.margin.top + ")"
+      )
+
     this.keys.forEach((key) => {
       // setup how to draw line
-      this.lineGenerators[key] = d3.line()
+      this.lineGenerators[key] = d3
+        .line()
         .x((d) => {
           return this.x(d[this.xColumn])
         })
         .y((d) => {
           return this.y(d[key])
         })
-      
+
       if (this.hideNullValues === "yes") {
         this.lineGenerators[key].defined(function (d) {
           return d
@@ -226,8 +269,8 @@ export default class LineChart {
       this.data.forEach((d) => {
         if (typeof d[key] == "string") {
           if (d[key].includes(",")) {
-            if (!isNaN((d[key]).replace(/,/g, ""))) {
-              d[key] = +(d[key]).replace(/,/g, "")
+            if (!isNaN(d[key].replace(/,/g, ""))) {
+              d[key] = +d[key].replace(/,/g, "")
               this.chartValues.push(d[key])
             }
           } else if (d[key] != "") {
@@ -246,26 +289,20 @@ export default class LineChart {
 
     if (this.isMobile) {
       this.keys.forEach((key) => {
-        const $keyDiv =
-          this.$chartKey
-            .append("div")
-              .attr("class", "keyDiv")
+        const $keyDiv = this.$chartKey.append("div").attr("class", "keyDiv")
 
         $keyDiv
           .append("span")
-            .attr("class", "keyCircle")
-            .style("background-color", () => {
-              if (this.optionalKey.hasOwnProperty(key)) {
-                return this.optionalKey[key]
-              } else {
-                return this.color(key)
-              }
-            })
+          .attr("class", "keyCircle")
+          .style("background-color", () => {
+            if (this.optionalKey.hasOwnProperty(key)) {
+              return this.optionalKey[key]
+            } else {
+              return this.color(key)
+            }
+          })
 
-        $keyDiv
-          .append("span")
-            .attr("class", "keyText")
-            .text(key)
+        $keyDiv.append("span").attr("class", "keyText").text(key)
       })
     }
 
@@ -318,33 +355,37 @@ export default class LineChart {
       this.meta["minY"] && this.meta["minY"] !== ""
         ? parseInt(this.meta["minY"])
         : d3.min(this.chartValues)
-    
+
     // setup x and y axis domains
-    this.x.domain(d3.extent(this.data, (d) => {
-      return d[this.xColumn]
-    }))
+    this.x.domain(
+      d3.extent(this.data, (d) => {
+        return d[this.xColumn]
+      })
+    )
     this.y.domain([this.min, this.max])
 
     // setup x and y axis
     const xTicks = this.isMobile ? 4 : 6
     const yTicks = this.meta["yScaleType"] === "scaleLog" ? 3 : 5
     this.xAxis = d3.axisBottom(this.x).ticks(xTicks)
-    this.yAxis =
-      d3.axisLeft(this.y)
-        .tickFormat(function (d) {
-          return numberFormat(d)
-        })
-        .ticks(yTicks)
+    this.yAxis = d3
+      .axisLeft(this.y)
+      .tickFormat(function (d) {
+        return numberFormat(d)
+      })
+      .ticks(yTicks)
   }
 
   render() {
-    // Remove 
+    // Remove
     d3.selectAll(".periodLine").remove()
     d3.selectAll(".periodLabel").remove()
 
-    this.$features.selectAll(".periodLine")
+    this.$features
+      .selectAll(".periodLine")
       .data(this.periods)
-      .enter().append("line")
+      .enter()
+      .append("line")
       .attr("x1", (d) => {
         return this.x(d.start)
       })
@@ -361,13 +402,14 @@ export default class LineChart {
         } else {
           return 1
         }
-
       })
       .attr("stroke-width", 1)
 
-    this.$features.selectAll(".periodLine")
+    this.$features
+      .selectAll(".periodLine")
       .data(this.periods)
-      .enter().append("line")
+      .enter()
+      .append("line")
       .attr("x1", (d) => {
         return this.x(d.end)
       })
@@ -386,30 +428,31 @@ export default class LineChart {
         }
       })
       .attr("stroke-width", 1)
-    
-    this.$features.selectAll(".periodLabel")
+
+    this.$features
+      .selectAll(".periodLabel")
       .data(this.periods)
-      .enter().append("text")
+      .enter()
+      .append("text")
       .attr("x", (d) => {
         if (d.labelAlign == "middle") {
           return this.x(d.middle)
         } else if (d.labelAlign == "start") {
           return this.x(d.start) + 5
         }
-
       })
       .attr("y", -5)
       .attr("text-anchor", (d) => {
         return d.labelAlign
-
       })
       .attr("class", "periodLabel mobHide")
       .attr("opacity", 1)
       .text((d) => {
         return d.label
       })
-    
-    this.$features.append("g")
+
+    this.$features
+      .append("g")
       .attr("class", "x")
       .attr("transform", () => {
         if (this.x_axis_cross_y != null) {
@@ -419,12 +462,11 @@ export default class LineChart {
         }
       })
       .call(this.xAxis)
-    
-    this.$features.append("g")
-      .attr("class", "y")
-      .call(this.yAxis)
 
-    this.$features.append("text")
+    this.$features.append("g").attr("class", "y").call(this.yAxis)
+
+    this.$features
+      .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", "0.71em")
@@ -432,25 +474,23 @@ export default class LineChart {
       .attr("text-anchor", "end")
       .text(this.meta.yAxisLabel)
 
-    this.$features.append("text")
+    this.$features
+      .append("text")
       .attr("x", this.width)
       .attr("y", this.height - 6)
       .attr("fill", "#767676")
       .attr("text-anchor", "end")
       .text(this.meta.xAxisLabel)
 
-    d3.selectAll(".tick line")
-      .attr("stroke", "#767676")
+    d3.selectAll(".tick line").attr("stroke", "#767676")
 
-    d3.selectAll(".tick text")
-      .attr("fill", "#767676")
+    d3.selectAll(".tick text").attr("fill", "#767676")
 
-    d3.selectAll(".domain")
-      .attr("stroke", "#767676")
-
+    d3.selectAll(".domain").attr("stroke", "#767676")
 
     this.keys.forEach((key) => {
-      this.$features.append("path")
+      this.$features
+        .append("path")
         .datum(this.chartKeyData[key])
         .attr("fill", "none")
         .attr("stroke", (d) => {
@@ -465,12 +505,14 @@ export default class LineChart {
         .attr("stroke-width", 2)
         .attr("d", this.lineGenerators[key])
 
-
-      const tempLabelData = this.chartKeyData[key].filter(d => d != null)
+      const tempLabelData = this.chartKeyData[key].filter((d) => d != null)
       let lineLabelAlign = "start"
       let lineLabelOffset = 0
 
-      if (this.x(tempLabelData[tempLabelData.length - 1].index) > this.width - 20) {
+      if (
+        this.x(tempLabelData[tempLabelData.length - 1].index) >
+        this.width - 20
+      ) {
         lineLabelAlign = "end"
         lineLabelOffset = -10
       }
@@ -498,17 +540,23 @@ export default class LineChart {
           .append("text")
           .attr("class", "annotationText")
           .attr("y", (d) => {
-            return this.y(tempLabelData[tempLabelData.length - 1][key]) + 4 + lineLabelOffset
+            return (
+              this.y(tempLabelData[tempLabelData.length - 1][key]) +
+              4 +
+              lineLabelOffset
+            )
           })
           .attr("x", (d) => {
-            return this.x(tempLabelData[tempLabelData.length - 1][this.xColumn]) + 5
+            return (
+              this.x(tempLabelData[tempLabelData.length - 1][this.xColumn]) + 5
+            )
           })
           .style("opacity", 1)
           .attr("text-anchor", lineLabelAlign)
           .text((d) => {
             return key
           })
-      }  
+      }
     })
 
     if (this.hasTooltipTemplate) {
@@ -530,73 +578,63 @@ export default class LineChart {
       .style("opacity", 0)
       .style("stroke", "#333")
       .style("stroke-dasharray", 4)
-    
+
     const $hoverLayerRect = this.$features
       .append("rect")
       .attr("width", this.width)
       .attr("height", this.height)
       .style("opacity", 0)
 
-    // handle mouse hover event
+    // Handle mouse hover event
+    // Find the data based on mouse position
+    const getTooltipData = (d, event) => {
+      const bisectDate = d3.bisector((d) => d[xColumn]).left,
+        x0 = this.x.invert(d3.mouse(event)[0]),
+        i = bisectDate(this.data, x0, 1),
+        tooltipData = {
+          [xColumn]: x0
+        }
+
+      this.keys.forEach((key) => {
+        const data = this.chartKeyData[key],
+          d0 = data[i - 1],
+          d1 = data[i]
+
+        if (d0 && d1) {
+          d = x0 - d0[xColumn] > d1[xColumn] - x0 ? d1 : d0
+        } else {
+          d = d0
+        }
+
+        tooltipData[key] = d[key]
+      })
+      return tooltipData
+    }
+
+    // Render tooltip data
+    const templateRender = (d, event) => {
+      const data = getTooltipData(d, event)
+      return mustache(this.tooltipTemplate, {
+        ...helpers,
+        ...data
+      })
+    }
+
     $hoverLayerRect
       .on("mousemove touchmove", function (d) {
-        
-        const bisectDate = d3.bisector(d => d[xColumn]).left,
-          x0 = self.x.invert(d3.mouse(this)[0]),
-          i = bisectDate(self.data, x0, 1),
-          tooltipData = {
-            data: { [xColumn]: x0 }
-          }
+        const x0 = self.x.invert(d3.mouse(this)[0])
+        const tooltipText = templateRender(d, this)
 
-        self.keys.forEach((key) => {
-          const data = self.chartKeyData[key],
-            d0 = data[i - 1],
-            d1 = data[i]
-          
-          if (d0 && d1) {
-            d = x0 - d0[xColumn] > d1[xColumn] - x0 ? d1 : d0
-          } else {
-            d = d0
-          }
+        self.$tooltip.show(tooltipText, self.width)
 
-          // remove spacing in keys
-          // tooltipData.data[key.replace(/\s+/g, "")] = d[key]
-          tooltipData.data[key] = d[key]
-        })
-
-        // render html using mustache
-        const text = mustache(self.tooltipTemplate, { ...helpers, ...tooltipData.data })
-        self.$tooltip.html(text)
-        
-        // render tooltip from left or right depending on mouse position
-        const tipWidth = document
-          .querySelector("#tooltip")
-          .getBoundingClientRect().width
-        
-        if (d3.event.pageX < self.width / 2) {
-          self.$tooltip.style("left", d3.event.pageX + "px")
-        } else if (d3.event.pageX >= self.width / 2) {
-          self.$tooltip.style("left", d3.event.pageX - tipWidth + "px")
-        }
-        
-        self.$tooltip
-          .style("top", d3.event.pageY + "px")
-          .transition()
-          .duration(200)
-          .style("opacity", 0.9)
-        
         $hoverLine
           .attr("x1", self.x(x0))
           .attr("x2", self.x(x0))
           .style("opacity", 0.5)
       })
       .on("mouseout", function () {
-        self.$tooltip
-          .transition()
-          .duration(500)
-          .style("opacity", 0)
-        
-          $hoverLine.style("opacity", 0)
+        self.$tooltip.hide()
+        $hoverLine.style("opacity", 0)
       })
   }
 
@@ -617,27 +655,29 @@ export default class LineChart {
       .data(this.labels)
       .enter()
       .append("line")
-        .attr("class", "annotationLine")
-        .attr("x1", (d) => {
-          return this.x(d.x)
-        })
-        .attr("y1", (d) => {
-          return this.y(d.y)
-        })
-        .attr("x2", (d) => {
-          return this.x(d.x)
-        })
-        .attr("y2", (d) => {
-          const yPos = this.y(d.offset)
-          return yPos <= -15 ? -15 : yPos
-        })
-        .style("opacity", 1)
-        .attr("stroke", "#000")
-    
+      .attr("class", "annotationLine")
+      .attr("x1", (d) => {
+        return this.x(d.x)
+      })
+      .attr("y1", (d) => {
+        return this.y(d.y)
+      })
+      .attr("x2", (d) => {
+        return this.x(d.x)
+      })
+      .attr("y2", (d) => {
+        const yPos = this.y(d.offset)
+        return yPos <= -15 ? -15 : yPos
+      })
+      .style("opacity", 1)
+      .attr("stroke", "#000")
+
     if (this.isMobile) {
-      this.$features.selectAll(".annotationCircles")
+      this.$features
+        .selectAll(".annotationCircles")
         .data(this.labels)
-        .enter().append("circle")
+        .enter()
+        .append("circle")
         .attr("class", "annotationCircle")
         .attr("cy", (d) => {
           return this.y(d.offset) + textPadding(d) / 2
@@ -647,10 +687,12 @@ export default class LineChart {
         })
         .attr("r", 8)
         .attr("fill", "#000")
-      
-      this.$features.selectAll(".annotationTextMobile")
+
+      this.$features
+        .selectAll(".annotationTextMobile")
         .data(this.labels)
-        .enter().append("text")
+        .enter()
+        .append("text")
         .attr("class", "annotationTextMobile")
         .attr("y", (d) => {
           return this.y(d.offset) + textPaddingMobile(d)
@@ -664,24 +706,28 @@ export default class LineChart {
         .text((d, i) => {
           return i + 1
         })
-      
+
       if (this.labels.length > 0) {
-        $footerAnnotations.append("span")
+        $footerAnnotations
+          .append("span")
           .attr("class", "annotationFooterHeader")
           .text("Notes: ")
       }
 
       this.labels.forEach((d, i) => {
-        $footerAnnotations.append("span")
+        $footerAnnotations
+          .append("span")
           .attr("class", "annotationFooterNumber")
           .text(i + 1 + " - ")
 
         if (i < this.labels.length - 1) {
-          $footerAnnotations.append("span")
+          $footerAnnotations
+            .append("span")
             .attr("class", "annotationFooterText")
             .text(d.text + ", ")
         } else {
-          $footerAnnotations.append("span")
+          $footerAnnotations
+            .append("span")
             .attr("class", "annotationFooterText")
             .text(d.text)
         }
@@ -692,23 +738,23 @@ export default class LineChart {
         .data(this.labels)
         .enter()
         .append("text")
-          .attr("class", "annotationText2")
-          .attr("y", (d) => {
-            const yPos = this.y(d.offset)
-            return yPos <= -10 ? -10 : yPos + -1*textPadding(d)
-          })
-          .attr("x", (d) => {
-            const yPos = this.y(d.offset)
-            const xPos = this.x(d.x)
-            return yPos <= -10 ? xPos - 5 : xPos
-          })
-          .style("text-anchor", (d) => {
-            return d.align
-          })
-          .style("opacity", 1)
-          .text((d) => {
-            return d.text
-          })
+        .attr("class", "annotationText2")
+        .attr("y", (d) => {
+          const yPos = this.y(d.offset)
+          return yPos <= -10 ? -10 : yPos + -1 * textPadding(d)
+        })
+        .attr("x", (d) => {
+          const yPos = this.y(d.offset)
+          const xPos = this.x(d.x)
+          return yPos <= -10 ? xPos - 5 : xPos
+        })
+        .style("text-anchor", (d) => {
+          return d.align
+        })
+        .style("opacity", 1)
+        .text((d) => {
+          return d.text
+        })
     }
   }
 }
