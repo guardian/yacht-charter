@@ -470,7 +470,7 @@ export default class ScatterPlot {
     x.domain(xLabels)
     y.domain(yLabels)
 
-    this.tooltip = new Tooltip(d3.select("body"), "tipster")
+    this.tooltip = new Tooltip("body", "tipster")
 
     // x-axis
     svg

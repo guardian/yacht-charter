@@ -37,7 +37,7 @@ export default class SmallMultiples {
     })
 
     if (this.hasTooltip) {
-      this.tooltip = new Tooltip(d3.select("body"))
+      this.tooltip = new Tooltip("body")
     }
 
     this.data = data

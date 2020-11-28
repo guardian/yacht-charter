@@ -5,7 +5,7 @@ import Tooltip from "./tooltip"
 
 export default class StackedBarChart {
   constructor(results) {
-    this.tooltip = new Tooltip(d3.select("body"))
+    this.tooltip = new Tooltip("body")
     this.results = results
     this.render()
   }

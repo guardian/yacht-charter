@@ -88,7 +88,7 @@ export default class LineChart {
     this.tooltipTemplate = this.meta.tooltip
     this.hasTooltipTemplate =
       this.tooltipTemplate && this.tooltipTemplate != "" ? true : false
-    this.tooltip = new Tooltip(d3.select("body"))
+    this.tooltip = new Tooltip("body")
 
     this.x_axis_cross_y = null
     this.colors = colorsLong

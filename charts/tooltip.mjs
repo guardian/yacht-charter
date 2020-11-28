@@ -1,8 +1,15 @@
 class Tooltip {
-  constructor($body, className) {
-    this.$el = $body
+  /***
+    Tooltip constructor
+    
+    - parentSelector: provide where the tooltip element is going to be appended
+    - className (optional): provide additional css class names for more style control
+  -------------*/
+  constructor(parentSelector, className) {
+    this.$el = d3
+      .select(parentSelector)
       .append("div")
-      .attr("class", className || "tooltip")
+      .attr("class", `${className} tooltip`)
       .attr("width", "100px")
       .attr("id", "tooltip")
       .style("position", "absolute")
@@ -12,7 +19,8 @@ class Tooltip {
 
   /***
     Show tooltip. 
-    - text: HTML string to display
+    
+    - html: HTML string to display
     - containerWidth: width of area where hover events should trigger
     - pos (optional): {
         left: Number,
@@ -40,26 +48,36 @@ class Tooltip {
     this.$el.transition().duration(200).style("opacity", 0.9)
   }
 
+  /***
+    Hide tooltip
+  -------------*/
   hide() {
     this.$el.transition().duration(500).style("opacity", 0)
   }
 
   /***
     Bind events to target element. 
+    
     - $bindEls: Elements that trigger the mouse events
     - containerWidth: width of area where hover events should trigger
     - templateRender: accepts function, string or number. Function to return the tooltip text.
       (Usually this passes in the data and the mustache template will render the output)
+    - pos (optional): {
+        left: Number,
+        top: Number,
+        leftOffset: Number,
+        topOffset: Number
+      } - Provide overrides for left/top positions
   -------------*/
   bindEvents($bindEls, containerWidth, templateRender, pos) {
     const self = this
     $bindEls
       .on("mouseover", function (d) {
-        const tooltipText =
+        const html =
           typeof templateRender === "function"
             ? templateRender(d, this)
             : templateRender
-        self.show(tooltipText, containerWidth, pos)
+        self.show(html, containerWidth, pos)
       })
       .on("mouseout", () => {
         this.hide()
