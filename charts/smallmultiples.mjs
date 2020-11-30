@@ -37,7 +37,7 @@ export default class SmallMultiples {
     })
 
     if (this.hasTooltip) {
-      this.tooltip = new Tooltip("body")
+      this.tooltip = new Tooltip("#graphicContainer")
     }
 
     this.data = data
@@ -97,6 +97,10 @@ export default class SmallMultiples {
       .querySelector("#graphicContainer")
       .getBoundingClientRect().width
 
+    self.containerHeight = document
+      .querySelector("#graphicContainer")
+      .getBoundingClientRect().width  
+
     console.log("containerWidth", containerWidth)
 
     var numCols
@@ -125,9 +129,9 @@ export default class SmallMultiples {
     self.width = width - self.margin.left - self.margin.right
     self.height = height - self.margin.top - self.margin.bottom
 
-    d3.select("#graphicContainer").selectAll("svg").remove()
+    // d3.select("#graphicContainer").selectAll("svg").remove()
 
-    d3.select("#graphicContainer").html("")
+    d3.select("#graphicContainer").selectAll(".barGrid").remove()
 
     for (var keyIndex = 0; keyIndex < this.keys.length; keyIndex++) {
       this._drawSmallChart(
@@ -280,6 +284,7 @@ export default class SmallMultiples {
         self.tooltip.bindEvents(
           d3.selectAll(".bar"),
           self.width,
+          self.containerHeight,
           templateRender
         )
       }

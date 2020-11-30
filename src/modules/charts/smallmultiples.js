@@ -59,7 +59,7 @@ var SmallMultiples = /*#__PURE__*/function () {
     });
 
     if (this.hasTooltip) {
-      this.tooltip = new _tooltip["default"]("body");
+      this.tooltip = new _tooltip["default"]("#graphicContainer");
     }
 
     this.data = data;
@@ -109,6 +109,7 @@ var SmallMultiples = /*#__PURE__*/function () {
     value: function render() {
       var self = this;
       var containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width;
+      self.containerHeight = document.querySelector("#graphicContainer").getBoundingClientRect().width;
       console.log("containerWidth", containerWidth);
       var numCols;
 
@@ -130,9 +131,9 @@ var SmallMultiples = /*#__PURE__*/function () {
       }
 
       self.width = width - self.margin.left - self.margin.right;
-      self.height = height - self.margin.top - self.margin.bottom;
-      d3.select("#graphicContainer").selectAll("svg").remove();
-      d3.select("#graphicContainer").html("");
+      self.height = height - self.margin.top - self.margin.bottom; // d3.select("#graphicContainer").selectAll("svg").remove()
+
+      d3.select("#graphicContainer").selectAll(".barGrid").remove();
 
       for (var keyIndex = 0; keyIndex < this.keys.length; keyIndex++) {
         this._drawSmallChart(self.data, keyIndex, self.keys, self.details, self.isMobile, self.hasTooltip);
@@ -236,7 +237,7 @@ var SmallMultiples = /*#__PURE__*/function () {
             return (0, _mustache["default"])(self.template, _objectSpread({}, _helpers["default"], {}, d));
           };
 
-          self.tooltip.bindEvents(d3.selectAll(".bar"), self.width, templateRender);
+          self.tooltip.bindEvents(d3.selectAll(".bar"), self.width, self.containerHeight, templateRender);
         }
 
         bars.exit().transition().duration(duration).attr("height", 0).attr("y", self.height).remove();

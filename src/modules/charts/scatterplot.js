@@ -382,7 +382,7 @@ var ScatterPlot = /*#__PURE__*/function () {
       console.log("xLabels", xLabels);
       x.domain(xLabels);
       y.domain(yLabels);
-      this.tooltip = new _tooltip["default"]("body", "tipster"); // x-axis
+      this.tooltip = new _tooltip["default"]("#graphicContainer", "tipster"); // x-axis
 
       svg.append("g").attr("class", "x axis").attr("transform", function () {
         if (self.x_axis_cross_y != null) {
@@ -462,7 +462,7 @@ var ScatterPlot = /*#__PURE__*/function () {
       } // bind tooltip events
 
 
-      this.tooltip.bindEvents($dots, width, templateRender, {
+      this.tooltip.bindEvents($dots, width, height + self.margin.top + self.margin.bottom, templateRender, {
         top: isMobile ? height / 2 : null,
         topOffset: isMobile ? null : 10,
         leftOffset: 5

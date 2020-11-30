@@ -15,6 +15,8 @@ class Tooltip {
       .style("position", "absolute")
       .style("background-color", "white")
       .style("opacity", 0)
+
+    this.parentOffset = d3.select(parentSelector).node().getBoundingClientRect().top   
   }
 
   /***
@@ -29,14 +31,18 @@ class Tooltip {
         topOffset: Number
       } - Provide overrides for left/top positions
   -------------*/
-  show(html, containerWidth, pos) {
+  show(html, containerWidth, containerHeight, pos) {
     this.$el.html(html)
 
     const tipWidth = this.$el.node().getBoundingClientRect().width
+    const tipHeight = this.$el.node().getBoundingClientRect().height
     const left = pos && pos.left ? pos.left : d3.event.pageX
-    const top = pos && pos.top ? pos.top : d3.event.pageY
+    const top = pos && pos.top ? pos.top : d3.event.pageY - this.parentOffset
     const leftOffset = pos && pos.leftOffset ? pos.leftOffset : 0
     const topOffset = pos && pos.topOffset ? pos.topOffset : 0
+    
+    // console.log(tipHeight)
+    // console.log("containerWidth:", containerWidth, "containerHeight:", containerHeight, "pageX", d3.event.pageX, "pageY", d3.event.pageY, "top", top, "parentOffset", this.parentOffset)
 
     if (d3.event.pageX < containerWidth / 2) {
       this.$el.style("left", `${left + leftOffset + 10}px`)
@@ -44,7 +50,14 @@ class Tooltip {
       this.$el.style("left", `${left - tipWidth - 10}px`)
     }
 
-    this.$el.style("top", `${top + topOffset}px`)
+    // this.$el.style("top", `${top + topOffset}px`)
+
+    if (top < (containerHeight - tipHeight)) {
+      this.$el.style("top", `${top + topOffset}px`)
+    } else if (top >= (containerHeight - tipHeight)) {
+      this.$el.style("top", `${top + topOffset - tipHeight}px`)
+    }
+
     this.$el.transition().duration(200).style("opacity", 0.9)
   }
 
@@ -69,7 +82,7 @@ class Tooltip {
         topOffset: Number
       } - Provide overrides for left/top positions
   -------------*/
-  bindEvents($bindEls, containerWidth, templateRender, pos) {
+  bindEvents($bindEls, containerWidth, containerHeight, templateRender, pos) {
     const self = this
     $bindEls
       .on("mouseover", function (d) {
@@ -77,7 +90,7 @@ class Tooltip {
           typeof templateRender === "function"
             ? templateRender(d, this)
             : templateRender
-        self.show(html, containerWidth, pos)
+        self.show(html, containerWidth, containerHeight, pos)
       })
       .on("mouseout", () => {
         this.hide()

@@ -5,7 +5,7 @@ import Tooltip from "./tooltip"
 
 export default class StackedBarChart {
   constructor(results) {
-    this.tooltip = new Tooltip("body")
+    this.tooltip = new Tooltip("#graphicContainer")
     this.results = results
     this.render()
   }
@@ -271,7 +271,7 @@ export default class StackedBarChart {
       const templateRender = (d) => {
         return mustache(template, { ...helpers, ...d })
       }
-      this.tooltip.bindEvents(d3.selectAll(".barPart"), width, templateRender)
+      this.tooltip.bindEvents(d3.selectAll(".barPart"), width, height + margin.top + margin.bottom, templateRender)
     }
 
     if (hasTrendline) {

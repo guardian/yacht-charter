@@ -21,6 +21,7 @@ var Tooltip = /*#__PURE__*/function () {
   function Tooltip(parentSelector, className) {
     (0, _classCallCheck2["default"])(this, Tooltip);
     this.$el = d3.select(parentSelector).append("div").attr("class", "".concat(className, " tooltip")).attr("width", "100px").attr("id", "tooltip").style("position", "absolute").style("background-color", "white").style("opacity", 0);
+    this.parentOffset = d3.select(parentSelector).node().getBoundingClientRect().top;
   }
   /***
     Show tooltip. 
@@ -38,21 +39,29 @@ var Tooltip = /*#__PURE__*/function () {
 
   (0, _createClass2["default"])(Tooltip, [{
     key: "show",
-    value: function show(html, containerWidth, pos) {
+    value: function show(html, containerWidth, containerHeight, pos) {
       this.$el.html(html);
       var tipWidth = this.$el.node().getBoundingClientRect().width;
+      var tipHeight = this.$el.node().getBoundingClientRect().height;
       var left = pos && pos.left ? pos.left : d3.event.pageX;
-      var top = pos && pos.top ? pos.top : d3.event.pageY;
+      var top = pos && pos.top ? pos.top : d3.event.pageY - this.parentOffset;
       var leftOffset = pos && pos.leftOffset ? pos.leftOffset : 0;
-      var topOffset = pos && pos.topOffset ? pos.topOffset : 0;
+      var topOffset = pos && pos.topOffset ? pos.topOffset : 0; // console.log(tipHeight)
+      // console.log("containerWidth:", containerWidth, "containerHeight:", containerHeight, "pageX", d3.event.pageX, "pageY", d3.event.pageY, "top", top, "parentOffset", this.parentOffset)
 
       if (d3.event.pageX < containerWidth / 2) {
         this.$el.style("left", "".concat(left + leftOffset + 10, "px"));
       } else if (d3.event.pageX >= containerWidth / 2) {
         this.$el.style("left", "".concat(left - tipWidth - 10, "px"));
+      } // this.$el.style("top", `${top + topOffset}px`)
+
+
+      if (top < containerHeight - tipHeight) {
+        this.$el.style("top", "".concat(top + topOffset, "px"));
+      } else if (top >= containerHeight - tipHeight) {
+        this.$el.style("top", "".concat(top + topOffset - tipHeight, "px"));
       }
 
-      this.$el.style("top", "".concat(top + topOffset, "px"));
       this.$el.transition().duration(200).style("opacity", 0.9);
     }
     /***
@@ -81,13 +90,13 @@ var Tooltip = /*#__PURE__*/function () {
 
   }, {
     key: "bindEvents",
-    value: function bindEvents($bindEls, containerWidth, templateRender, pos) {
+    value: function bindEvents($bindEls, containerWidth, containerHeight, templateRender, pos) {
       var _this = this;
 
       var self = this;
       $bindEls.on("mouseover", function (d) {
         var html = typeof templateRender === "function" ? templateRender(d, this) : templateRender;
-        self.show(html, containerWidth, pos);
+        self.show(html, containerWidth, containerHeight, pos);
       }).on("mouseout", function () {
         _this.hide();
       });

@@ -73,7 +73,7 @@ var LineChart = /*#__PURE__*/function () {
     this.options = parsed["sheets"]["options"];
     this.tooltipTemplate = this.meta.tooltip;
     this.hasTooltipTemplate = this.tooltipTemplate && this.tooltipTemplate != "" ? true : false;
-    this.tooltip = new _tooltip["default"]("body");
+    this.tooltip = new _tooltip["default"]("#graphicContainer");
     this.x_axis_cross_y = null;
     this.colors = colorsLong;
     this.optionalKey = {};
@@ -452,7 +452,7 @@ var LineChart = /*#__PURE__*/function () {
       $hoverLayerRect.on("mousemove touchmove", function (d) {
         var x0 = self.x.invert(d3.mouse(this)[0]);
         var tooltipText = templateRender(d, this);
-        self.tooltip.show(tooltipText, self.width);
+        self.tooltip.show(tooltipText, self.width, self.height + self.margin.top + self.margin.bottom);
         $hoverLine.attr("x1", self.x(x0)).attr("x2", self.x(x0)).style("opacity", 0.5);
       }).on("mouseout", function () {
         self.tooltip.hide();

@@ -470,7 +470,7 @@ export default class ScatterPlot {
     x.domain(xLabels)
     y.domain(yLabels)
 
-    this.tooltip = new Tooltip("body", "tipster")
+    this.tooltip = new Tooltip("#graphicContainer", "tipster")
 
     // x-axis
     svg
@@ -620,7 +620,7 @@ export default class ScatterPlot {
     }
 
     // bind tooltip events
-    this.tooltip.bindEvents($dots, width, templateRender, {
+    this.tooltip.bindEvents($dots, width, height + self.margin.top + self.margin.bottom, templateRender, {
       top: isMobile ? height / 2 : null,
       topOffset: isMobile ? null : 10,
       leftOffset: 5

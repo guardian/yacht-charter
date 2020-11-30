@@ -88,7 +88,7 @@ export default class LineChart {
     this.tooltipTemplate = this.meta.tooltip
     this.hasTooltipTemplate =
       this.tooltipTemplate && this.tooltipTemplate != "" ? true : false
-    this.tooltip = new Tooltip("body")
+    this.tooltip = new Tooltip("#graphicContainer")
 
     this.x_axis_cross_y = null
     this.colors = colorsLong
@@ -616,7 +616,7 @@ export default class LineChart {
         const x0 = self.x.invert(d3.mouse(this)[0])
         const tooltipText = templateRender(d, this)
 
-        self.tooltip.show(tooltipText, self.width)
+        self.tooltip.show(tooltipText, self.width, self.height + self.margin.top + self.margin.bottom)
 
         $hoverLine
           .attr("x1", self.x(x0))
