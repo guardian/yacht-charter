@@ -19,19 +19,21 @@ var _mustache = _interopRequireDefault(require("../utilities/mustache"));
 
 var _helpers = _interopRequireDefault(require("../utilities/helpers"));
 
+var _tooltip = _interopRequireDefault(require("./tooltip"));
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 /****** Example tooltip template */
 // `
-//   <b>{{#formatDate}}{{data.date}}{{/formatDate}}</b><br/>
-//   <b>Australia</b>: {{data.Australia}}<br/>
-//   <b>France</b>: {{data.France}}<br/>
-//   <b>Germany</b>: {{data.Germany}}<br/>
-//   <b>Italy</b>: {{data.Italy}}<br/>
-//   <b>Sweden</b>: {{data.Sweden}}<br/>
-//   <b>United Kingdom</b>: {{data.UnitedKingdom}}<br/>
+//   <b>{{#formatDate}}{{date}}{{/formatDate}}</b><br/>
+//   <b>Australia</b>: {{Australia}}<br/>
+//   <b>France</b>: {{France}}<br/>
+//   <b>Germany</b>: {{Germany}}<br/>
+//   <b>Italy</b>: {{Italy}}<br/>
+//   <b>Sweden</b>: {{Sweden}}<br/>
+//   <b>United Kingdom</b>: {{United Kingdom}}<br/>
 // `
 
 /****** end tooltip template */
@@ -71,12 +73,12 @@ var LineChart = /*#__PURE__*/function () {
     this.options = parsed["sheets"]["options"];
     this.tooltipTemplate = this.meta.tooltip;
     this.hasTooltipTemplate = this.tooltipTemplate && this.tooltipTemplate != "" ? true : false;
+    this.tooltip = new _tooltip["default"]("body");
     this.x_axis_cross_y = null;
     this.colors = colorsLong;
     this.optionalKey = {};
     this.$svg = null;
     this.$features = null;
-    this.$tooltip = null;
     this.$chartKey = d3.select("#chartKey");
     var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
     this.isMobile = windowWidth < 610 ? true : false;
@@ -170,9 +172,7 @@ var LineChart = /*#__PURE__*/function () {
 
 
       this.parseTime = d3.timeParse(this.meta["dateFormat"]);
-      this.parsePeriods = d3.timeParse(this.meta["periodDateFormat"]); // tooltip div
-
-      this.$tooltip = d3.select("body").append("div").attr("class", "tooltip").attr("id", "tooltip").style("position", "absolute").style("background-color", "white").style("opacity", 0);
+      this.parsePeriods = d3.timeParse(this.meta["periodDateFormat"]);
       console.log("containerWidth", this.containerWidth);
       console.log("width", this.width);
       console.log("margin", this.margin); // create svg
@@ -181,7 +181,7 @@ var LineChart = /*#__PURE__*/function () {
 
       this.margin.right = this.margin.right + getLongestKeyLength(this.$svg, this.keys, this.isMobile);
       this.width = this.containerWidth - this.margin.left - this.margin.right;
-      this.$svg.attr('width', this.width + this.margin.left + this.margin.right); // moved x scale definition to here to fix resize issues
+      this.$svg.attr("width", this.width + this.margin.left + this.margin.right); // moved x scale definition to here to fix resize issues
 
       this.x = d3.scaleLinear().rangeRound([0, this.width]); // update x scale based on scale type
 
@@ -308,7 +308,7 @@ var LineChart = /*#__PURE__*/function () {
     value: function render() {
       var _this2 = this;
 
-      // Remove 
+      // Remove
       d3.selectAll(".periodLine").remove();
       d3.selectAll(".periodLabel").remove();
       this.$features.selectAll(".periodLine").data(this.periods).enter().append("line").attr("x1", function (d) {
@@ -410,22 +410,24 @@ var LineChart = /*#__PURE__*/function () {
   }, {
     key: "drawHoverFeature",
     value: function drawHoverFeature() {
+      var _this3 = this;
+
       var self = this;
       var xColumn = this.xColumn;
       var $hoverLine = this.$features.append("line").attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", this.height).style("opacity", 0).style("stroke", "#333").style("stroke-dasharray", 4);
-      var $hoverLayerRect = this.$features.append("rect").attr("width", this.width).attr("height", this.height).style("opacity", 0); // handle mouse hover event
+      var $hoverLayerRect = this.$features.append("rect").attr("width", this.width).attr("height", this.height).style("opacity", 0); // Handle mouse hover event
+      // Find the data based on mouse position
 
-      $hoverLayerRect.on("mousemove touchmove", function (d) {
+      var getTooltipData = function getTooltipData(d, event) {
         var bisectDate = d3.bisector(function (d) {
           return d[xColumn];
         }).left,
-            x0 = self.x.invert(d3.mouse(this)[0]),
-            i = bisectDate(self.data, x0, 1),
-            tooltipData = {
-          data: (0, _defineProperty2["default"])({}, xColumn, x0)
-        };
-        self.keys.forEach(function (key) {
-          var data = self.chartKeyData[key],
+            x0 = _this3.x.invert(d3.mouse(event)[0]),
+            i = bisectDate(_this3.data, x0, 1),
+            tooltipData = (0, _defineProperty2["default"])({}, xColumn, x0);
+
+        _this3.keys.forEach(function (key) {
+          var data = _this3.chartKeyData[key],
               d0 = data[i - 1],
               d1 = data[i];
 
@@ -433,35 +435,34 @@ var LineChart = /*#__PURE__*/function () {
             d = x0 - d0[xColumn] > d1[xColumn] - x0 ? d1 : d0;
           } else {
             d = d0;
-          } // remove spacing in keys
-          // tooltipData.data[key.replace(/\s+/g, "")] = d[key]
+          }
+
+          tooltipData[key] = d[key];
+        });
+
+        return tooltipData;
+      }; // Render tooltip data
 
 
-          tooltipData.data[key] = d[key];
-        }); // render html using mustache
+      var templateRender = function templateRender(d, event) {
+        var data = getTooltipData(d, event);
+        return (0, _mustache["default"])(_this3.tooltipTemplate, _objectSpread({}, _helpers["default"], {}, data));
+      };
 
-        var text = (0, _mustache["default"])(self.tooltipTemplate, _objectSpread({}, _helpers["default"], {}, tooltipData.data));
-        self.$tooltip.html(text); // render tooltip from left or right depending on mouse position
-
-        var tipWidth = document.querySelector("#tooltip").getBoundingClientRect().width;
-
-        if (d3.event.pageX < self.width / 2) {
-          self.$tooltip.style("left", d3.event.pageX + "px");
-        } else if (d3.event.pageX >= self.width / 2) {
-          self.$tooltip.style("left", d3.event.pageX - tipWidth + "px");
-        }
-
-        self.$tooltip.style("top", d3.event.pageY + "px").transition().duration(200).style("opacity", 0.9);
+      $hoverLayerRect.on("mousemove touchmove", function (d) {
+        var x0 = self.x.invert(d3.mouse(this)[0]);
+        var tooltipText = templateRender(d, this);
+        self.tooltip.show(tooltipText, self.width);
         $hoverLine.attr("x1", self.x(x0)).attr("x2", self.x(x0)).style("opacity", 0.5);
       }).on("mouseout", function () {
-        self.$tooltip.transition().duration(500).style("opacity", 0);
+        self.tooltip.hide();
         $hoverLine.style("opacity", 0);
       });
     }
   }, {
     key: "drawAnnotation",
     value: function drawAnnotation() {
-      var _this3 = this;
+      var _this4 = this;
 
       function textPadding(d) {
         return d.offset > 0 ? 6 : -2;
@@ -474,27 +475,27 @@ var LineChart = /*#__PURE__*/function () {
       var $footerAnnotations = d3.select("#footerAnnotations");
       $footerAnnotations.html("");
       this.$features.selectAll(".annotationLine").data(this.labels).enter().append("line").attr("class", "annotationLine").attr("x1", function (d) {
-        return _this3.x(d.x);
+        return _this4.x(d.x);
       }).attr("y1", function (d) {
-        return _this3.y(d.y);
+        return _this4.y(d.y);
       }).attr("x2", function (d) {
-        return _this3.x(d.x);
+        return _this4.x(d.x);
       }).attr("y2", function (d) {
-        var yPos = _this3.y(d.offset);
+        var yPos = _this4.y(d.offset);
 
         return yPos <= -15 ? -15 : yPos;
       }).style("opacity", 1).attr("stroke", "#000");
 
       if (this.isMobile) {
         this.$features.selectAll(".annotationCircles").data(this.labels).enter().append("circle").attr("class", "annotationCircle").attr("cy", function (d) {
-          return _this3.y(d.offset) + textPadding(d) / 2;
+          return _this4.y(d.offset) + textPadding(d) / 2;
         }).attr("cx", function (d) {
-          return _this3.x(d.x);
+          return _this4.x(d.x);
         }).attr("r", 8).attr("fill", "#000");
         this.$features.selectAll(".annotationTextMobile").data(this.labels).enter().append("text").attr("class", "annotationTextMobile").attr("y", function (d) {
-          return _this3.y(d.offset) + textPaddingMobile(d);
+          return _this4.y(d.offset) + textPaddingMobile(d);
         }).attr("x", function (d) {
-          return _this3.x(d.x);
+          return _this4.x(d.x);
         }).style("text-anchor", "middle").style("opacity", 1).attr("fill", "#FFF").text(function (d, i) {
           return i + 1;
         });
@@ -506,7 +507,7 @@ var LineChart = /*#__PURE__*/function () {
         this.labels.forEach(function (d, i) {
           $footerAnnotations.append("span").attr("class", "annotationFooterNumber").text(i + 1 + " - ");
 
-          if (i < _this3.labels.length - 1) {
+          if (i < _this4.labels.length - 1) {
             $footerAnnotations.append("span").attr("class", "annotationFooterText").text(d.text + ", ");
           } else {
             $footerAnnotations.append("span").attr("class", "annotationFooterText").text(d.text);
@@ -514,13 +515,13 @@ var LineChart = /*#__PURE__*/function () {
         });
       } else {
         this.$features.selectAll(".annotationText2").data(this.labels).enter().append("text").attr("class", "annotationText2").attr("y", function (d) {
-          var yPos = _this3.y(d.offset);
+          var yPos = _this4.y(d.offset);
 
           return yPos <= -10 ? -10 : yPos + -1 * textPadding(d);
         }).attr("x", function (d) {
-          var yPos = _this3.y(d.offset);
+          var yPos = _this4.y(d.offset);
 
-          var xPos = _this3.x(d.x);
+          var xPos = _this4.x(d.x);
 
           return yPos <= -10 ? xPos - 5 : xPos;
         }).style("text-anchor", function (d) {
