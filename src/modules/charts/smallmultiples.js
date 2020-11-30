@@ -21,6 +21,8 @@ var _mustache = _interopRequireDefault(require("../utilities/mustache"));
 
 var _helpers = _interopRequireDefault(require("../utilities/helpers"));
 
+var _tooltip = _interopRequireDefault(require("./tooltip"));
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -40,10 +42,10 @@ var SmallMultiples = /*#__PURE__*/function () {
     this.groupVar = dataKeys[1];
     this.xVar = dataKeys[0];
     this.yVar = dataKeys[2];
+    this.hasTooltip = details[0].tooltip != "" ? true : false;
     var keys = (0, _toConsumableArray2["default"])(new Set(data.map(function (d) {
       return d[_this.groupVar];
     })));
-    var tooltip = details[0].tooltip != "" ? true : false;
     var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
     data.forEach(function (d) {
       if (typeof d[self.yVar] == "string") {
@@ -56,18 +58,17 @@ var SmallMultiples = /*#__PURE__*/function () {
       }
     });
 
-    if (tooltip) {
-      this.tooltip = d3.select("body").append("div").attr("class", "tooltip").attr("id", "tooltip").style("position", "absolute").style("background-color", "white").style("opacity", 0);
+    if (this.hasTooltip) {
+      this.tooltip = new _tooltip["default"]("#graphicContainer");
     }
 
     this.data = data;
     this.keys = keys;
     this.details = details;
     this.isMobile = windowWidth < 610 ? true : false;
-    this.hasTooltip = tooltip;
     this.template = details[0].tooltip;
 
-    if (options[0]['scaleBy'] == "group") {
+    if (options[0]["scaleBy"] == "group") {
       this.showGroupMax = true;
     } else {
       this.showGroupMax = false;
@@ -108,6 +109,7 @@ var SmallMultiples = /*#__PURE__*/function () {
     value: function render() {
       var self = this;
       var containerWidth = document.querySelector("#graphicContainer").getBoundingClientRect().width;
+      self.containerHeight = document.querySelector("#graphicContainer").getBoundingClientRect().width;
       console.log("containerWidth", containerWidth);
       var numCols;
 
@@ -129,9 +131,9 @@ var SmallMultiples = /*#__PURE__*/function () {
       }
 
       self.width = width - self.margin.left - self.margin.right;
-      self.height = height - self.margin.top - self.margin.bottom;
-      d3.select("#graphicContainer").selectAll("svg").remove();
-      d3.select("#graphicContainer").html("");
+      self.height = height - self.margin.top - self.margin.bottom; // d3.select("#graphicContainer").selectAll("svg").remove()
+
+      d3.select("#graphicContainer").selectAll(".barGrid").remove();
 
       for (var keyIndex = 0; keyIndex < this.keys.length; keyIndex++) {
         this._drawSmallChart(self.data, keyIndex, self.keys, self.details, self.isMobile, self.hasTooltip);
@@ -139,11 +141,11 @@ var SmallMultiples = /*#__PURE__*/function () {
     }
   }, {
     key: "_drawSmallChart",
-    value: function _drawSmallChart(data, index, key, details, isMobile, tooltip) {
+    value: function _drawSmallChart(data, index, key, details, isMobile, hasTooltip) {
       var self = this;
 
       function makeId(str) {
-        return str.replace(/ /g, '_');
+        return str.replace(/ /g, "_");
       }
 
       function numberFormat(num) {
@@ -222,35 +224,24 @@ var SmallMultiples = /*#__PURE__*/function () {
         }));
         bars.enter().append("rect").attr("class", "bar").style("fill", function () {
           return "rgb(204, 10, 17)";
-        }).attr('height', 0).attr('y', self.height).merge(bars).transition().duration(duration).attr("x", function (d) {
+        }).attr("height", 0).attr("y", self.height).merge(bars).transition().duration(duration).attr("x", function (d) {
           return x(d[self.xVar]);
         }).attr("y", function (d) {
           return y(Math.max(d[self.yVar], 0));
         }).attr("width", x.bandwidth()).attr("height", function (d) {
           return Math.abs(y(d[self.yVar]) - y(0));
         });
-        d3.selectAll('.bar').on("mouseover", function (d) {
-          if (tooltip) {
-            var text = (0, _mustache["default"])(self.template, _objectSpread({}, _helpers["default"], {}, d));
-            self.tooltip.html(text);
-            var tipWidth = document.querySelector("#tooltip").getBoundingClientRect().width;
 
-            if (d3.event.pageX < self.width / 2) {
-              self.tooltip.style("left", d3.event.pageX + tipWidth / 2 + "px");
-            } else if (d3.event.pageX >= self.width / 2) {
-              self.tooltip.style("left", d3.event.pageX - tipWidth + "px");
-            }
+        if (hasTooltip) {
+          var templateRender = function templateRender(d) {
+            return (0, _mustache["default"])(self.template, _objectSpread({}, _helpers["default"], {}, d));
+          };
 
-            self.tooltip.style("top", d3.event.pageY + "px");
-            self.tooltip.transition().duration(200).style("opacity", .9);
-          }
-        }).on("mouseout", function () {
-          if (tooltip) {
-            self.tooltip.transition().duration(500).style("opacity", 0);
-          }
-        });
-        bars.exit().transition().duration(duration).attr('height', 0).attr('y', self.height).remove();
-        features.select('.y').transition().duration(duration).call(yAxis);
+          self.tooltip.bindEvents(d3.selectAll(".bar"), self.width, self.containerHeight, templateRender);
+        }
+
+        bars.exit().transition().duration(duration).attr("height", 0).attr("y", self.height).remove();
+        features.select(".y").transition().duration(duration).call(yAxis);
       }
 
       document.getElementById("switch").addEventListener("click", function () {

@@ -7,8 +7,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
-var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
-
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 
 var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
@@ -16,6 +14,12 @@ var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _tooltip = _interopRequireDefault(require("./tooltip"));
+
+var _helpers = _interopRequireDefault(require("../utilities/helpers"));
+
+var _mustache = _interopRequireDefault(require("../utilities/mustache"));
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -84,16 +88,6 @@ var ScatterPlot = /*#__PURE__*/function () {
       };
     }
 
-    this.utilities = {
-      decimals: function decimals(items) {
-        var nums = items.split(",");
-        return parseFloat(this[nums[0]]).toFixed(nums[1]);
-      },
-      nicedate: function nicedate(dte) {
-        var chuncks = this[dte];
-        return moment(chuncks).format('MMM D');
-      }
-    };
     this.labels = labels;
     console.log(this.template);
     console.log(this.database);
@@ -213,7 +207,7 @@ var ScatterPlot = /*#__PURE__*/function () {
 
       for (var i = 0; i < filters.length; i++) {
         // Create the categories legend
-        html += "<div data-filter=\"" + filters[i] + "\" class=\"btn filter " + (i == 0 ? "currentfilter" : "") + "\">" + filters[i] + "</div>";
+        html += '<div data-filter="' + filters[i] + '" class="btn filter ' + (i == 0 ? "currentfilter" : "") + '">' + filters[i] + "</div>";
       }
 
       d3.select("#graphicContainer").html(html);
@@ -251,8 +245,8 @@ var ScatterPlot = /*#__PURE__*/function () {
       if (this.key != null) {
         if (this.key[0].key != "") {
           this.key.forEach(function (d, i) {
-            html += "<div class=\"keyDiv\"><span data-cat=\"" + d.key + "\" class=\"keyCircle\" style=\"background: " + d.colour + "\"></span>";
-            html += " <span class=\"keyText\">" + d.key + "</span></div>";
+            html += '<div class="keyDiv"><span data-cat="' + d.key + '" class="keyCircle" style="background: ' + d.colour + '"></span>';
+            html += ' <span class="keyText">' + d.key + "</span></div>";
           });
         }
       } else {
@@ -263,20 +257,20 @@ var ScatterPlot = /*#__PURE__*/function () {
 
         this.colourKey.domain(colourDomain).range(colourRange);
         this.greyKey.domain(colourDomain).range(this.greyScale);
-        html += "<div class=\"colour_blind_key\">";
+        html += '<div class="colour_blind_key">';
 
         for (var i = 0; i < categories.length; i++) {
           // colourDomain.push(categories[i])
           // colourRange.push(self.colours[i])
-          html += "<div class=\"keyDiv\"><span data-cat=\"" + categories[i] + "\" class=\"keySymbol\"><svg width=\"12\" height=\"12\" viewBox=\"-6 -6 12 12\"><path d=\"" + self.symbolKey(categories[i]) + "\" stroke=\"#000\" stroke-width=\"1px\" fill=\"" + this.greyKey(categories[i]) + "\" /></svg></span>";
-          html += " <span class=\"keyText\">" + categories[i] + "</span></div>";
+          html += '<div class="keyDiv"><span data-cat="' + categories[i] + '" class="keySymbol"><svg width="12" height="12" viewBox="-6 -6 12 12"><path d="' + self.symbolKey(categories[i]) + '" stroke="#000" stroke-width="1px" fill="' + this.greyKey(categories[i]) + '" /></svg></span>';
+          html += ' <span class="keyText">' + categories[i] + "</span></div>";
         }
 
-        html += "</div><div class=\"colour_vision_key\">";
+        html += '</div><div class="colour_vision_key">';
 
         for (var i = 0; i < categories.length; i++) {
-          html += "<div class=\"keyDiv\"><span data-cat=\"" + categories[i] + "\" class=\"keyCircle\" style=\"background: " + self.colours[i] + "\"></span>";
-          html += " <span class=\"keyText\">" + categories[i] + "</span></div>";
+          html += '<div class="keyDiv"><span data-cat="' + categories[i] + '" class="keyCircle" style="background: ' + self.colours[i] + '"></span>';
+          html += ' <span class="keyText">' + categories[i] + "</span></div>";
         }
 
         html += "</div>";
@@ -308,6 +302,8 @@ var ScatterPlot = /*#__PURE__*/function () {
   }, {
     key: "_render",
     value: function _render(d3) {
+      var _this = this;
+
       var self = this;
       var isMobile;
       var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
@@ -386,7 +382,7 @@ var ScatterPlot = /*#__PURE__*/function () {
       console.log("xLabels", xLabels);
       x.domain(xLabels);
       y.domain(yLabels);
-      var tooltip = d3.select("body").append("div").attr("class", "tipster").style("position", "absolute").style("background-color", "white").style("opacity", 0); // x-axis
+      this.tooltip = new _tooltip["default"]("#graphicContainer", "tipster"); // x-axis
 
       svg.append("g").attr("class", "x axis").attr("transform", function () {
         if (self.x_axis_cross_y != null) {
@@ -433,9 +429,14 @@ var ScatterPlot = /*#__PURE__*/function () {
       svg.selectAll(".dot-label").data(self.labels).enter().append("text").attr("class", "dot-label").attr("x", xMap).attr("dy", 15).attr("text-anchor", "middle").attr("y", yMap).text(function (d) {
         return d[self.label_col];
       });
+      var $dots = null;
+
+      var templateRender = function templateRender(d) {
+        return (0, _mustache["default"])(_this.tiptext, _objectSpread({}, _helpers["default"], {}, d));
+      };
 
       if (self.colourBlindUser) {
-        svg.selectAll(".dot").data(self.target).enter().append("path").attr("class", function (d) {
+        $dots = svg.selectAll(".dot").data(self.target).enter().append("path").attr("class", function (d) {
           return "dot " + d[self.cats];
         }).attr("stroke", "#000").attr("stroke-width", "1px").attr("transform", function (d) {
           return "translate(".concat(x(d.x), ",").concat(y(d.y), ")");
@@ -443,18 +444,9 @@ var ScatterPlot = /*#__PURE__*/function () {
           return self.greyKey(d[self.cats]); // return (self.cats==null) ? '#4bc6df' : self.colourKey(d[self.cats])
         }).attr("d", function (d) {
           return self.symbolKey(d[self.cats]);
-        }).on("mouseover", function (d) {
-          if (self.tiptext != null) {
-            tooltip.transition().duration(200).style("opacity", .9);
-            tooltip.html(self.tipster(d)).style("left", self.tooltip(d3.event.pageX, width) + "px").style("top", (isMobile ? height / 2 : d3.event.pageY + 10) + "px");
-          }
-        }).on("mouseout", function () {
-          if (self.tiptext != null) {
-            tooltip.transition().duration(500).style("opacity", 0);
-          }
         });
       } else {
-        svg.selectAll(".dot").data(self.target).enter().append("circle").attr("class", function (d) {
+        $dots = svg.selectAll(".dot").data(self.target).enter().append("circle").attr("class", function (d) {
           return "dot " + d[self.cats];
         }).attr("r", 3.5).attr("cx", xMap).attr("cy", yMap).style("fill", function (d) {
           return self.cats == null ? "#4bc6df" : self.colourKey(d[self.cats]);
@@ -466,17 +458,15 @@ var ScatterPlot = /*#__PURE__*/function () {
           }
         }).attr("stroke-width", function () {
           return "1px";
-        }).on("mouseover", function (d) {
-          if (self.tiptext != null) {
-            tooltip.transition().duration(200).style("opacity", .9);
-            tooltip.html(self.tipster(d)).style("left", self.tooltip(d3.event.pageX, width) + "px").style("top", (isMobile ? height / 2 : d3.event.pageY + 10) + "px");
-          }
-        }).on("mouseout", function (d) {
-          if (self.tiptext != null) {
-            tooltip.transition().duration(500).style("opacity", 0);
-          }
         });
-      }
+      } // bind tooltip events
+
+
+      this.tooltip.bindEvents($dots, width, height + self.margin.top + self.margin.bottom, templateRender, {
+        top: isMobile ? height / 2 : null,
+        topOffset: isMobile ? null : 10,
+        leftOffset: 5
+      });
 
       if (self.filter != null) {
         d3.selectAll(".filter").on("click", self.filters);
@@ -606,24 +596,6 @@ var ScatterPlot = /*#__PURE__*/function () {
       return [min - buffer, max + buffer];
     }
   }, {
-    key: "tipster",
-    value: function tipster(d) {
-      var self = this;
-      var text = self.mustache(self.tiptext, _objectSpread({}, self.utilities, {}, d));
-      return text;
-    }
-  }, {
-    key: "tooltip",
-    value: function tooltip(pos, width) {
-      var self = this;
-
-      if (width < 500) {
-        return width / 2 - 100;
-      } else {
-        return pos > width / 2 ? pos - 235 : pos + 5;
-      }
-    }
-  }, {
     key: "stated",
     value: function stated() {
       var self = this;
@@ -666,64 +638,6 @@ var ScatterPlot = /*#__PURE__*/function () {
       return this.categories.filter(function (value) {
         return value.name == state;
       })[0].colour;
-    }
-  }, {
-    key: "mustache",
-    value: function mustache(template, self, parent, invert) {
-      var render = this.mustache;
-      var output = "";
-      var i;
-
-      function get(ctx, path) {
-        path = path.pop ? path : path.split(".");
-        ctx = ctx[path.shift()];
-        ctx = ctx != null ? ctx : "";
-        return 0 in path ? get(ctx, path) : ctx;
-      }
-
-      self = Array.isArray(self) ? self : self ? [self] : [];
-      self = invert ? 0 in self ? [] : [1] : self;
-
-      for (i = 0; i < self.length; i++) {
-        var childCode = '';
-        var depth = 0;
-        var inverted;
-        var ctx = (0, _typeof2["default"])(self[i]) == "object" ? self[i] : {};
-        ctx = Object.assign({}, parent, ctx);
-        ctx[""] = {
-          "": self[i]
-        };
-        template.replace(/([\s\S]*?)({{((\/)|(\^)|#)(.*?)}}|$)/g, function (match, code, y, z, close, invert, name) {
-          if (!depth) {
-            output += code.replace(/{{{(.*?)}}}|{{(!?)(&?)(>?)(.*?)}}/g, function (match, raw, comment, isRaw, partial, name) {
-              return raw ? get(ctx, raw) : isRaw ? get(ctx, name) : partial ? render(get(ctx, name), ctx) : !comment ? new Option(get(ctx, name)).innerHTML : "";
-            });
-            inverted = invert;
-          } else {
-            childCode += depth && !close || depth > 1 ? match : code;
-          }
-
-          if (close) {
-            if (! --depth) {
-              name = get(ctx, name);
-
-              if (/^f/.test((0, _typeof2["default"])(name))) {
-                output += name.call(ctx, childCode, function (template) {
-                  return render(template, ctx);
-                });
-              } else {
-                output += render(childCode, name, ctx, inverted);
-              }
-
-              childCode = "";
-            }
-          } else {
-            ++depth;
-          }
-        });
-      }
-
-      return output;
     }
   }]);
   return ScatterPlot;
