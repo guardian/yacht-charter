@@ -33,6 +33,7 @@
   "dependencies": {
     "compile-sass": "^1.1.0",
     "d3": "^5.15.0",
+    "d3-sankey": "^0.12.3",
     "dotenv": "^8.2.0",
     "mini-css-extract-plugin": "^0.8.0",
     "moment": "^2.24.0",

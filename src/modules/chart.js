@@ -102,6 +102,13 @@ export class Chart {
           this._addListener(instance, data, type, importedChartModule)
         })
       break
+    case "sankey":
+      import("./charts/sankey")
+        .then((importedChartModule) => {
+          let instance = new importedChartModule.default(data)
+          this._addListener(instance, data, type, importedChartModule)
+        })
+      break  
     case "table":
       import("./charts/table")
         .then((importedChartModule) => {
@@ -168,6 +175,9 @@ export class Chart {
     case "smallmultiples":
       instance.render()
       break
+    case "sankey":
+      instance.render()
+      break  
     case "table":
       console.log("Table resize")
       break
