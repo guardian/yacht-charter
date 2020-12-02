@@ -27,7 +27,7 @@ export default class Sankey {
 
 		if (userKey.length > 1) {
 			userKey.forEach(function (d) {
-				optionalKeys.push(d.key)
+				optionalKeys.push(d.keyName)
 				optionalColours.push(d.colour)
 			})
 		}
@@ -45,6 +45,13 @@ export default class Sankey {
 			.querySelector("#graphicContainer")
 			.getBoundingClientRect().width
 		var height = width * 0.5
+
+		if (details[0].min_height != "") {
+			if (height < +details[0].min_height) {
+				height = +details[0].min_height
+			}
+		}
+
 		var margin
 		
 		// Check if margin defined by user
@@ -88,19 +95,16 @@ export default class Sankey {
 			.append("g")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
-		var colors = [
-			"#a6cee3",
-			"#1f78b4",
-			"#b2df8a",
-			"#33a02c",
-			"#fb9a99",
-			"#e31a1c",
-			"#fdbf6f",
-			"#ff7f00"
-		]
+		// check this works with nothing defined	
 
-		
-		const color = d3.scaleOrdinal(d3.schemeCategory10);
+		var color;
+
+		if (optionalKeys.length) {
+			color = d3.scaleOrdinal(optionalColours);
+		}	
+		else {
+			color = d3.scaleOrdinal(d3.schemeCategory10);
+		}
 
 		data.forEach(function (d) {
 			d.value = +d.value
@@ -126,8 +130,16 @@ export default class Sankey {
 		console.log(headings)
 		
   		const dataNodes = Array.from(new Set(data.flatMap(l => [l.source, l.target])), name => ({name}));
-  		const domain = Array.from(new Set(data.flatMap(l => [l.source, l.target])));
-  		color.domain(domain)
+  	
+  		
+  		if (optionalKeys.length) {
+			color.domain(optionalKeys)
+		}	
+		else {
+			const domain = Array.from(new Set(data.flatMap(l => [l.source, l.target])));
+			color.domain(domain)
+		}
+
 
   		var graphData = {"nodes" : dataNodes , "links" : data };
   		
@@ -202,6 +214,7 @@ export default class Sankey {
 		var nodeLabel = node.append('text')
 		    .attr("y", d => (d.y1 + d.y0) / 2)
 		    .attr("dy", "0.35em")
+		    .attr("class", "nodeLabel")
 		    .attr("text-anchor", d => d.x0 < width / 2 ? "start" : "end")
 
 		nodeLabel    
@@ -232,7 +245,59 @@ export default class Sankey {
 	        .style("opacity", 1)
 	        .text((d) => {
 	          return d.text
-	        })    
+	        })
+
+
+	    // resolve label overlaps 
+	    // approach taken from https://observablehq.com/@stuartathompson/preventing-label-overlaps-in-d3    
+
+	    var allDedupeLabels = d3.selectAll(".nodeLabel")
+
+	    var hidden = []
+
+	    allDedupeLabels.style('opacity', 1)
+		allDedupeLabels.each(function(d, i) {
+		// Set default opacity style
+		// d3.select(this).style('opacity', 1)
+
+		// Get bounding box
+		var thisBBox = this.getBBox()
+
+		// Iterate through each box to see if it overlaps with any following
+		// If they do, hide them
+		// Get labels after this one
+			allDedupeLabels.filter((k, j) => j > i).each(function(d){
+			var underBBox = this.getBBox()
+			// If not overlapping with a subsequent item, and isn't meant to be shown always (like circles), hide it
+			if(getOverlapFromTwoExtents(thisBBox, underBBox) && d3.select(this).attr('class').match('always-show') == null){
+			  
+			console.log(this)
+			  d3.select(this).style('opacity', 0)
+			}
+			})
+		})
+
+
+	    function getOverlapFromTwoExtents(l, r) {
+			var overlapPadding = 0
+			l.left = l.x - overlapPadding
+			l.right = l.x + l.width + overlapPadding
+			l.top = l.y - overlapPadding
+			l.bottom = l.y + l.height + overlapPadding
+			r.left = r.x - overlapPadding
+			r.right = r.x + r.width + overlapPadding
+			r.top = r.y - overlapPadding
+			r.bottom = r.y + r.height + overlapPadding
+			var a = l
+			var b = r
+
+			if (a.left >= b.right || a.top >= b.bottom ||
+			a.right <= b.left || a.bottom <= b.top ){
+			return false
+			} else {
+			return true
+			}
+    		}        
 
 
 		} 	
