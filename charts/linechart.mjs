@@ -115,8 +115,7 @@ export default class LineChart {
     }
 
     this.width = this.containerWidth - this.margin.left - this.margin.right
-    this.height =
-      this.containerWidth * 0.6 - this.margin.top - this.margin.bottom
+    this.height = this.containerWidth * 0.6 - this.margin.top - this.margin.bottom
 
     this.y = d3.scaleLinear().rangeRound([this.height, 0])
     this.xAxis = null

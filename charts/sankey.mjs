@@ -64,6 +64,7 @@ export default class Sankey {
 			}
 		}
 
+		console.log(margin)
 		width = width - margin.left - margin.right;
 		height = height - margin.top - margin.bottom;
 
@@ -106,12 +107,23 @@ export default class Sankey {
 		})
 
 		labels.forEach(function (d) {
-			if (dateParse != null) {
-				d.x1 = dateParse(d.x1)
+			d.x_pct = (+d.x_pct/100) * width
+			d.y_pct = (+d.y_pct/100) * height
+			if (d.offset_x != "") {
+				d.offset_x = (+d.offset_x/100) * width
 			}
-			d.y1 = +d.y1
-			d.y2 = +d.y2
+
+			if (d.offset_y != "") {
+				d.offset_y = (+d.offset_y/100) * height
+			}	
 		})
+
+		console.log(labels)
+
+		var arrows = labels.filter(d => d.class === "arrow")
+		var headings = labels.filter(d => d.class === "heading")
+
+		console.log(headings)
 		
   		const dataNodes = Array.from(new Set(data.flatMap(l => [l.source, l.target])), name => ({name}));
   		const domain = Array.from(new Set(data.flatMap(l => [l.source, l.target])));
@@ -124,16 +136,14 @@ export default class Sankey {
   		var sankey = d3sankey.sankey()
       		.size([width, height])
       		.nodeId(d => d.name)
+      		.linkSort((a, b) => b.dy - a.dy)
 
 
 		var graph = sankey(graphData);
-
-		console.log(graph)
 		
 		const edgeColor = 'path'
 
-
-		var link = svg.append("g").selectAll("link")
+		var link = features.append("g").selectAll("link")
 			.data(graph.links)
 			.enter().append("path")
 			.attr("class", "link")
@@ -144,16 +154,12 @@ export default class Sankey {
 			.attr("stroke-width", function(d) { return d.width; })
 
       	link.style('stroke', (d, i) => {
-			console.log(d.source, d.target);
 
 			// make unique gradient ids  
 			const gradientID = `gradient${i}`;
 
 			const startColor = color(d.source.name);
 			const stopColor = color(d.target.name);
-
-			console.log('startColor', startColor);
-			console.log('stopColor', stopColor);
 
 			const linearGradient = defs.append('linearGradient')
 				.attr('id', gradientID)
@@ -168,23 +174,16 @@ export default class Sankey {
 				])                  
 				.enter().append('stop')
 				.attr('offset', d => {
-					console.log('d.offset', d.offset);
 					return d.offset; 
 				})   
 				.attr('stop-color', d => {
-					console.log('d.color', d.color);
 					return d.color;
 			});
 
 			return `url(#${gradientID})`;
 		})
- 	
 
-
-  		console.log(link)	
-
-
-		var node = svg.append("g").selectAll(".node")
+		var node = features.append("g").selectAll(".node")
 			.data(graph.nodes)
 			.enter().append("g")
 			.attr("class", "node")
@@ -196,9 +195,44 @@ export default class Sankey {
 			.attr("width", sankey.nodeWidth())
 			.style("fill", function(d) { 
 			     return d.color = color(d.name); })
-			.attr("stroke", "#000")
+			.attr("stroke", "none")
 			.append("title")
 			.text(d => d.name)
+
+		var nodeLabel = node.append('text')
+		    .attr("y", d => (d.y1 + d.y0) / 2)
+		    .attr("dy", "0.35em")
+		    .attr("text-anchor", d => d.x0 < width / 2 ? "start" : "end")
+
+		nodeLabel    
+		    .append("tspan")
+		    .attr("x", d => d.x0 < width / 2 ? d.x1 + 6 : d.x0 - 6)		    
+		    .text(d => d.name)
+		    .attr("fill", "none")
+		    .attr("stroke-width", "4px")
+		    .attr("stroke", "white")
+
+		nodeLabel    
+		    .append("tspan")
+		    .attr("x", d => d.x0 < width / 2 ? d.x1 + 6 : d.x0 - 6)		    
+		    .text(d => d.name)
+		    .attr("fill", "black")    
+
+
+		svg.selectAll(".heading")
+        	.data(headings)
+	        .enter()
+	        .append("text")
+	        .attr("class", "heading")
+	        .attr("y", (d) => d.y_pct + 16)
+	        .attr("x", (d) => d.x_pct )
+	        .style("text-anchor", (d) => {
+	          return d.align
+	        })
+	        .style("opacity", 1)
+	        .text((d) => {
+	          return d.text
+	        })    
 
 
 		} 	
