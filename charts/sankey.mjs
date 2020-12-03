@@ -71,7 +71,6 @@ export default class Sankey {
 			}
 		}
 
-		console.log(margin)
 		width = width - margin.left - margin.right;
 		height = height - margin.top - margin.bottom;
 
@@ -122,12 +121,8 @@ export default class Sankey {
 			}	
 		})
 
-		console.log(labels)
-
 		var arrows = labels.filter(d => d.class === "arrow")
 		var headings = labels.filter(d => d.class === "heading")
-
-		console.log(headings)
 		
   		const dataNodes = Array.from(new Set(data.flatMap(l => [l.source, l.target])), name => ({name}));
   	
@@ -159,15 +154,18 @@ export default class Sankey {
 			.data(graph.links)
 			.enter().append("path")
 			.attr("class", "link")
+			.attr("id", d => d.source.name.replace(/ /g, '_') + d.target.name.replace(/ /g, '_'))
 			.style("mix-blend-mode", "multiply")
 			.style("fill", "none")
       		.attr("stroke-opacity", 0.5)
+      		.on('mouseover.fade', fade2(0.1, 'over'))
+		  	.on('mouseout.fade', fade2(1, 'out'))
 			.attr("d", d3sankey.sankeyLinkHorizontal())
 			.attr("stroke-width", function(d) { return d.width; })
 
       	link.style('stroke', (d, i) => {
 
-			// make unique gradient ids  
+			// console.log(d)
 			const gradientID = `gradient${i}`;
 
 			const startColor = color(d.source.name);
@@ -205,6 +203,8 @@ export default class Sankey {
 			.attr("y", function(d) { return d.y0; })
 			.attr("height", function(d) { return d.y1 - d.y0; })
 			.attr("width", sankey.nodeWidth())
+			.on('mouseover.fade', fade(0.1, 'over'))
+		  	.on('mouseout.fade', fade(1, 'out'))
 			.style("fill", function(d) { 
 			     return d.color = color(d.name); })
 			.attr("stroke", "none")
@@ -229,7 +229,45 @@ export default class Sankey {
 		    .append("tspan")
 		    .attr("x", d => d.x0 < width / 2 ? d.x1 + 6 : d.x0 - 6)		    
 		    .text(d => d.name)
-		    .attr("fill", "black")    
+		    .attr("fill", "black")
+
+		var linkContainers = features.selectAll(".linkContainers")
+			    .data(graph.links)
+				.enter()
+				.append("g")
+				.attr("class", "linkContainers")
+				.style("opacity", 0)
+				.style("pointer-events", "none")
+
+		var linkCircles = linkContainers
+			.append("circle")
+			.attr("class", "linkCircle")
+			.attr("fill", "#FFF")
+			.attr("cx", function(d) {
+				var pathEl = d3.select("#" + d.source.name.replace(/ /g, '_') + d.target.name.replace(/ /g, '_')).node()
+				return pathEl.getPointAtLength(pathEl.getTotalLength()/2).x
+			})
+			.attr("cy", function(d) {
+				var pathEl = d3.select("#" + d.source.name.replace(/ /g, '_') + d.target.name.replace(/ /g, '_')).node()
+				return pathEl.getPointAtLength(pathEl.getTotalLength()/2).y
+			})
+			.attr("r",12)
+			.attr("stroke", "#bababa")      
+
+		var linkText = linkContainers
+			.append("text")
+			.attr("class", "label")
+			.attr("text-anchor", "middle")
+			.attr("x", function(d) {
+				var pathEl = d3.select("#" + d.source.name.replace(/ /g, '_') + d.target.name.replace(/ /g, '_')).node()
+				return pathEl.getPointAtLength(pathEl.getTotalLength()/2).x
+			})
+			.attr("y", function(d) {
+				var pathEl = d3.select("#" + d.source.name.replace(/ /g, '_') + d.target.name.replace(/ /g, '_')).node()
+				return pathEl.getPointAtLength(pathEl.getTotalLength()/2).y + 4
+			})
+			.style("font-size","10px")
+			.text(d => d.value)    
 
 
 		svg.selectAll(".heading")
@@ -253,29 +291,112 @@ export default class Sankey {
 
 	    var allDedupeLabels = d3.selectAll(".nodeLabel")
 
-	    var hidden = []
-
-	    allDedupeLabels.style('opacity', 1)
-		allDedupeLabels.each(function(d, i) {
-		// Set default opacity style
-		// d3.select(this).style('opacity', 1)
-
-		// Get bounding box
-		var thisBBox = this.getBBox()
-
-		// Iterate through each box to see if it overlaps with any following
-		// If they do, hide them
-		// Get labels after this one
-			allDedupeLabels.filter((k, j) => j > i).each(function(d){
-			var underBBox = this.getBBox()
-			// If not overlapping with a subsequent item, and isn't meant to be shown always (like circles), hide it
-			if(getOverlapFromTwoExtents(thisBBox, underBBox) && d3.select(this).attr('class').match('always-show') == null){
-			  
-			console.log(this)
-			  d3.select(this).style('opacity', 0)
+		function hideOverlaps(items, mode) {
+			
+			if (mode != 'fade') {
+				items.style('opacity', 1)
 			}
+			
+			items.each(function(d, i) {
+		
+			// Get bounding box
+			var thisBBox = this.getBBox()
+
+			// Iterate through each box to see if it overlaps with any following
+			// If they do, hide them
+			// Get labels after this one
+				items.filter((k, j) => j > i).each(function(d){
+				var underBBox = this.getBBox()
+				// If not overlapping with a subsequent item, and isn't meant to be shown always (like circles), hide it
+				if(getOverlapFromTwoExtents(thisBBox, underBBox) && d3.select(this).attr('class').match('always-show') == null){
+				  
+				// console.log(this)
+				  d3.select(this).style('opacity', 0)
+				}
+				})
 			})
-		})
+		}
+
+
+		hideOverlaps(d3.selectAll(".nodeLabel"))
+		// hideOverlaps(linkContainers);
+		// hideOverlaps(linkCircles);
+
+		const linkedByIndex = {};
+		 	graph.links.forEach(d => {
+		    linkedByIndex[`${d.source.index},${d.target.index}`] = 1;
+		  });
+
+		  function isConnected(a, b) {
+		    return linkedByIndex[`${a.index},${b.index}`] || linkedByIndex[`${b.index},${a.index}`] || a.index === b.index;
+		  }
+
+		  function fade(opacity, action) {
+
+		    return d => {
+		      node.style('stroke-opacity', function (o) {
+		        const thisOpacity = isConnected(d, o) ? 1 : opacity;
+		        this.setAttribute('fill-opacity', thisOpacity);
+		        return thisOpacity;
+		      });
+
+		      if (action === 'over') {
+		      		link.style('stroke-opacity', o => (o.source === d || o.target === d ? 0.5 : opacity));
+		  		}
+
+		  	else {
+		  		link.style('stroke-opacity', 0.5);
+		  	}	
+
+		      if (action === 'over') {
+		      		nodeLabel.style('opacity', o => (o.source === d || o.target === d ? 0 : 1));
+		      		linkContainers.style('opacity', o => (o.source === d || o.target === d ? 1 : 0));
+		      		var currentLinkContainers = linkContainers.filter( o => o.source === d || o.target === d )
+		      		hideOverlaps(currentLinkContainers)
+
+		      		// linkCircles.style('opacity', o => (o.source === d || o.target === d ? 1 : 0));
+		      }
+		      
+		      else {
+		      		// nodeLabel.style('opacity', 1);
+		      		// linkText.style('opacity', 0);
+		      		linkContainers.style('opacity', 0);
+		      		hideOverlaps(d3.selectAll(".nodeLabel"))
+		      }
+
+		  //    if (currentDog) {
+		  //     	d3.select(`#${currentDog} .label`).style("opacity",1)
+				// }
+
+		    };
+		 }
+
+		 function fade2(opacity, action) {
+
+		    return d => {
+		    	node.style('stroke-opacity', function (o) {
+		    		console.log(o)
+			        const thisOpacity = (d.source.name === o.name || d.target.name === o.name ? 1 : opacity)
+			        this.setAttribute('fill-opacity', thisOpacity);
+			        return thisOpacity;
+		      	});
+
+		    	link.style('stroke-opacity', o => (o.source.name === d.source.name && o.target.name === d.target.name ? 0.5 : opacity));
+		    	linkContainers.style('opacity', o => (o.source.name === d.source.name && o.target.name === d.target.name ? 1 : 0));
+
+		    	if (action === 'over') {
+		      		nodeLabel.style('opacity', o => (o.source === d || o.target === d ? 0 : 1));
+		      		// linkContainers.style('opacity', o => (o.source === d || o.target === d ? 1 : 0));
+		      	}
+		      
+		      else {
+		      		link.style('stroke-opacity', 0.5);
+		      		linkContainers.style('opacity', 0);
+		      		hideOverlaps(d3.selectAll(".nodeLabel"))
+		      }
+
+		    };
+		 }
 
 
 	    function getOverlapFromTwoExtents(l, r) {
