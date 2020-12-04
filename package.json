@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "webpack --watch",
     "start": "node ./scripts/mjs.js & node ./scripts/copycss.js && npx babel ./charts/ -d src/modules/charts/ && node ./scripts/minify.js 'src/modules/charts' && webpack-dev-server --open --mode=development",
-    "build": "npx babel ./charts/ -d dist/charts/ && webpack --mode=production && node ./scripts/copycss.js && node ./scripts/minify.js 'dist/charts/charts'",
+    "build": "npx babel ./charts/ -d dist/charts/ && webpack --mode=production && node ./scripts/copycss.js && node ./scripts/minify.js 'dist/charts/'",
     "postbuild": "node ./scripts/deploy.js"
   },
   "author": "",
