@@ -2,6 +2,7 @@ import { numberFormat } from "../utilities/numberFormat"
 import mustache from "../utilities/mustache"
 import helpers from "../utilities/helpers"
 import Tooltip from "./shared/tooltip"
+import ColorScale from "./shared/colorscale"
 
 /****** Example tooltip template */
 // `
@@ -14,43 +15,6 @@ import Tooltip from "./shared/tooltip"
 //   <b>United Kingdom</b>: {{United Kingdom}}<br/>
 // `
 /****** end tooltip template */
-
-// default colours
-const colorsLong = [
-  "#4daacf",
-  "#5db88b",
-  "#a2b13e",
-  "#8a6929",
-  "#b05cc6",
-  "#c8a466",
-  "#c35f95",
-  "#ce592e",
-  "#d23d5e",
-  "#d89a34",
-  "#7277ca",
-  "#527b39",
-  "#59b74b",
-  "#c76c65",
-  "#8a6929"
-]
-const colorsMedium = [
-  "#000000",
-  "#0000ff",
-  "#9d02d7",
-  "#cd34b5",
-  "#ea5f94",
-  "#fa8775",
-  "#ffb14e",
-  "#ffd700"
-]
-const colorsShort = [
-  "#ffb14e",
-  "#fa8775",
-  "#ea5f94",
-  "#cd34b5",
-  "#9d02d7",
-  "#0000ff"
-]
 
 function getLongestKeyLength($svg, keys, isMobile) {
   if (!isMobile) {
@@ -91,7 +55,8 @@ export default class LineChart {
     this.tooltip = new Tooltip("#graphicContainer")
 
     this.x_axis_cross_y = null
-    this.colors = colorsLong
+    this.colors = new ColorScale()
+
     this.optionalKey = {}
 
     this.$svg = null
@@ -121,7 +86,7 @@ export default class LineChart {
     this.y = d3.scaleLinear().rangeRound([this.height, 0])
     this.xAxis = null
     this.yAxis = null
-    this.xVar = this.color = d3.scaleOrdinal().range(this.colors)
+
     this.min = null
     this.max = null
     this.lineGenerators = {}
@@ -148,12 +113,14 @@ export default class LineChart {
       d3.select("#sourceText").html(" | Source: " + this.meta.source)
     }
 
-    // parse optionalKey
-    if (this.userKey.length > 1) {
-      this.userKey.forEach((d) => {
-        this.optionalKey[d.key] = d.colour
-      })
-    }
+    // set up color domain/range
+    const keyColor =
+      this.userKey.length > 1
+        ? this.colors.getUserDefinedKeysColors(this.userKey)
+        : {
+            keys
+          }
+    this.colors.set(keyColor.keys, keyColor.colors)
 
     // ?
     if (this.meta.x_axis_cross_y) {
@@ -186,12 +153,6 @@ export default class LineChart {
     // update y scale if y scale type is provided
     if (this.meta["yScaleType"]) {
       this.y = d3[this.meta["yScaleType"]]().range([this.height, 0]).nice()
-    }
-
-    // use short colors if less than 6 keys
-    if (this.keys.length <= 5) {
-      this.colors = colorsShort
-      this.color = d3.scaleOrdinal().range(this.colors)
     }
 
     // parsers
@@ -285,13 +246,7 @@ export default class LineChart {
         $keyDiv
           .append("span")
           .attr("class", "keyCircle")
-          .style("background-color", () => {
-            if (this.optionalKey.hasOwnProperty(key)) {
-              return this.optionalKey[key]
-            } else {
-              return this.color(key)
-            }
-          })
+          .style("background-color", () => this.colors.get(key))
 
         $keyDiv.append("span").attr("class", "keyText").text(key)
       })
@@ -484,13 +439,7 @@ export default class LineChart {
         .append("path")
         .datum(this.chartKeyData[key])
         .attr("fill", "none")
-        .attr("stroke", (d) => {
-          if (this.optionalKey.hasOwnProperty(key)) {
-            return this.optionalKey[key]
-          } else {
-            return this.color(key)
-          }
-        })
+        .attr("stroke", (d) => this.colors.get(key))
         .attr("stroke-linejoin", "round")
         .attr("stroke-linecap", "round")
         .attr("stroke-width", 2)
@@ -514,13 +463,7 @@ export default class LineChart {
           .attr("cy", (d) => {
             return this.y(tempLabelData[tempLabelData.length - 1][key])
           })
-          .attr("fill", (d) => {
-            if (this.optionalKey.hasOwnProperty(key)) {
-              return this.optionalKey[key]
-            } else {
-              return this.color(key)
-            }
-          })
+          .attr("fill", (d) => this.colors.get(key))
           .attr("cx", (d) => {
             return this.x(tempLabelData[tempLabelData.length - 1][this.xColumn])
           })
