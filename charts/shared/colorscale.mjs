@@ -19,12 +19,15 @@ class ColorScale {
     const domain = keys
 
     if (typeof colors === "string") {
-      if (d3[colors]) {
+      if (colorPresets[colors]) {
+        range = colorPresets[colors]
+        colorSet = true
+      } else if (d3[colors]) {
         range = d3[colors]
         colorSet = true
       } else {
         console.error(
-          `${colors} is not part of the d3 scale chromatic colour scheme`
+          `${colors} is not part of the color presets or d3 scale chromatic colour scheme`
         )
       }
     }
