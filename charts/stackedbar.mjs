@@ -1,7 +1,7 @@
 import { numberFormat } from "../utilities/numberFormat"
 import mustache from "../utilities/mustache"
 import helpers from "../utilities/helpers"
-import Tooltip from "./tooltip"
+import Tooltip from "./shared/tooltip"
 
 export default class StackedBarChart {
   constructor(results) {
@@ -271,7 +271,12 @@ export default class StackedBarChart {
       const templateRender = (d) => {
         return mustache(template, { ...helpers, ...d })
       }
-      this.tooltip.bindEvents(d3.selectAll(".barPart"), width, height + margin.top + margin.bottom, templateRender)
+      this.tooltip.bindEvents(
+        d3.selectAll(".barPart"),
+        width,
+        height + margin.top + margin.bottom,
+        templateRender
+      )
     }
 
     if (hasTrendline) {

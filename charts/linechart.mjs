@@ -1,7 +1,7 @@
 import { numberFormat } from "../utilities/numberFormat"
 import mustache from "../utilities/mustache"
 import helpers from "../utilities/helpers"
-import Tooltip from "./tooltip"
+import Tooltip from "./shared/tooltip"
 
 /****** Example tooltip template */
 // `
@@ -115,7 +115,8 @@ export default class LineChart {
     }
 
     this.width = this.containerWidth - this.margin.left - this.margin.right
-    this.height = this.containerWidth * 0.6 - this.margin.top - this.margin.bottom
+    this.height =
+      this.containerWidth * 0.6 - this.margin.top - this.margin.bottom
 
     this.y = d3.scaleLinear().rangeRound([this.height, 0])
     this.xAxis = null
@@ -615,7 +616,11 @@ export default class LineChart {
         const x0 = self.x.invert(d3.mouse(this)[0])
         const tooltipText = templateRender(d, this)
 
-        self.tooltip.show(tooltipText, self.width, self.height + self.margin.top + self.margin.bottom)
+        self.tooltip.show(
+          tooltipText,
+          self.width,
+          self.height + self.margin.top + self.margin.bottom
+        )
 
         $hoverLine
           .attr("x1", self.x(x0))

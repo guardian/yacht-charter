@@ -1,4 +1,4 @@
-import Tooltip from "./tooltip"
+import Tooltip from "./shared/tooltip"
 import helpers from "../utilities/helpers"
 import mustache from "../utilities/mustache"
 
@@ -620,11 +620,17 @@ export default class ScatterPlot {
     }
 
     // bind tooltip events
-    this.tooltip.bindEvents($dots, width, height + self.margin.top + self.margin.bottom, templateRender, {
-      top: isMobile ? height / 2 : null,
-      topOffset: isMobile ? null : 10,
-      leftOffset: 5
-    })
+    this.tooltip.bindEvents(
+      $dots,
+      width,
+      height + self.margin.top + self.margin.bottom,
+      templateRender,
+      {
+        top: isMobile ? height / 2 : null,
+        topOffset: isMobile ? null : 10,
+        leftOffset: 5
+      }
+    )
 
     if (self.filter != null) {
       d3.selectAll(".filter").on("click", self.filters)

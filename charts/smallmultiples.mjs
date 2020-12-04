@@ -1,7 +1,7 @@
 import moment from "moment"
 import mustache from "../utilities/mustache"
 import helpers from "../utilities/helpers"
-import Tooltip from "./tooltip"
+import Tooltip from "./shared/tooltip"
 
 export default class SmallMultiples {
   constructor(results) {
@@ -99,7 +99,7 @@ export default class SmallMultiples {
 
     self.containerHeight = document
       .querySelector("#graphicContainer")
-      .getBoundingClientRect().width  
+      .getBoundingClientRect().width
 
     console.log("containerWidth", containerWidth)
 
