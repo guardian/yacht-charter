@@ -45,20 +45,6 @@ class ColorScale {
       this.colors.domain(domain)
     }
   }
-
-  getUserDefinedKeysColors(userDefined) {
-    const keys = []
-    const colors = []
-
-    userDefined.forEach((d) => {
-      keys.push(d.key)
-      colors.push(d.colour)
-    })
-    return {
-      keys,
-      colors
-    }
-  }
 }
 
 export default ColorScale

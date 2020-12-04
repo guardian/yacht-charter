@@ -1,6 +1,7 @@
 import { numberFormat } from "../utilities/numberFormat"
 import mustache from "../utilities/mustache"
 import helpers from "../utilities/helpers"
+import dataTools from "./dataTools"
 import Tooltip from "./shared/tooltip"
 import ColorScale from "./shared/colorscale"
 
@@ -26,13 +27,8 @@ export default class StackedBarChart {
     var template
     var keys = Object.keys(data[0])
 
-    const keyColor =
-      userKey.length > 1
-        ? this.colors.getUserDefinedKeysColors(userKey)
-        : {
-            keys
-          }
-
+    // set up color domain/range
+    const keyColor = dataTools.getKeysColors(keys, userKey)
     this.colors.set(keyColor.keys, keyColor.colors)
 
     if (hasTooltip) {

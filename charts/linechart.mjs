@@ -1,6 +1,7 @@
 import { numberFormat } from "../utilities/numberFormat"
 import mustache from "../utilities/mustache"
 import helpers from "../utilities/helpers"
+import dataTools from "./dataTools"
 import Tooltip from "./shared/tooltip"
 import ColorScale from "./shared/colorscale"
 
@@ -57,8 +58,6 @@ export default class LineChart {
     this.x_axis_cross_y = null
     this.colors = new ColorScale()
 
-    this.optionalKey = {}
-
     this.$svg = null
     this.$features = null
     this.$chartKey = d3.select("#chartKey")
@@ -114,12 +113,11 @@ export default class LineChart {
     }
 
     // set up color domain/range
-    const keyColor =
-      this.userKey.length > 1
-        ? this.colors.getUserDefinedKeysColors(this.userKey)
-        : {
-            keys
-          }
+    const keyColor = dataTools.getKeysColors(
+      this.keys,
+      this.userKey,
+      this.options[0]
+    )
     this.colors.set(keyColor.keys, keyColor.colors)
 
     // ?
