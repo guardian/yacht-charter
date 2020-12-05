@@ -113,11 +113,11 @@ export default class LineChart {
     }
 
     // set up color domain/range
-    const keyColor = dataTools.getKeysColors(
-      this.keys,
-      this.userKey,
-      this.options[0]
-    )
+    const keyColor = dataTools.getKeysColors({
+      keys: this.keys,
+      userKey: this.userKey,
+      option: this.options[0]
+    })
     this.colors.set(keyColor.keys, keyColor.colors)
 
     // ?

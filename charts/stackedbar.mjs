@@ -28,7 +28,7 @@ export default class StackedBarChart {
     var keys = Object.keys(data[0])
 
     // set up color domain/range
-    const keyColor = dataTools.getKeysColors(keys, userKey)
+    const keyColor = dataTools.getKeysColors({ keys, userKey })
     this.colors.set(keyColor.keys, keyColor.colors)
 
     if (hasTooltip) {

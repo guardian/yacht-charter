@@ -1,17 +1,29 @@
+const COLOR_SCHEME = "colorScheme"
+const COLOR_LINEAR_RANGE = "colorLinearRange"
+const COLOR_MAX = "colorMax"
+
 export default {
-  getKeysColors(keys, userDefined, options) {
-    let obj = {
-      keys
-    }
+  /**
+    colorKeysRanges: object that provides the key/color pair
+    maxValue (optional): use this max if provided, otherwise find the max in array.
+    returns an array of values 
+  *******/
+  getColorDomainRangeMax(option) {
+    const hasProp = (p) => option && option[p]
 
-    // userDefined takes precedence over options.colorScheme
-    if (userDefined.length > 1) {
-      obj = this.getUserDefinedKeysColors(userDefined)
-    } else if (options.colorScheme) {
-      obj.colors = options.colorScheme
-    }
+    const domain = hasProp(COLOR_LINEAR_RANGE)
+      ? Object.keys(option[COLOR_LINEAR_RANGE])
+      : []
+    const range = hasProp(COLOR_LINEAR_RANGE)
+      ? Object.values(option[COLOR_LINEAR_RANGE])
+      : []
+    const max = option[COLOR_MAX] || d3.max(domain)
 
-    return obj
+    return {
+      colorDomain: domain.map((d) => d / max),
+      colorRange: range,
+      colorMax: max
+    }
   },
 
   getUserDefinedKeysColors(userDefined) {
@@ -26,5 +38,20 @@ export default {
       keys,
       colors
     }
+  },
+
+  getKeysColors({ keys, userKey, option }) {
+    let obj = {
+      keys
+    }
+
+    // userKey takes precedence over option.colorScheme
+    if (userKey.length > 1) {
+      obj = this.getUserDefinedKeysColors(userKey)
+    } else if (option[COLOR_SCHEME]) {
+      obj.colors = option[COLOR_SCHEME]
+    }
+
+    return obj
   }
 }

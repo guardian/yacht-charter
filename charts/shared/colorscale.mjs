@@ -1,22 +1,40 @@
 import colorPresets from "../constants/colors"
 
 class ColorScale {
-  constructor() {
-    this.colors = d3.scaleOrdinal().range(colorPresets["guardian"])
+  constructor(options) {
+    const colorPreset = colorPresets["guardian"]
+    const isString = typeof options === "string"
+    const getProp = (p) => (!options || isString ? null : options[p])
+    const type = options ? (isString ? options : options.type) : "ordinal"
+    const domain = getProp("domain")
+    const colors = getProp("colors")
+    this.divisor = getProp("divisor")
+
+    switch (type) {
+      case "linear":
+        this.cScale = d3.scaleLinear().range(colorPreset)
+        break
+
+      case "ordinal":
+      default:
+        this.cScale = d3.scaleOrdinal().range(colorPreset)
+    }
+
+    this.set(domain, colors)
   }
 
   get(key) {
-    return this.colors(key)
+    const k = this.divisor ? key / this.divisor : key
+    return this.cScale(k)
   }
 
   /***
-  - keys: domains
+  - domain
   - colors: string name of the d3 colour scheme OR array of colours
 -------------*/
-  set(keys, colors) {
+  set(domain, colors) {
     let colorSet = false
     let range = null
-    const domain = keys
 
     if (typeof colors === "string") {
       if (colorPresets[colors]) {
@@ -38,11 +56,11 @@ class ColorScale {
     }
 
     if (colorSet) {
-      this.colors.range(range)
+      this.cScale.range(range)
     }
 
     if (domain && domain.length > 0) {
-      this.colors.domain(domain)
+      this.cScale.domain(domain)
     }
   }
 }
