@@ -10,18 +10,30 @@ export default {
   *******/
   getColorDomainRangeMax(option) {
     const hasProp = (p) => option && option[p]
+    const isArray = Array.isArray(option[COLOR_LINEAR_RANGE])
 
+    // if option is an array, the domain are the Object.values
     const domain = hasProp(COLOR_LINEAR_RANGE)
-      ? Object.keys(option[COLOR_LINEAR_RANGE])
+      ? isArray
+        ? Object.values(option[COLOR_LINEAR_RANGE])
+        : Object.keys(option[COLOR_LINEAR_RANGE]).map((k) => parseInt(k))
       : []
+
+    // if option is an array, the range are empty
     const range = hasProp(COLOR_LINEAR_RANGE)
-      ? Object.values(option[COLOR_LINEAR_RANGE])
+      ? isArray
+        ? []
+        : Object.values(option[COLOR_LINEAR_RANGE])
       : []
+
+    // if option is an array, the range are empty
+    const colorScheme = option[COLOR_SCHEME]
+
     const max = option[COLOR_MAX] || d3.max(domain)
 
     return {
       colorDomain: domain.map((d) => d / max),
-      colorRange: range,
+      colorRange: range && range.length > 0 ? range : colorScheme,
       colorMax: max
     }
   },

@@ -50,7 +50,7 @@ class ColorScale {
       }
     }
 
-    if (Array.isArray(colors)) {
+    if (Array.isArray(colors) && colors.length > 0) {
       range = colors
       colorSet = true
     }
