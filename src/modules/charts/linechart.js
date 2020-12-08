@@ -19,7 +19,7 @@ var _mustache = _interopRequireDefault(require("../utilities/mustache"));
 
 var _helpers = _interopRequireDefault(require("../utilities/helpers"));
 
-var _tooltip = _interopRequireDefault(require("./tooltip"));
+var _tooltip = _interopRequireDefault(require("./shared/tooltip"));
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
