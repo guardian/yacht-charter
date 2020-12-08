@@ -5,7 +5,7 @@ import Tooltip from "./shared/tooltip"
 import * as d3sankey from "d3-sankey"
 
 export default class Sankey {
-<<<<<<< HEAD
+
 	constructor(results) {
 		this.tooltip = new Tooltip("#graphicContainer")
 		this.results = results
