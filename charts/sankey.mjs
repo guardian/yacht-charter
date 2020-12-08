@@ -154,7 +154,7 @@ export default class Sankey {
 			.data(graph.links)
 			.enter().append("path")
 			.attr("class", "link")
-			.attr("id", d => d.source.name.replace(/ /g, '_') + d.target.name.replace(/ /g, '_'))
+			.attr("id", d => d.source.name.replace(/ |,/g, '_') + d.target.name.replace(/ |,/g, '_'))
 			.style("mix-blend-mode", "multiply")
 			.style("fill", "none")
       		.attr("stroke-opacity", 0.5)
@@ -208,8 +208,6 @@ export default class Sankey {
 			.style("fill", function(d) { 
 			     return d.color = color(d.name); })
 			.attr("stroke", "none")
-			.append("title")
-			.text(d => d.name)
 
 		var nodeLabel = node.append('text')
 		    .attr("y", d => (d.y1 + d.y0) / 2)
@@ -244,11 +242,11 @@ export default class Sankey {
 			.attr("class", "linkCircle")
 			.attr("fill", "#FFF")
 			.attr("cx", function(d) {
-				var pathEl = d3.select("#" + d.source.name.replace(/ /g, '_') + d.target.name.replace(/ /g, '_')).node()
+				var pathEl = d3.select("#" + d.source.name.replace(/ |,/g, '_') + d.target.name.replace(/ |,/g, '_')).node()
 				return pathEl.getPointAtLength(pathEl.getTotalLength()/2).x
 			})
 			.attr("cy", function(d) {
-				var pathEl = d3.select("#" + d.source.name.replace(/ /g, '_') + d.target.name.replace(/ /g, '_')).node()
+				var pathEl = d3.select("#" + d.source.name.replace(/ |,/g, '_') + d.target.name.replace(/ |,/g, '_')).node()
 				return pathEl.getPointAtLength(pathEl.getTotalLength()/2).y
 			})
 			.attr("r",12)
@@ -259,11 +257,11 @@ export default class Sankey {
 			.attr("class", "label")
 			.attr("text-anchor", "middle")
 			.attr("x", function(d) {
-				var pathEl = d3.select("#" + d.source.name.replace(/ /g, '_') + d.target.name.replace(/ /g, '_')).node()
+				var pathEl = d3.select("#" + d.source.name.replace(/ |,/g, '_') + d.target.name.replace(/ |,/g, '_')).node()
 				return pathEl.getPointAtLength(pathEl.getTotalLength()/2).x
 			})
 			.attr("y", function(d) {
-				var pathEl = d3.select("#" + d.source.name.replace(/ /g, '_') + d.target.name.replace(/ /g, '_')).node()
+				var pathEl = d3.select("#" + d.source.name.replace(/ |,/g, '_') + d.target.name.replace(/ |,/g, '_')).node()
 				return pathEl.getPointAtLength(pathEl.getTotalLength()/2).y + 4
 			})
 			.style("font-size","10px")
@@ -375,7 +373,7 @@ export default class Sankey {
 
 		    return d => {
 		    	node.style('stroke-opacity', function (o) {
-		    		console.log(o)
+		    		// console.log(o)
 			        const thisOpacity = (d.source.name === o.name || d.target.name === o.name ? 1 : opacity)
 			        this.setAttribute('fill-opacity', thisOpacity);
 			        return thisOpacity;
