@@ -1,11 +1,15 @@
 import { numberFormat } from "../utilities/numberFormat"
 import mustache from "../utilities/mustache"
 import helpers from "../utilities/helpers"
+import dataTools from "./dataTools"
 import Tooltip from "./shared/tooltip"
+import ColorScale from "./shared/colorscale"
 
 export default class StackedBarChart {
   constructor(results) {
     this.tooltip = new Tooltip("#graphicContainer")
+    this.colors = new ColorScale()
+    this.trendColors = new ColorScale()
     this.results = results
     this.render()
   }
@@ -17,19 +21,18 @@ export default class StackedBarChart {
     var details = results.sheets.template
     var labels = results.sheets.labels
     var trendline = results.sheets.trendline
-    var userKey = results.sheets.key
-    var optionalKeys = []
-    var optionalColours = []
-    var hasTooltip = details[0].tooltip != "" ? true : false
-    var hasTrendline = trendline[0].index != "" ? true : false
-    var template
-
-    if (userKey.length > 1) {
-      userKey.forEach(function (d) {
-        optionalKeys.push(d.key)
-        optionalColours.push(d.colour)
-      })
+    var userKey = results.sheets.key 
+    var options = results.sheets.options
+    var hasTooltip =  details[0].tooltip != "" ? true : false
+    var hasTrendline = false
+    if (trendline.length > 0) {
+      hasTrendline = trendline[0].index != "" ? true : false
     }
+    var template
+    var keys = Object.keys(data[0])
+
+    console.log(options)
+
 
     if (hasTooltip) {
       template = details[0].tooltip
@@ -94,24 +97,7 @@ export default class StackedBarChart {
     var features = svg
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    var keys = Object.keys(data[0])
 
-    var colors = [
-      "#a6cee3",
-      "#1f78b4",
-      "#b2df8a",
-      "#33a02c",
-      "#fb9a99",
-      "#e31a1c",
-      "#fdbf6f",
-      "#ff7f00"
-    ]
-    var color = d3.scaleOrdinal()
-    if (userKey.length > 1) {
-      color.domain(optionalKeys).range(optionalColours)
-    } else {
-      color.domain(keys).range(colors)
-    }
     var xVar
     if (details[0]["xColumn"]) {
       xVar = details[0]["xColumn"]
@@ -121,13 +107,18 @@ export default class StackedBarChart {
       keys.splice(0, 1)
     }
 
-    keys.forEach(function (key, i) {
+    // set up color domain/range
+    const keyColor = dataTools.getKeysColors({ keys: keys, userKey: userKey, option: options[0]})
+    this.colors.set(keyColor.keys, keyColor.colors)
+
+
+    keys.forEach((key, i) => {
       var keyDiv = chartKey.append("div").attr("class", "keyDiv")
       keyDiv
         .append("span")
         .attr("class", "keyCircle")
-        .style("background-color", function () {
-          return color(key)
+        .style("background-color", () => {
+          return this.colors.get(key)
         })
       keyDiv.append("span").attr("class", "keyText").text(key)
     })
@@ -203,6 +194,8 @@ export default class StackedBarChart {
     layers.forEach(function (layer) {
       layer.forEach(function (subLayer) {
         subLayer.group = layer.key
+        subLayer.groupValue = subLayer.data[layer.key]
+        subLayer.total = subLayer.data.Total
       })
     })
 
@@ -246,7 +239,7 @@ export default class StackedBarChart {
       .enter()
       .append("g")
       .attr("class", (d) => "layer " + d.key)
-      .style("fill", (d, i) => color(d.key))
+      .style("fill", (d, i) => this.colors.get(d.key))
     layer
       .selectAll("rect")
       .data((d) => d)
@@ -290,18 +283,10 @@ export default class StackedBarChart {
         }
       })
 
-      var trendColours = details[0].trendColours
-        ? details[0].trendColours.split(",")
-        : [
-            "#a6cee3",
-            "#1f78b4",
-            "#b2df8a",
-            "#33a02c",
-            "#fb9a99",
-            "#e31a1c",
-            "#fdbf6f",
-            "#ff7f00"
-          ]
+      if (details[0].trendColours) {
+        const tColors = details[0].trendColours.split(",")
+        this.trendColors.set(tColors.length, tColors)
+      }
 
       var colourIndex = 0
 
@@ -313,7 +298,7 @@ export default class StackedBarChart {
         features
           .append("path")
           .attr("d", tline(tdata))
-          .attr("stroke", trendColours[colourIndex])
+          .attr("stroke", this.trendColors.get(colourIndex))
           .attr("fill", "none")
 
         var keyDiv = chartKey.append("div").attr("class", "keyDiv")
@@ -321,7 +306,7 @@ export default class StackedBarChart {
         keyDiv
           .append("div")
           .attr("class", "keyDash")
-          .style("border-color", () => trendColours[colourIndex])
+          .style("border-color", () => this.trendColors.get(colourIndex))
 
         keyDiv.append("span").attr("class", "keyText").text(tkeys[colourIndex])
 

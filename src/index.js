@@ -30,6 +30,7 @@ const location = getURLParams("location") ? getURLParams("location") : "docsdata
 // const location = "docsdata"
 
 
+
 new Chart(key, location)
 //https://interactive.guim.co.uk/yacht-charter-data/australian-states-daily-covid-cases-2020.json
 //https://interactive.guim.co.uk/yacht-charter-data/local-trend-nsw-corona-2020.json
