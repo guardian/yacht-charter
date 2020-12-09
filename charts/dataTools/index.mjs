@@ -56,7 +56,7 @@ export default {
     let obj = {
       keys
     }
-
+    console.log(option)
     // userKey takes precedence over option.colorScheme
     if (userKey.length > 1) {
       obj = this.getUserDefinedKeysColors(userKey)

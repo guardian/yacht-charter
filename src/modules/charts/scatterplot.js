@@ -15,7 +15,7 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var _tooltip = _interopRequireDefault(require("./tooltip"));
+var _tooltip = _interopRequireDefault(require("./shared/tooltip"));
 
 var _helpers = _interopRequireDefault(require("../utilities/helpers"));
 

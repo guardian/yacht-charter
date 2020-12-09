@@ -21,15 +21,18 @@ export default class StackedBarChart {
     var details = results.sheets.template
     var labels = results.sheets.labels
     var trendline = results.sheets.trendline
-    var userKey = results.sheets.key
-    var hasTooltip = details[0].tooltip != "" ? true : false
-    var hasTrendline = trendline[0].index != "" ? true : false
+    var userKey = results.sheets.key 
+    var options = results.sheets.options
+    var hasTooltip =  details[0].tooltip != "" ? true : false
+    var hasTrendline = false
+    if (trendline.length > 0) {
+      hasTrendline = trendline[0].index != "" ? true : false
+    }
     var template
     var keys = Object.keys(data[0])
 
-    // set up color domain/range
-    const keyColor = dataTools.getKeysColors({ keys, userKey })
-    this.colors.set(keyColor.keys, keyColor.colors)
+    console.log(options)
+
 
     if (hasTooltip) {
       template = details[0].tooltip
@@ -103,6 +106,11 @@ export default class StackedBarChart {
       xVar = keys[0]
       keys.splice(0, 1)
     }
+
+    // set up color domain/range
+    const keyColor = dataTools.getKeysColors({ keys: keys, userKey: userKey, option: options[0]})
+    this.colors.set(keyColor.keys, keyColor.colors)
+
 
     keys.forEach((key, i) => {
       var keyDiv = chartKey.append("div").attr("class", "keyDiv")
@@ -186,6 +194,8 @@ export default class StackedBarChart {
     layers.forEach(function (layer) {
       layer.forEach(function (subLayer) {
         subLayer.group = layer.key
+        subLayer.groupValue = subLayer.data[layer.key]
+        subLayer.total = subLayer.data.Total
       })
     })
 

@@ -56,12 +56,16 @@ class ColorScale {
     }
 
     if (colorSet) {
+      console.log(range)
       this.cScale.range(range)
     }
 
     if (domain && domain.length > 0) {
+      console.log(domain)
       this.cScale.domain(domain)
     }
+
+
   }
 }
 

@@ -19,7 +19,11 @@ var _mustache = _interopRequireDefault(require("../utilities/mustache"));
 
 var _helpers = _interopRequireDefault(require("../utilities/helpers"));
 
-var _tooltip = _interopRequireDefault(require("./tooltip"));
+var _dataTools = _interopRequireDefault(require("./dataTools"));
+
+var _tooltip = _interopRequireDefault(require("./shared/tooltip"));
+
+var _colorscale = _interopRequireDefault(require("./shared/colorscale"));
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -37,11 +41,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 // `
 
 /****** end tooltip template */
-// default colours
-var colorsLong = ["#4daacf", "#5db88b", "#a2b13e", "#8a6929", "#b05cc6", "#c8a466", "#c35f95", "#ce592e", "#d23d5e", "#d89a34", "#7277ca", "#527b39", "#59b74b", "#c76c65", "#8a6929"];
-var colorsMedium = ["#000000", "#0000ff", "#9d02d7", "#cd34b5", "#ea5f94", "#fa8775", "#ffb14e", "#ffd700"];
-var colorsShort = ["#ffb14e", "#fa8775", "#ea5f94", "#cd34b5", "#9d02d7", "#0000ff"];
-
 function getLongestKeyLength($svg, keys, isMobile) {
   if (!isMobile) {
     d3.select("#dummyText").remove();
@@ -75,8 +74,7 @@ var LineChart = /*#__PURE__*/function () {
     this.hasTooltipTemplate = this.tooltipTemplate && this.tooltipTemplate != "" ? true : false;
     this.tooltip = new _tooltip["default"]("#graphicContainer");
     this.x_axis_cross_y = null;
-    this.colors = colorsLong;
-    this.optionalKey = {};
+    this.colors = new _colorscale["default"]();
     this.$svg = null;
     this.$features = null;
     this.$chartKey = d3.select("#chartKey");
@@ -95,7 +93,6 @@ var LineChart = /*#__PURE__*/function () {
     this.y = d3.scaleLinear().rangeRound([this.height, 0]);
     this.xAxis = null;
     this.yAxis = null;
-    this.xVar = this.color = d3.scaleOrdinal().range(this.colors);
     this.min = null;
     this.max = null;
     this.lineGenerators = {};
@@ -122,15 +119,16 @@ var LineChart = /*#__PURE__*/function () {
 
       if (this.meta.source != "") {
         d3.select("#sourceText").html(" | Source: " + this.meta.source);
-      } // parse optionalKey
+      } // set up color domain/range
 
 
-      if (this.userKey.length > 1) {
-        this.userKey.forEach(function (d) {
-          _this.optionalKey[d.key] = d.colour;
-        });
-      } // ?
+      var keyColor = _dataTools["default"].getKeysColors({
+        keys: this.keys,
+        userKey: this.userKey,
+        option: this.options[0]
+      });
 
+      this.colors.set(keyColor.keys, keyColor.colors); // ?
 
       if (this.meta.x_axis_cross_y) {
         if (this.meta.x_axis_cross_y != "") {
@@ -162,12 +160,6 @@ var LineChart = /*#__PURE__*/function () {
 
       if (this.meta["yScaleType"]) {
         this.y = d3[this.meta["yScaleType"]]().range([this.height, 0]).nice();
-      } // use short colors if less than 6 keys
-
-
-      if (this.keys.length <= 5) {
-        this.colors = colorsShort;
-        this.color = d3.scaleOrdinal().range(this.colors);
       } // parsers
 
 
@@ -237,11 +229,7 @@ var LineChart = /*#__PURE__*/function () {
           var $keyDiv = _this.$chartKey.append("div").attr("class", "keyDiv");
 
           $keyDiv.append("span").attr("class", "keyCircle").style("background-color", function () {
-            if (_this.optionalKey.hasOwnProperty(key)) {
-              return _this.optionalKey[key];
-            } else {
-              return _this.color(key);
-            }
+            return _this.colors.get(key);
           });
           $keyDiv.append("span").attr("class", "keyText").text(key);
         });
@@ -359,11 +347,7 @@ var LineChart = /*#__PURE__*/function () {
       d3.selectAll(".domain").attr("stroke", "#767676");
       this.keys.forEach(function (key) {
         _this2.$features.append("path").datum(_this2.chartKeyData[key]).attr("fill", "none").attr("stroke", function (d) {
-          if (_this2.optionalKey.hasOwnProperty(key)) {
-            return _this2.optionalKey[key];
-          } else {
-            return _this2.color(key);
-          }
+          return _this2.colors.get(key);
         }).attr("stroke-linejoin", "round").attr("stroke-linecap", "round").attr("stroke-width", 2).attr("d", _this2.lineGenerators[key]);
 
         var tempLabelData = _this2.chartKeyData[key].filter(function (d) {
@@ -382,11 +366,7 @@ var LineChart = /*#__PURE__*/function () {
           _this2.$features.append("circle").attr("cy", function (d) {
             return _this2.y(tempLabelData[tempLabelData.length - 1][key]);
           }).attr("fill", function (d) {
-            if (_this2.optionalKey.hasOwnProperty(key)) {
-              return _this2.optionalKey[key];
-            } else {
-              return _this2.color(key);
-            }
+            return _this2.colors.get(key);
           }).attr("cx", function (d) {
             return _this2.x(tempLabelData[tempLabelData.length - 1][_this2.xColumn]);
           }).attr("r", 4).style("opacity", 1);
