@@ -1,1 +1,128 @@
-"use strict";function _createForOfIteratorHelper(e){if("undefined"==typeof Symbol||null==e[Symbol.iterator]){if(Array.isArray(e)||(e=_unsupportedIterableToArray(e))){var r=0,t=function(){};return{s:t,n:function(){return r>=e.length?{done:!0}:{done:!1,value:e[r++]}},e:function(e){throw e},f:t}}throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}var a,o,n=!0,l=!1;return{s:function(){a=e[Symbol.iterator]()},n:function(){var e=a.next();return n=e.done,e},e:function(e){l=!0,o=e},f:function(){try{n||null==a.return||a.return()}finally{if(l)throw o}}}}function _unsupportedIterableToArray(e,r){if(e){if("string"==typeof e)return _arrayLikeToArray(e,r);var t=Object.prototype.toString.call(e).slice(8,-1);return"Object"===t&&e.constructor&&(t=e.constructor.name),"Map"===t||"Set"===t?Array.from(t):"Arguments"===t||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t)?_arrayLikeToArray(e,r):void 0}}function _arrayLikeToArray(e,r){(null==r||r>e.length)&&(r=e.length);for(var t=0,a=new Array(r);t<r;t++)a[t]=e[t];return a}var _interopRequireDefault=require("@babel/runtime/helpers/interopRequireDefault");Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var _classCallCheck2=_interopRequireDefault(require("@babel/runtime/helpers/classCallCheck")),_createClass2=_interopRequireDefault(require("@babel/runtime/helpers/createClass")),_dataTools=_interopRequireDefault(require("./dataTools")),_colorscale=_interopRequireDefault(require("./shared/colorscale")),table=function(){function e(r){(0,_classCallCheck2.default)(this,e);var t=(d3.select("#graphicContainer"),r.sheets.data),a=(r.sheets.template,r.sheets.options),o=(r.sheets.key,_dataTools.default.getColorDomainRangeMax(a)),n=o.colorDomain,l=o.colorRange,i=o.colorMax;this.colors=new _colorscale.default({type:"linear",domain:n,colors:l,divisor:i}),this.big(t),this.small(t)}return(0,_createClass2.default)(e,[{key:"big",value:function(e){var r=this,t=document.querySelector("#big-table"),a=Object.keys(e[0]);!function(e,r){var t,a=e.createTHead(),o=a.insertRow(),n=_createForOfIteratorHelper(r);try{for(n.s();!(t=n.n()).done;){var l=t.value,i=document.createElement("th");i.classList.add("column-header");var s=document.createTextNode(l);i.appendChild(s),o.appendChild(i)}}catch(e){n.e(e)}finally{n.f()}}(t,a),function(e,t){var a,o=_createForOfIteratorHelper(t);try{for(o.s();!(a=o.n()).done;){var n=a.value,l=e.insertRow();for(var i in n){var s=l.insertCell(),c=document.createTextNode(n[i]);s.appendChild(c),s.style.backgroundColor=r.colors.get(n[i])}}}catch(e){o.e(e)}finally{o.f()}}(t,e)}},{key:"small",value:function(e){var r=this,t=Object.keys(e[0]),a=document.querySelector("#small-table");!function(e,a){var o,n=_createForOfIteratorHelper(a);try{for(n.s();!(o=n.n()).done;){var l=o.value,i=e.insertRow(),s=document.createElement("th");s.colSpan="2",s.classList.add("st-head-row"),s.innerHTML=l[t[0]],i.appendChild(s);for(var c=1;c<t.length;c++){var u=e.insertRow(),d=u.insertCell();d.classList.add("st-key");var f=document.createTextNode(t[c]);d.appendChild(f);var p=u.insertCell();p.classList.add("st-val");var y=document.createTextNode(l[t[c]]);p.appendChild(y),p.style.backgroundColor=r.colors.get(l[t[c]])}}}catch(e){n.e(e)}finally{n.f()}}(a,e)}}]),e}();exports.default=table;
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _dataTools = _interopRequireDefault(require("./dataTools"));
+
+var _colorscale = _interopRequireDefault(require("./shared/colorscale"));
+
+var _contains = _interopRequireDefault(require("../utilities/contains"));
+
+var _createTable = _interopRequireDefault(require("../utilities/table/createTable"));
+
+var _swatches = _interopRequireDefault(require("../utilities/table/swatches"));
+
+var _mustache = _interopRequireDefault(require("../utilities/mustache"));
+
+var _matchArray = _interopRequireDefault(require("../utilities/table/matchArray"));
+
+var table = /*#__PURE__*/function () {
+  function table(results) {
+    var _this = this;
+
+    (0, _classCallCheck2["default"])(this, table);
+    var self = this;
+    var container = document.querySelector("#graphicContainer");
+
+    var _table = document.querySelector("#int-table");
+
+    var data = results.sheets.data;
+    var details = results.sheets.template;
+    var options = results.sheets.options;
+    var userKey = results["sheets"]["key"];
+    var pantone = (0, _swatches["default"])(data, userKey, _colorscale["default"]);
+    var headings = Object.keys(data[0]);
+    var highlighted = userKey.map(function (item) {
+      return item.key;
+    });
+    (0, _createTable["default"])(_table, headings);
+
+    var colourizer = function colourizer(value, index) {
+      return !(0, _contains["default"])(headings[index], highlighted) ? 'none' : pantone.find(function (item) {
+        return item.name === headings[index];
+      }).profile.get(value);
+    };
+
+    var values = data.map(function (row) {
+      return Object.values(row);
+    });
+    this.data = values.map(function (row, i) {
+      return row.map(function (value, index) {
+        return {
+          value: value,
+          color: colourizer(value, index)
+        };
+      });
+    });
+    /*
+    format  enableSearch  enableSort
+    scrolling TRUE  TRUE
+    */
+
+    /*
+    const {
+      colorDomain,
+      colorRange,
+      colorMax
+    } = dataTools.getColorDomainRangeMax(options)
+     this.colors = new ColorScale({
+      type: "linear",
+      domain: colorDomain,
+      colors: colorRange,
+      divisor: colorMax
+    })
+    */
+
+    this.render();
+    this.searchEl = document.getElementById("search-field");
+
+    if (options[0].enableSearch === 'TRUE') {
+      document.querySelector("#search-container").style.display = "block";
+      this.searchEl.addEventListener("input", function () {
+        return self.render(_this.value);
+      });
+      this.searchEl.addEventListener("focus", function () {
+        if (_this.value === "Search") {
+          _this.value = "";
+        }
+      });
+    }
+
+    if (options[0].enableSort === 'TRUE') {//Set up the sort stuff
+    }
+
+    if (options[0].scrolling === 'TRUE') {//Set up the scrolling stuff
+    }
+  }
+
+  (0, _createClass2["default"])(table, [{
+    key: "render",
+    value: function render() {
+      var self = this;
+      var tbodyEl = document.querySelector("#int-table tbody");
+      var template = "{{#rows}}\n        <tr>\n            {{#.}}\n                <td style=\"background-color:{{color}};\"class=\"column\"><span class=\"header-prefix\"></span><span>{{value}}</span></td>\n            {{/.}}\n        </tr>\n    {{/rows}}";
+      var rowsToRender = this.searchEl && this.searchEl.value !== "Search" && this.searchEl.value !== "" ? self.data.filter(function (item) {
+        return (0, _matchArray["default"])(item.map(function (row) {
+          return Object.values(row)[0];
+        }), self.searchEl.value);
+      }) : self.data;
+      var html = (0, _mustache["default"])(template, {
+        rows: rowsToRender
+      }); // { ...helpers, ... }
+
+      tbodyEl.innerHTML = html;
+    }
+  }]);
+  return table;
+}();
+
+exports["default"] = table;
