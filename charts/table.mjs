@@ -2,7 +2,10 @@ import dataTools from "./dataTools"
 import ColorScale from "./shared/colorscale"
 import contains from "../utilities/contains"
 import createTable from "../utilities/table/createTable"
-import swatches from "../utilities/table/swatches"
+import addMobilePrefix from "../utilities/table/addMobilePrefix"
+import propComparator from "../utilities/table/propComparator"
+import styleHeaders from "../utilities/table/styleHeaders"
+import colourize from "../utilities/table/colourize"
 import mustache from "../utilities/mustache"
 import matchArray from "../utilities/table/matchArray"
 
@@ -10,23 +13,25 @@ export default class table {
   constructor(results) {
 
     const self = this
-
-    const container = document.querySelector("#graphicContainer")
     const table = document.querySelector("#int-table")
-
     const data = results.sheets.data
     const details = results.sheets.template
     const options = results.sheets.options
     const userKey = results["sheets"]["key"]
-
-    const pantone = swatches(data, userKey, ColorScale)
     const headings = Object.keys(data[0])
-    const highlighted = userKey.map(item => item.key)
-    createTable(table, headings)
-    const colourizer = (value, index) => (!contains(headings[index], highlighted)) ? 'none' : pantone.find(item => item.name === headings[index]).profile.get(value) ;
-    const values = data.map((row) => Object.values(row))
     
-    this.data = values.map((row, i) => row.map((value, index) => { return { value : value, color : colourizer(value, index) }}))
+    createTable(table, headings)
+    
+    addMobilePrefix(headings)
+
+    colourize(headings, userKey, data, ColorScale).then(data => {
+
+      self.data = data
+
+      self.setup(options)
+
+    })
+
 
     /*
     format  enableSearch  enableSort
@@ -48,6 +53,12 @@ export default class table {
     })
     */
 
+  }
+
+  setup(options) {
+
+    var self = this
+
     this.render()
 
     this.searchEl = document.getElementById("search-field");
@@ -59,12 +70,32 @@ export default class table {
     }
 
     if (options[0].enableSort==='TRUE') {
-      //Set up the sort stuff
+      this.currentSort = null
+      document.querySelector("tr").addEventListener("click", (e) => self.sortColumns(e));
     }
 
     if (options[0].scrolling==='TRUE') {
-      //Set up the scrolling stuff
+      this.showingRows = true
+    } else {
+      this.showingRows = false
+      document.querySelector("#untruncate").style.display = "block";
+      document.querySelector("#untruncate").addEventListener("click", (button) => {
+        self.showingRows = (self.showingRows) ? false : true ;
+        self.render()
+      });
     }
+
+  }
+
+  sortColumns(e) {
+
+    var self = this
+
+    this.data = this.data.sort(propComparator(e.target.cellIndex));
+
+    styleHeaders(e)
+
+    this.render()
 
   }
 
@@ -75,18 +106,31 @@ export default class table {
     const tbodyEl = document.querySelector("#int-table tbody");
 
     const template = `{{#rows}}
-        <tr>
-            {{#.}}
-                <td style="background-color:{{color}};"class="column"><span class="header-prefix"></span><span>{{value}}</span></td>
-            {{/.}}
+        <tr {{#getIndex}}{{/getIndex}}>
+            {{#item}}
+                <td {{#styleCheck}}{{/styleCheck}} class="column"><span class="header-prefix"></span><span>{{value}}</span></td>
+            {{/item}}
         </tr>
     {{/rows}}`;
 
-    const rowsToRender = (this.searchEl && this.searchEl.value !== "Search" && this.searchEl.value !== "") ? self.data.filter((item) => { 
+    const rowsToRender = (this.searchEl && this.searchEl.value !== "") ? self.data.filter((item) => { 
       return matchArray(item.map((row) => Object.values(row)[0]), self.searchEl.value)
     }) : self.data ;
 
-    const html = mustache(template, { rows : rowsToRender }) // { ...helpers, ... }
+    const finalRows = rowsToRender.map((item,index) => {
+      return { index : index , item : item}
+    })
+
+    const styleCheck = function() {
+      return (this.color) ? `style="background-color:${this.color};text-align:center;color:${this.contrast};"` :
+      (!isNaN(this.value)) ? `style="text-align:center;"` : ''
+    }
+
+    const getIndex = function() {
+      return (this.index >= 10 && !self.showingRows) ? `style="display:none;"` : ""
+    }
+
+    const html = mustache( template, { rows : finalRows, styleCheck : styleCheck, getIndex : getIndex })
 
     tbodyEl.innerHTML = html;
 
