@@ -1,4 +1,4 @@
-import makeTooltip from "./tooltip"
+import makeTooltip from "./shared/tooltip"
 import * as d3 from "d3"
 
 export default class TreeMap {
@@ -29,7 +29,7 @@ export default class TreeMap {
 
     var root = this._constructStratifiedData(data)
 
-    makeTooltip.prepareTooltip(d3)
+    // makeTooltip.prepareTooltip(d3)
     this._render(svg, root)
   }
 

@@ -1,1 +1,151 @@
-"use strict";function _createForOfIteratorHelper(e){if("undefined"==typeof Symbol||null==e[Symbol.iterator]){if(Array.isArray(e)||(e=_unsupportedIterableToArray(e))){var r=0,t=function(){};return{s:t,n:function(){return r>=e.length?{done:!0}:{done:!1,value:e[r++]}},e:function(e){throw e},f:t}}throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}var a,o,n=!0,l=!1;return{s:function(){a=e[Symbol.iterator]()},n:function(){var e=a.next();return n=e.done,e},e:function(e){l=!0,o=e},f:function(){try{n||null==a.return||a.return()}finally{if(l)throw o}}}}function _unsupportedIterableToArray(e,r){if(e){if("string"==typeof e)return _arrayLikeToArray(e,r);var t=Object.prototype.toString.call(e).slice(8,-1);return"Object"===t&&e.constructor&&(t=e.constructor.name),"Map"===t||"Set"===t?Array.from(t):"Arguments"===t||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t)?_arrayLikeToArray(e,r):void 0}}function _arrayLikeToArray(e,r){(null==r||r>e.length)&&(r=e.length);for(var t=0,a=new Array(r);t<r;t++)a[t]=e[t];return a}var _interopRequireDefault=require("@babel/runtime/helpers/interopRequireDefault");Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var _classCallCheck2=_interopRequireDefault(require("@babel/runtime/helpers/classCallCheck")),_createClass2=_interopRequireDefault(require("@babel/runtime/helpers/createClass")),_dataTools=_interopRequireDefault(require("./dataTools")),_colorscale=_interopRequireDefault(require("./shared/colorscale")),table=function(){function e(r){(0,_classCallCheck2.default)(this,e);var t=(d3.select("#graphicContainer"),r.sheets.data),a=(r.sheets.template,r.sheets.options),o=(r.sheets.key,_dataTools.default.getColorDomainRangeMax(a)),n=o.colorDomain,l=o.colorRange,i=o.colorMax;this.colors=new _colorscale.default({type:"linear",domain:n,colors:l,divisor:i}),this.big(t),this.small(t)}return(0,_createClass2.default)(e,[{key:"big",value:function(e){var r=this,t=document.querySelector("#big-table"),a=Object.keys(e[0]);!function(e,r){var t,a=e.createTHead(),o=a.insertRow(),n=_createForOfIteratorHelper(r);try{for(n.s();!(t=n.n()).done;){var l=t.value,i=document.createElement("th");i.classList.add("column-header");var s=document.createTextNode(l);i.appendChild(s),o.appendChild(i)}}catch(e){n.e(e)}finally{n.f()}}(t,a),function(e,t){var a,o=_createForOfIteratorHelper(t);try{for(o.s();!(a=o.n()).done;){var n=a.value,l=e.insertRow();for(var i in n){var s=l.insertCell(),c=document.createTextNode(n[i]);s.appendChild(c),s.style.backgroundColor=r.colors.get(n[i])}}}catch(e){o.e(e)}finally{o.f()}}(t,e)}},{key:"small",value:function(e){var r=this,t=Object.keys(e[0]),a=document.querySelector("#small-table");!function(e,a){var o,n=_createForOfIteratorHelper(a);try{for(n.s();!(o=n.n()).done;){var l=o.value,i=e.insertRow(),s=document.createElement("th");s.colSpan="2",s.classList.add("st-head-row"),s.innerHTML=l[t[0]],i.appendChild(s);for(var c=1;c<t.length;c++){var u=e.insertRow(),d=u.insertCell();d.classList.add("st-key");var f=document.createTextNode(t[c]);d.appendChild(f);var p=u.insertCell();p.classList.add("st-val");var y=document.createTextNode(l[t[c]]);p.appendChild(y),p.style.backgroundColor=r.colors.get(l[t[c]])}}}catch(e){n.e(e)}finally{n.f()}}(a,e)}}]),e}();exports.default=table;
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _dataTools = _interopRequireDefault(require("./dataTools"));
+
+var _colorscale = _interopRequireDefault(require("./shared/colorscale"));
+
+function _createForOfIteratorHelper(o) { if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (o = _unsupportedIterableToArray(o))) { var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var it, normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(n); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+var table = /*#__PURE__*/function () {
+  function table(results) {
+    (0, _classCallCheck2["default"])(this, table);
+    var container = d3.select("#graphicContainer");
+    var data = results.sheets.data;
+    var details = results.sheets.template;
+    var options = results.sheets.options;
+    var userKey = results["sheets"]["key"];
+
+    var _dataTools$getColorDo = _dataTools["default"].getColorDomainRangeMax(options),
+        colorDomain = _dataTools$getColorDo.colorDomain,
+        colorRange = _dataTools$getColorDo.colorRange,
+        colorMax = _dataTools$getColorDo.colorMax;
+
+    this.colors = new _colorscale["default"]({
+      type: "linear",
+      domain: colorDomain,
+      colors: colorRange,
+      divisor: colorMax
+    });
+    this.big(data);
+    this.small(data);
+  }
+
+  (0, _createClass2["default"])(table, [{
+    key: "big",
+    value: function big(data) {
+      var self = this;
+
+      function generateTableHead(table, data) {
+        var thead = table.createTHead();
+        var row = thead.insertRow();
+
+        var _iterator = _createForOfIteratorHelper(data),
+            _step;
+
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            var key = _step.value;
+            var th = document.createElement("th");
+            th.classList.add("column-header");
+            var text = document.createTextNode(key);
+            th.appendChild(text);
+            row.appendChild(th);
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+      }
+
+      function generateTable(table, data) {
+        var _iterator2 = _createForOfIteratorHelper(data),
+            _step2;
+
+        try {
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var element = _step2.value;
+            var row = table.insertRow();
+
+            for (var key in element) {
+              var cell = row.insertCell();
+              var text = document.createTextNode(element[key]);
+              cell.appendChild(text);
+              cell.style.backgroundColor = self.colors.get(element[key]);
+            }
+          }
+        } catch (err) {
+          _iterator2.e(err);
+        } finally {
+          _iterator2.f();
+        }
+      }
+
+      var table = document.querySelector("#big-table");
+      var pivots = Object.keys(data[0]);
+      generateTableHead(table, pivots);
+      generateTable(table, data);
+    }
+  }, {
+    key: "small",
+    value: function small(data) {
+      var self = this;
+      var pivots = Object.keys(data[0]);
+
+      function generateTable(table, data) {
+        var _iterator3 = _createForOfIteratorHelper(data),
+            _step3;
+
+        try {
+          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+            var cat = _step3.value;
+            var row = table.insertRow();
+            var th = document.createElement("th");
+            th.colSpan = "2";
+            th.classList.add("st-head-row");
+            th.innerHTML = cat[pivots[0]];
+            row.appendChild(th);
+
+            for (var i = 1; i < pivots.length; i++) {
+              var tr = table.insertRow();
+              var key = tr.insertCell();
+              key.classList.add("st-key");
+              var text = document.createTextNode(pivots[i]);
+              key.appendChild(text);
+              var val = tr.insertCell();
+              val.classList.add("st-val");
+              var txt = document.createTextNode(cat[pivots[i]]);
+              val.appendChild(txt);
+              val.style.backgroundColor = self.colors.get(cat[pivots[i]]);
+            }
+          }
+        } catch (err) {
+          _iterator3.e(err);
+        } finally {
+          _iterator3.f();
+        }
+      }
+
+      var table = document.querySelector("#small-table");
+      generateTable(table, data);
+    }
+  }]);
+  return table;
+}();
+
+exports["default"] = table;

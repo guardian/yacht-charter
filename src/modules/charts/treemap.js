@@ -1,1 +1,291 @@
-"use strict";var _interopRequireDefault=require("@babel/runtime/helpers/interopRequireDefault");Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var _toConsumableArray2=_interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray")),_classCallCheck2=_interopRequireDefault(require("@babel/runtime/helpers/classCallCheck")),_createClass2=_interopRequireDefault(require("@babel/runtime/helpers/createClass")),_tooltip=_interopRequireDefault(require("./tooltip")),d3=_interopRequireDefault(require("d3")),TreeMap=function(){function t(e,r){(0,_classCallCheck2.default)(this,t),this.width=document.querySelector("#graphicContainer").getBoundingClientRect().width,this.height=r?1.2361009775*this.width:.61803398875*this.width,d3.select("#graphicContainer svg").remove(),d3.select("#tooltip").remove(),this.treemap=d3.treemap().size([this.width,this.height]).padding(1).round(!0);var n=d3.select("#graphicContainer").append("svg").attr("viewBox",[0,0,this.width,this.height]),a=this._constructStratifiedData(e);_tooltip.default.prepareTooltip(d3),this._render(n,a)}return(0,_createClass2.default)(t,[{key:"_constructStratifiedData",value:function(t){var e=[],r=new Set;t.forEach(function(t){r.add(t.categoryName)}),t.forEach(function(t){r.has(t.categoryParent)||(r.add(t.categoryParent),e.push({categoryName:t.categoryParent,categoryParent:"root"}))});var n=[{categoryName:"root",categoryParent:""}].concat(e,(0,_toConsumableArray2.default)(t)),a=d3.stratify().id(function(t){return t.categoryName}).parentId(function(t){return"root"!=t.categoryName?null==t.categoryParent||""==t.categoryParent?"root":t.categoryParent:null})(n).sum(function(t){return t.categorySize}).sort(function(t,e){return e.height-t.height||e.value-t.value});return this.root=a,a}},{key:"_render",value:function(t,e){var r=this;console.log("rendering"),console.log(e),this.root=e,e.depth=0,this.treemap(e);var n=e.leaves(),a=d3.scaleLinear().range([0,this.width]).domain([e.x0,e.x1]),i=d3.scaleLinear().range([0,this.height]).domain([e.y0,e.y1]),o=t.append("g").attr("class","parent").selectAll("g").data(n).enter().append("g").attr("transform",function(t){return"root"===t.id?"translate(".concat(t.x0,",").concat(t.y0,")"):"translate(".concat(a(t.x0),",").concat(i(t.y0),")")});o.append("title").text(function(t){return t.data.categoryName}),o.append("rect").attr("id",function(t){return t.id}).attr("width",function(t){return console.log(t),"root"===t.id?t.x1-t.x0:a(t.x1)-a(t.x0)}).attr("height",function(t){return"root"===t.id?t.y1-t.y0:i(t.y1)-i(t.y0)}).attr("fill",function(){return"#bada55"}),o.select("rect").attr("cursor","pointer").on("click",function(e){r._zoomTo(e,t)}),o.enter().append("clipPath").attr("id",function(t){return"clip-"+t.id}).append("use").attr("xlink:href",function(t){return"#"+t.id});var c=o.append("text").attr("id",function(t){return"text-"+t.id}).attr("clip-path",function(t){return"url(#clip-"+t.id+")"});return c.attr("x",4).attr("y",13).text(function(t){return t.data.categoryName}),this._wrap(c,d3),c.attr("opacity",function(){var t=this.parentNode.getBoundingClientRect().width,e=d3.select(this.parentNode).select("rect").node().getBoundingClientRect().width,r=this.parentNode.getBoundingClientRect().height,a=d3.select(this.parentNode).select("rect").node().getBoundingClientRect().height,i=n.map(function(t){return{display:t.categoryName,value:t.categorySize}});return _tooltip.default.bindTooltip(o,i,d3,d3.format("$,d")),t>e||r>a?0:1}),t.select(".parent")}},{key:"_wrap",value:function(t){t.each(function(){for(var t=d3.select(this.parentNode).select("rect").node().getBoundingClientRect().width-8,e=d3.select(this),r=e.text().split(/\s+/).reverse(),n=r.pop(),a=[],i=e.attr("y"),o=e.text(null).append("tspan").attr("x",4).attr("y",i).attr("dy","0em"),c=0;null!=n;){a.push(n),o.text(a.join(" ")),o.node().getBoundingClientRect().width>t&&(c+=1,a.pop(),o.text(a.join(" ")),a=[n],o=e.append("tspan").attr("x",4).attr("y",i).attr("dy",1.1*c+0+"em").text(n)),n=r.pop()}})}},{key:"_zoomTo",value:function(t,e){if(t.id!==this.root.id){var r=t;for(console.log(r);null!=this.root.parent&&null!=r.parent&&r.parent.id!==this.root.parent.id;)r=r.parent;console.log(r),this._transition(e,r,e.select(".parent"))}}},{key:"_transition",value:function(t,e,r){var n=this;if(!this.transitioning&&e){this.transitioning=!0;var a=d3.transition().attrTween("opacity",function(){return d3.interpolateNumber(0,1)}).duration(3e3),i=d3.transition().attrTween("opacity",function(){return console.log("calling tween"),d3.interpolateNumber(1,0)}).duration(3e3).on("end",function(){n.transitioning=!1}),o=this._render(t,e,0);o.attr("opacity",0).style("fill-opacity",0),r.transition(i).remove().each(function(){n.transitioning=!1}),o.transition(a)}}}]),t}();exports.default=TreeMap;
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _tooltip = _interopRequireDefault(require("./shared/tooltip"));
+
+var d3 = _interopRequireDefault(require("d3"));
+
+var TreeMap = /*#__PURE__*/function () {
+  function TreeMap(data, isMobile) {
+    (0, _classCallCheck2["default"])(this, TreeMap);
+    this.width = document.querySelector("#graphicContainer").getBoundingClientRect().width;
+
+    if (isMobile) {
+      this.height = this.width * 1.23610097750;
+    } else {
+      this.height = this.width * 0.61803398875;
+    } //clear old chart
+
+
+    d3.select("#graphicContainer svg").remove();
+    d3.select("#tooltip").remove();
+    this.treemap = d3.treemap().size([this.width, this.height]).padding(1).round(true);
+    var svg = d3.select("#graphicContainer").append("svg").attr("viewBox", [0, 0, this.width, this.height]);
+
+    var root = this._constructStratifiedData(data); // makeTooltip.prepareTooltip(d3)
+
+
+    this._render(svg, root);
+  }
+
+  (0, _createClass2["default"])(TreeMap, [{
+    key: "_constructStratifiedData",
+    value: function _constructStratifiedData(data) {
+      //construct dummy Nodes for categories if they don't exist already
+      var parentNodes = [];
+      var elementSet = new Set();
+      data.forEach(function (datum) {
+        elementSet.add(datum.categoryName);
+      });
+      data.forEach(function (datum) {
+        if (!elementSet.has(datum.categoryParent)) {
+          elementSet.add(datum.categoryParent);
+          parentNodes.push({
+            categoryName: datum.categoryParent,
+            categoryParent: "root"
+          });
+        }
+      }); // insert a single root node and category nodes
+
+      var dataWithRoot = [{
+        categoryName: "root",
+        categoryParent: ""
+      }].concat(parentNodes, (0, _toConsumableArray2["default"])(data));
+      var root = d3.stratify().id(function (d) {
+        return d.categoryName;
+      }).parentId(function (d) {
+        if (d.categoryName != "root") {
+          // Point any node without a parent to our single root node needed for
+          // the d3 treemap method.
+          if (d.categoryParent == null || d.categoryParent == "") {
+            return "root";
+          } else {
+            return d.categoryParent;
+          }
+        } else {
+          return null;
+        }
+      })(dataWithRoot).sum(function (d) {
+        return d.categorySize;
+      }).sort(function (a, b) {
+        return b.height - a.height || b.value - a.value;
+      });
+      this.root = root;
+      return root;
+    }
+  }, {
+    key: "_render",
+    value: function _render(svg, root) {
+      var _this = this;
+
+      // set state
+      console.log("rendering");
+      console.log(root);
+      this.root = root;
+      root.depth = 0;
+      this.treemap(root);
+      var newData = root.leaves(); //set scale functions
+
+      var scaleX = d3.scaleLinear().range([0, this.width]).domain([root.x0, root.x1]);
+      var scaleY = d3.scaleLinear().range([0, this.height]).domain([root.y0, root.y1]);
+      var leaves = svg.append("g").attr("class", "parent").selectAll("g").data(newData).enter().append("g").attr("transform", function (d) {
+        if (d.id === "root") {
+          return "translate(".concat(d.x0, ",").concat(d.y0, ")");
+        } else {
+          return "translate(".concat(scaleX(d.x0), ",").concat(scaleY(d.y0), ")");
+        }
+      }); //let leaves = group
+
+      leaves.append("title").text(function (d) {
+        return d.data.categoryName;
+      });
+      leaves.append("rect").attr("id", function (d) {
+        return d.id;
+      }).attr("width", function (d) {
+        console.log(d);
+
+        if (d.id === "root") {
+          return d.x1 - d.x0;
+        } else {
+          return scaleX(d.x1) - scaleX(d.x0);
+        }
+      }).attr("height", function (d) {
+        if (d.id === "root") {
+          return d.y1 - d.y0;
+        } else {
+          return scaleY(d.y1) - scaleY(d.y0);
+        }
+      }).attr("fill", function () {
+        //default color if overrides are set incorrectly
+        var color = "#bada55"; // var node = d
+        // if (node.data.categoryColorOverride == null ||
+        //   node.data.categoryColorOverride == "") {
+        //
+        //   while (node.parent != null &&
+        //     node.data.categoryColorOverride == null ||
+        //     node.data.categoryColorOverride == "") {
+        //     // inherit parent category color
+        //     color = node.parent.data.categoryColorOverride
+        //     node = node.parent
+        //   }
+        //
+        // } else {
+        //   color = node.data.categoryColorOverride
+        // }
+
+        return color;
+      });
+      leaves.select("rect").attr("cursor", "pointer").on("click", function (d) {
+        _this._zoomTo(d, svg);
+      });
+      leaves.enter().append("clipPath").attr("id", function (d) {
+        return "clip-" + d.id;
+      }).append("use").attr("xlink:href", function (d) {
+        return "#" + d.id;
+      });
+      var label = leaves.append("text").attr("id", function (d) {
+        return "text-" + d.id;
+      }).attr("clip-path", function (d) {
+        return "url(#clip-" + d.id + ")";
+      });
+      label.attr("x", 4).attr("y", 13).text(function (d) {
+        return d.data.categoryName;
+      });
+
+      this._wrap(label, d3);
+
+      label.attr("opacity", function () {
+        var textWidth = this.parentNode.getBoundingClientRect().width;
+        var rectWidth = d3.select(this.parentNode).select("rect").node().getBoundingClientRect().width;
+        var textHeight = this.parentNode.getBoundingClientRect().height;
+        var rectHeight = d3.select(this.parentNode).select("rect").node().getBoundingClientRect().height;
+        var tooltipData = newData.map(function (newDatum) {
+          return {
+            display: newDatum.categoryName,
+            value: newDatum.categorySize
+          };
+        });
+
+        _tooltip["default"].bindTooltip(leaves, tooltipData, d3, d3.format("$,d"));
+
+        if (textWidth > rectWidth || textHeight > rectHeight) {
+          return 0;
+        } else {
+          return 1;
+        }
+      });
+      return svg.select(".parent");
+    }
+  }, {
+    key: "_wrap",
+    value: function _wrap(text) {
+      text.each(function () {
+        var rectWidth = d3.select(this.parentNode).select("rect").node().getBoundingClientRect().width - 8; // padding
+
+        var text = d3.select(this),
+            words = text.text().split(/\s+/).reverse(),
+            word = words.pop(),
+            line = [],
+            y = text.attr("y"),
+            dy = 0,
+            tspan = text.text(null).append("tspan").attr("x", 4).attr("y", y).attr("dy", dy + "em");
+        var lineNumber = 0;
+
+        while (word != null) {
+          var lineHeight = 1.1;
+          line.push(word);
+          tspan.text(line.join(" "));
+
+          if (tspan.node().getBoundingClientRect().width > rectWidth) {
+            lineNumber += 1;
+            line.pop();
+            tspan.text(line.join(" "));
+            line = [word];
+            tspan = text.append("tspan").attr("x", 4).attr("y", y).attr("dy", lineNumber * lineHeight + dy + "em").text(word);
+          }
+
+          word = words.pop();
+        }
+      });
+    }
+  }, {
+    key: "_zoomTo",
+    value: function _zoomTo(newRootDatum, svg) {
+      if (newRootDatum.id !== this.root.id) {
+        var newRoot = newRootDatum;
+        console.log(newRoot);
+
+        while (this.root.parent != null && newRoot.parent != null && newRoot.parent.id !== this.root.parent.id) {
+          newRoot = newRoot.parent;
+        }
+
+        console.log(newRoot);
+
+        this._transition(svg, newRoot, svg.select(".parent"));
+      }
+    }
+  }, {
+    key: "_transition",
+    value: function _transition(svg, d, g1) {
+      var _this2 = this;
+
+      if (this.transitioning || !d) return;
+      this.transitioning = true;
+      var transitionIn = d3.transition().attrTween("opacity", function () {
+        return d3.interpolateNumber(0, 1);
+      }).duration(3000);
+      var transitionOut = d3.transition().attrTween("opacity", function () {
+        console.log("calling tween");
+        return d3.interpolateNumber(1, 0);
+      }).duration(3000).on("end", function () {
+        _this2.transitioning = false;
+      });
+
+      var g2 = this._render(svg, d, 0);
+
+      g2.attr("opacity", 0).style("fill-opacity", 0);
+      g1.transition(transitionOut).remove().each(function () {
+        _this2.transitioning = false;
+      });
+      g2.transition(transitionIn); // t2 = g2.transition().duration(750)
+      // //   .attr("opacity", 1)
+      // //   .remove()
+      // Update the domain only after entering new elements.
+      // this.scaleX.domain([d.x, d.x + d.dx])
+      // this.scaleY.domain([d.y, d.y + d.dy])
+      // Enable anti-aliasing during the transition.
+      //svg.style("shape-rendering", null)
+      // // Draw child nodes on top of parent nodes.
+      // svg.selectAll(".depth").sort(function (a, b) {
+      //   return a.depth - b.depth
+      // })
+      // Fade-in entering text.
+      //g2.selectAll("text").style("fill-opacity", 0)
+      // Transition to the new view.
+      // t2.selectAll(".ptext").call(text).style("fill-opacity", 1)
+      // t2.selectAll(".ctext").call(text2).style("fill-opacity", 1)
+      // t1.selectAll("rect")
+      // t2.selectAll("rect")
+      // // Remove the old node when the transition is finished.
+      // t1.remove().each(function () {
+      //   //svg.style("shape-rendering", "crispEdges")
+      //   this.transitioning = false
+      // })
+    }
+  }]);
+  return TreeMap;
+}();
+
+exports["default"] = TreeMap;
