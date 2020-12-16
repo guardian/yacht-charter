@@ -1,4 +1,4 @@
-export default function addMobilePrefix(headerRows) {
+export default function addCustomCSS(headerRows, format) {
   	var css = "",
 	head = document.head || document.getElementsByTagName('head')[0],
 	style = document.createElement('style'),
@@ -10,6 +10,25 @@ export default function addMobilePrefix(headerRows) {
 	});
 
 	css += "}";
+
+	if (format==='scrolling') {
+
+		css += `table {
+		  text-align: left;
+		  border-collapse: collapse; 
+		  position: relative;
+		}`
+
+		css += `#int-table__wrapper {
+			height: 515px;
+		}`
+
+		css += `th {
+		  position: sticky!Important;
+		  top: 0;
+		}`
+
+	}
 
 	style.type = 'text/css';
 

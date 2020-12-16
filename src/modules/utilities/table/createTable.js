@@ -1,4 +1,4 @@
-export default function createTable(table, data) {
+export default function createTable(table, data, enableSort) {
 	let thead = table.createTHead()
 	let row = thead.insertRow()
 	for (let key of data) {
@@ -7,11 +7,13 @@ export default function createTable(table, data) {
 
 		let span = document.createElement("SPAN")
 		let text = document.createTextNode(key)
-		let div = document.createElement("DIV")
-		div.classList.add("toggle-wrapper")
 		th.appendChild(span)
 		span.appendChild(text)
-		th.appendChild(div)
+		if (enableSort==="TRUE") {
+			let div = document.createElement("DIV")
+			div.classList.add("toggle-wrapper")
+			th.appendChild(div)
+		}
 		row.appendChild(th)
 	}
 	let body = table.appendChild(document.createElement('tbody'))

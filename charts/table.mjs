@@ -2,7 +2,7 @@ import dataTools from "./dataTools"
 import ColorScale from "./shared/colorscale"
 import contains from "../utilities/contains"
 import createTable from "../utilities/table/createTable"
-import addMobilePrefix from "../utilities/table/addMobilePrefix"
+import addCustomCSS from "../utilities/table/addCustomCSS"
 import propComparator from "../utilities/table/propComparator"
 import styleHeaders from "../utilities/table/styleHeaders"
 import colourize from "../utilities/table/colourize"
@@ -13,6 +13,8 @@ export default class table {
   constructor(results) {
 
     const self = this
+
+    this.showingRows = true
     const table = document.querySelector("#int-table")
     const data = results.sheets.data
     const details = results.sheets.template
@@ -26,9 +28,9 @@ export default class table {
       }
     });
     
-    createTable(table, headings)
+    createTable(table, headings, options[0].enableSort)
     
-    addMobilePrefix(headings)
+    addCustomCSS(headings, options[0].format)
 
     colourize(headings, userKey, data, ColorScale).then(data => {
 
@@ -59,15 +61,14 @@ export default class table {
       document.querySelector("tr").addEventListener("click", (e) => self.sortColumns(e));
     }
 
-    if (options[0].scrolling==='TRUE') {
-      this.showingRows = true
-    } else {
+    if (options[0].format==='truncated') {
       this.showingRows = false
       document.querySelector("#untruncate").style.display = "block";
       document.querySelector("#untruncate").addEventListener("click", (button) => {
         self.showingRows = (self.showingRows) ? false : true ;
         self.render()
       });
+
     }
 
   }
