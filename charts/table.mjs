@@ -19,6 +19,12 @@ export default class table {
     const options = results.sheets.options
     const userKey = results["sheets"]["key"]
     const headings = Object.keys(data[0])
+
+    data.forEach(function(row) {
+      for (let cell of headings) {
+        row[cell] = (typeof row[cell] === "string" && !isNaN(parseInt(row[cell]))) ? +row[cell] : row[cell]
+      }
+    });
     
     createTable(table, headings)
     
@@ -31,27 +37,6 @@ export default class table {
       self.setup(options)
 
     })
-
-
-    /*
-    format  enableSearch  enableSort
-    scrolling TRUE  TRUE
-    */
-
-    /*
-    const {
-      colorDomain,
-      colorRange,
-      colorMax
-    } = dataTools.getColorDomainRangeMax(options)
-
-    this.colors = new ColorScale({
-      type: "linear",
-      domain: colorDomain,
-      colors: colorRange,
-      divisor: colorMax
-    })
-    */
 
   }
 

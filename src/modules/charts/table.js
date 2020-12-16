@@ -31,6 +31,12 @@ var _mustache = _interopRequireDefault(require("../utilities/mustache"));
 
 var _matchArray = _interopRequireDefault(require("../utilities/table/matchArray"));
 
+function _createForOfIteratorHelper(o) { if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (o = _unsupportedIterableToArray(o))) { var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var it, normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(n); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 var table = /*#__PURE__*/function () {
   function table(results) {
     (0, _classCallCheck2["default"])(this, table);
@@ -43,30 +49,27 @@ var table = /*#__PURE__*/function () {
     var options = results.sheets.options;
     var userKey = results["sheets"]["key"];
     var headings = Object.keys(data[0]);
+    data.forEach(function (row) {
+      var _iterator = _createForOfIteratorHelper(headings),
+          _step;
+
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var cell = _step.value;
+          row[cell] = typeof row[cell] === "string" && !isNaN(parseInt(row[cell])) ? +row[cell] : row[cell];
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+    });
     (0, _createTable["default"])(_table, headings);
     (0, _addMobilePrefix["default"])(headings);
     (0, _colourize["default"])(headings, userKey, data, _colorscale["default"]).then(function (data) {
       self.data = data;
       self.setup(options);
     });
-    /*
-    format  enableSearch  enableSort
-    scrolling TRUE  TRUE
-    */
-
-    /*
-    const {
-      colorDomain,
-      colorRange,
-      colorMax
-    } = dataTools.getColorDomainRangeMax(options)
-     this.colors = new ColorScale({
-      type: "linear",
-      domain: colorDomain,
-      colors: colorRange,
-      divisor: colorMax
-    })
-    */
   }
 
   (0, _createClass2["default"])(table, [{

@@ -16,6 +16,18 @@ class ColorScale {
         this.cScale = d3.scaleLinear().range(colorPreset)
         break
 
+      case "threshold":
+        this.cScale = d3.scaleThreshold().range(colorPreset)
+        break
+
+      case "quantile":
+        this.cScale = d3.scaleQuantile().range(colorPreset)
+        break
+
+      case "quantize":
+        this.cScale = d3.scaleQuantize().range(colorPreset)
+        break
+
       case "ordinal":
       default:
         this.cScale = d3.scaleOrdinal().range(colorPreset)
