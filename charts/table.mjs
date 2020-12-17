@@ -1,95 +1,125 @@
 import dataTools from "./dataTools"
 import ColorScale from "./shared/colorscale"
+import contains from "../utilities/contains"
+import createTable from "../utilities/table/createTable"
+import addCustomCSS from "../utilities/table/addCustomCSS"
+import propComparator from "../utilities/table/propComparator"
+import styleHeaders from "../utilities/table/styleHeaders"
+import colourize from "../utilities/table/colourize"
+import mustache from "../utilities/mustache"
+import matchArray from "../utilities/table/matchArray"
 
 export default class table {
   constructor(results) {
-    const container = d3.select("#graphicContainer")
-    var data = results.sheets.data
-    var details = results.sheets.template
-    var options = results.sheets.options
-    var userKey = results["sheets"]["key"]
 
-    const {
-      colorDomain,
-      colorRange,
-      colorMax
-    } = dataTools.getColorDomainRangeMax(options)
+    const self = this
 
-    this.colors = new ColorScale({
-      type: "linear",
-      domain: colorDomain,
-      colors: colorRange,
-      divisor: colorMax
+    this.showingRows = true
+    const table = document.querySelector("#int-table")
+    const data = results.sheets.data
+    const details = results.sheets.template
+    const options = results.sheets.options
+    const userKey = results["sheets"]["key"]
+    const headings = Object.keys(data[0])
+
+    data.forEach(function(row) {
+      for (let cell of headings) {
+        row[cell] = (typeof row[cell] === "string" && !isNaN(parseInt(row[cell]))) ? +row[cell] : row[cell]
+      }
+    });
+    
+    createTable(table, headings, options[0].enableSort)
+    
+    addCustomCSS(headings, options[0].format)
+
+    colourize(headings, userKey, data, ColorScale).then(data => {
+
+      self.data = data
+
+      self.setup(options)
+
     })
 
-    this.big(data)
-    this.small(data)
   }
 
-  big(data) {
+  setup(options) {
+
+    var self = this
+
+    this.render()
+
+    this.searchEl = document.getElementById("search-field");
+
+    if (options[0].enableSearch==='TRUE') {
+      document.querySelector("#search-container").style.display = "block";
+      this.searchEl.addEventListener("input", () => self.render(this.value));
+      this.searchEl.addEventListener("focus", () => { if (this.value === "Search") { this.value = ""}});
+    }
+
+    if (options[0].enableSort==='TRUE') {
+      this.currentSort = null
+      document.querySelector("tr").addEventListener("click", (e) => self.sortColumns(e));
+    }
+
+    if (options[0].format==='truncated') {
+      this.showingRows = false
+      document.querySelector("#untruncate").style.display = "block";
+      document.querySelector("#untruncate").addEventListener("click", (button) => {
+        self.showingRows = (self.showingRows) ? false : true ;
+        self.render()
+      });
+
+    }
+
+  }
+
+  sortColumns(e) {
+
+    var self = this
+
+    this.data = this.data.sort(propComparator(e.target.cellIndex));
+
+    styleHeaders(e)
+
+    this.render()
+
+  }
+
+  render() {
+
     const self = this
-    function generateTableHead(table, data) {
-      let thead = table.createTHead()
-      let row = thead.insertRow()
-      for (let key of data) {
-        let th = document.createElement("th")
-        th.classList.add("column-header")
-        let text = document.createTextNode(key)
-        th.appendChild(text)
-        row.appendChild(th)
-      }
+
+    const tbodyEl = document.querySelector("#int-table tbody");
+
+    const template = `{{#rows}}
+        <tr {{#getIndex}}{{/getIndex}}>
+            {{#item}}
+                <td {{#styleCheck}}{{/styleCheck}} class="column"><span class="header-prefix"></span><span>{{value}}</span></td>
+            {{/item}}
+        </tr>
+    {{/rows}}`;
+
+    const rowsToRender = (this.searchEl && this.searchEl.value !== "") ? self.data.filter((item) => { 
+      return matchArray(item.map((row) => Object.values(row)[0]), self.searchEl.value)
+    }) : self.data ;
+
+    const finalRows = rowsToRender.map((item,index) => {
+      return { index : index , item : item}
+    })
+
+    const styleCheck = function() {
+      return (this.color) ? `style="background-color:${this.color};text-align:center;color:${this.contrast};"` :
+      (!isNaN(this.value)) ? `style="text-align:center;"` : ''
     }
 
-    function generateTable(table, data) {
-      for (let element of data) {
-        let row = table.insertRow()
-        for (let key in element) {
-          let cell = row.insertCell()
-          let text = document.createTextNode(element[key])
-          cell.appendChild(text)
-          cell.style.backgroundColor = self.colors.get(element[key])
-        }
-      }
+    const getIndex = function() {
+      return (this.index >= 10 && !self.showingRows) ? `style="display:none;"` : ""
     }
 
-    let table = document.querySelector("#big-table")
-    let pivots = Object.keys(data[0])
-    generateTableHead(table, pivots)
-    generateTable(table, data)
+    const html = mustache( template, { rows : finalRows, styleCheck : styleCheck, getIndex : getIndex })
+
+    tbodyEl.innerHTML = html;
+
   }
 
-  small(data) {
-    const self = this
-    let pivots = Object.keys(data[0])
-
-    function generateTable(table, data) {
-      for (let cat of data) {
-        let row = table.insertRow()
-        var th = document.createElement("th")
-        th.colSpan = "2"
-        th.classList.add("st-head-row")
-        th.innerHTML = cat[pivots[0]]
-        row.appendChild(th)
-
-        for (var i = 1; i < pivots.length; i++) {
-          let tr = table.insertRow()
-
-          let key = tr.insertCell()
-          key.classList.add("st-key")
-          let text = document.createTextNode(pivots[i])
-          key.appendChild(text)
-
-          let val = tr.insertCell()
-          val.classList.add("st-val")
-          let txt = document.createTextNode(cat[pivots[i]])
-          val.appendChild(txt)
-          val.style.backgroundColor = self.colors.get(cat[pivots[i]])
-        }
-      }
-    }
-
-    let table = document.querySelector("#small-table")
-
-    generateTable(table, data)
-  }
 }

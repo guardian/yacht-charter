@@ -1,10 +1,10 @@
 # **Y**et **A**nother **CH**art **T**ool ⛵📊
 
-*Current version: V6*
+*New in Version 9:*
 
+*Added color scales to tables for cell shading, made tables searchable, added different display options for tables including scrolling within frame, normal table, and truncated with 'read more'*
 
-
-This makes responsive charts based on a Google sheet synced to S3 (manually via [visuals/docs](https://visuals.gutools.co.uk/docs/)), or a JSON object written directly to S3 (if you want to automate your chart making).
+Yacht Charter is a charting tool made by the Australian part of The Guardian. It makes responsive charts based on a Google sheet synced to S3 (manually via [visuals/docs](https://visuals.gutools.co.uk/docs/)), or a JSON object written directly to S3 (if you want to automate your chart making).
 
 It allows for responsive annotations, updating charts in place without changing embed URLs, trendlines, and a bunch of other formats and features not available in the basic chart tool. Is also allows charts to be created either via the google docs -> s3 system, or programatically for charts you'd like to keep constantly updated. It is however more complicated to use, and requires some technical knowledge.
 
@@ -15,7 +15,7 @@ To use:
 3. Append the spreadsheet key to the following URL like so:
 
 ```
-https://interactive.guim.co.uk/embed/aus/2020/yacht-charter-v6/index.html?key=1JJpIH0NoTjM0FkJMDLLrRYj65liCFDFa8CK5j8OVtvo&location=docsdata
+https://interactive.guim.co.uk/embed/aus/2020/yacht-charter-v9/index.html?key=1JJpIH0NoTjM0FkJMDLLrRYj65liCFDFa8CK5j8OVtvo&location=docsdata
 ```
 
 ## Current chart templates available

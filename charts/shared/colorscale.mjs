@@ -2,6 +2,7 @@ import colorPresets from "../constants/colors"
 
 class ColorScale {
   constructor(options) {
+
     const colorPreset = colorPresets["guardian"]
     const isString = typeof options === "string"
     const getProp = (p) => (!options || isString ? null : options[p])
@@ -13,6 +14,18 @@ class ColorScale {
     switch (type) {
       case "linear":
         this.cScale = d3.scaleLinear().range(colorPreset)
+        break
+
+      case "threshold":
+        this.cScale = d3.scaleThreshold().range(colorPreset)
+        break
+
+      case "quantile":
+        this.cScale = d3.scaleQuantile().range(colorPreset)
+        break
+
+      case "quantize":
+        this.cScale = d3.scaleQuantize().range(colorPreset)
         break
 
       case "ordinal":
