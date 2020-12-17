@@ -2,6 +2,7 @@ import moment from "moment"
 import mustache from "../utilities/mustache"
 import helpers from "../utilities/helpers"
 import Tooltip from "./shared/tooltip"
+import ColorScale from "./shared/colorscale"
 
 export default class SmallMultiples {
   constructor(results) {
@@ -50,7 +51,9 @@ export default class SmallMultiples {
 
     this.template = details[0].tooltip
 
-    if (options[0]["scaleBy"] == "group") {
+    this.colors = new ColorScale({ domain: [0] })
+
+    if (options[0] && options[0]["scaleBy"] == "group") {
       this.showGroupMax = true
     } else {
       this.showGroupMax = false
@@ -251,6 +254,8 @@ export default class SmallMultiples {
     features.append("g").attr("class", "y")
 
     function update() {
+      features.select(".line").remove()
+
       // console.log(self)
       yMax = self.showGroupMax
         ? data
@@ -262,20 +267,47 @@ export default class SmallMultiples {
         .selectAll(".bar")
         .data(data.filter((d) => d[self.groupVar] === key[index]))
 
-      bars
-        .enter()
-        .append("rect")
-        .attr("class", "bar")
-        .style("fill", () => "rgb(204, 10, 17)")
-        .attr("height", 0)
-        .attr("y", self.height)
-        .merge(bars)
-        .transition()
-        .duration(duration)
-        .attr("x", (d) => x(d[self.xVar]))
-        .attr("y", (d) => y(Math.max(d[self.yVar], 0)))
-        .attr("width", x.bandwidth())
-        .attr("height", (d) => Math.abs(y(d[self.yVar]) - y(0)))
+      var chartData = data.filter((d) => d[self.groupVar] === key[index])
+      var $line = features.append("g").attr("class", "line").datum(chartData)
+
+      // line
+      const line = d3
+        .line()
+        .x((d) => x(d[self.xVar]))
+        .y((d) => y(d[self.yVar]))
+
+      const area = d3
+        .area()
+        .x((d) => x(d[self.xVar]))
+        .y0((d) => y(0))
+        .y1((d) => y(d[self.yVar]))
+
+      $line
+        // .enter()
+        // .append("path")
+        // .merge($line)
+        // .transition()
+        // .duration(duration)
+        .append("path")
+        .attr("d", (d) => {
+          return line(d)
+        })
+        .attr("stroke", self.colors.get(0))
+
+      // bars
+      //   .enter()
+      //   .append("rect")
+      //   .attr("class", "bar")
+      //   .style("fill", () => "rgb(204, 10, 17)")
+      //   .attr("height", 0)
+      //   .attr("y", self.height)
+      //   .merge(bars)
+      //   .transition()
+      //   .duration(duration)
+      //   .attr("x", (d) => x(d[self.xVar]))
+      //   .attr("y", (d) => y(Math.max(d[self.yVar], 0)))
+      //   .attr("width", x.bandwidth())
+      //   .attr("height", (d) => Math.abs(y(d[self.yVar]) - y(0)))
 
       if (hasTooltip) {
         const templateRender = (d) => {
