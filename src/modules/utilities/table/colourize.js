@@ -22,21 +22,57 @@ function contains(a, b) {
     return a.indexOf(b) > -1;
 }
 
-
 function setContrast(colour) {
-
-	let textColour = 'black'
 
 	if (colour) {
 
-		let rgb = getRGB(colour)
+	    if (colour.indexOf('#') === 0) {
 
-		let yiq = ((rgb[0]*299)+(rgb[1]*587)+(rgb[2]*114))/1000;
-	
-		textColour = (yiq >= 128) ? 'black' : 'white';
+	    	colour = colour.slice(1);
+
+	    	return invertColor(colour)
+
+	    } else {
+
+			let rgb = getRGB(colour)
+
+			let yiq = ((rgb[0]*299)+(rgb[1]*587)+(rgb[2]*114))/1000;
+
+			return (yiq >= 128) ? 'black' : 'white';
+
+	    }
+
 	}
 
-	return textColour
+	return 'black'
+}
+
+function invertColor(hex, bw=true) {
+
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+
+    if (hex.length !== 6) {
+        throw new Error('Invalid HEX color.');
+    }
+
+    let r = parseInt(hex.slice(0, 2), 16),
+        g = parseInt(hex.slice(2, 4), 16),
+        b = parseInt(hex.slice(4, 6), 16);
+    if (bw) {
+
+        return (r * 0.299 + g * 0.587 + b * 0.114) > 186
+            ? '#000000'
+            : '#FFFFFF';
+    }
+
+    r = (255 - r).toString(16);
+    g = (255 - g).toString(16);
+    b = (255 - b).toString(16);
+
+    return "#" + padZero(r) + padZero(g) + padZero(b);
+
 }
 
 function getRGB(str){
