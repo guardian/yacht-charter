@@ -15,7 +15,7 @@ To use:
 3. Append the spreadsheet key to the following URL like so:
 
 ```
-https://interactive.guim.co.uk/embed/aus/2020/yacht-charter-v6/index.html?key=1JJpIH0NoTjM0FkJMDLLrRYj65liCFDFa8CK5j8OVtvo&location=docsdata
+https://interactive.guim.co.uk/embed/aus/2020/yacht-charter-v9/index.html?key=1JJpIH0NoTjM0FkJMDLLrRYj65liCFDFa8CK5j8OVtvo&location=docsdata
 ```
 
 ## Current chart templates available
