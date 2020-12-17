@@ -4,7 +4,9 @@ import {
 } from "./modules/chart"
 import "./main.scss"
 
-const key = getURLParams("key") ? getURLParams("key") : "1JJpIH0NoTjM0FkJMDLLrRYj65liCFDFa8CK5j8OVtvo"
+//
+
+const key = getURLParams("key") ? getURLParams("key") : "1Rn0TTg3o37sRpYG4BRgPEqgyjVKsoNc4WpD_qzdwTcU"
 const location = getURLParams("location") ? getURLParams("location") : "docsdata"
 
 //animated = "1wsga1Ja8HalQvwQNisnd1twXLbTYCOjVuyH-RrcZZnA"
