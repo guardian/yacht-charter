@@ -568,7 +568,7 @@ export default class LineChart {
           .attr("x2", self.x(x0))
           .style("opacity", 0.5)
       })
-      .on("mouseout", function () {
+      .on("mouseout touchend", function () {
         self.tooltip.hide()
         $hoverLine.style("opacity", 0)
       })
