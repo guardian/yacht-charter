@@ -5,7 +5,7 @@ class Tooltip {
     - parentSelector: provide where the tooltip element is going to be appended
     - className (optional): provide additional css class names for more style control
   -------------*/
-  constructor(parentSelector, className) {
+  constructor(parentSelector, className = "") {
     this.$el = d3
       .select(parentSelector)
       .append("div")
@@ -16,7 +16,10 @@ class Tooltip {
       .style("background-color", "white")
       .style("opacity", 0)
 
-    this.parentOffset = d3.select(parentSelector).node().getBoundingClientRect().top   
+    this.parentOffset = d3
+      .select(parentSelector)
+      .node()
+      .getBoundingClientRect().top
   }
 
   /***
@@ -40,7 +43,7 @@ class Tooltip {
     const top = pos && pos.top ? pos.top : d3.event.pageY - this.parentOffset
     const leftOffset = pos && pos.leftOffset ? pos.leftOffset : 0
     const topOffset = pos && pos.topOffset ? pos.topOffset : 0
-    
+
     // console.log(tipHeight)
     // console.log("containerWidth:", containerWidth, "containerHeight:", containerHeight, "pageX", d3.event.pageX, "pageY", d3.event.pageY, "top", top, "parentOffset", this.parentOffset)
 
@@ -52,9 +55,9 @@ class Tooltip {
 
     // this.$el.style("top", `${top + topOffset}px`)
 
-    if (top < (containerHeight - tipHeight)) {
+    if (top < containerHeight - tipHeight) {
       this.$el.style("top", `${top + topOffset}px`)
-    } else if (top >= (containerHeight - tipHeight)) {
+    } else if (top >= containerHeight - tipHeight) {
       this.$el.style("top", `${top + topOffset - tipHeight}px`)
     }
 
