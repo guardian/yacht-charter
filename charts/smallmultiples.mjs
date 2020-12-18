@@ -56,7 +56,7 @@ export default class SmallMultiples {
     this.colors = new ColorScale({ domain: [0] })
 
     this.chartType =
-      options[0] && options[0].chartType ? options[0].chartType : "area" // bar (default), line, area
+      options[0] && options[0].chartType ? options[0].chartType : "area" // bar, line, area (default)
 
     if (options[0] && options[0]["scaleBy"] == "group") {
       this.showGroupMax = true
