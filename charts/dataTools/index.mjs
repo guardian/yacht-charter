@@ -3,6 +3,10 @@ const COLOR_LINEAR_RANGE = "colorLinearRange"
 const COLOR_MAX = "colorMax"
 
 export default {
+  getId(str) {
+    return str.replace(/ /g, "_")
+  },
+
   /**
     colorKeysRanges: object that provides the key/color pair
     maxValue (optional): use this max if provided, otherwise find the max in array.
