@@ -1,5 +1,7 @@
 import { numberFormat } from "../utilities/numberFormat"
+import dataTools from "./dataTools"
 import Dropdown from "./shared/dropdown"
+import ColorScale from "./shared/colorscale"
 
 export default class horizontalBar {
   constructor(results) {
@@ -14,9 +16,7 @@ export default class horizontalBar {
     this.keys = Object.keys(this.data[0])
     this.xVar = null
     this.yVar = null
-
-    const dropdown = results.sheets.dropdown
-    const hasDropdown = dropdown && dropdown.length > 0
+    this.colors = new ColorScale({ domain: [0] })
 
     if (this.details[0]["yColumn"]) {
       this.yVar = this.details[0]["yColumn"]
@@ -30,17 +30,17 @@ export default class horizontalBar {
       this.xVar = this.keys[1]
     }
 
-    if (hasDropdown) {
-      // pass in the id of the select tag (must be present in the html)
-      this.dropdown = new Dropdown("dataPicker", dropdown)
-
-      // listen to the custom dropdown event
-      this.dropdown.on("dropdown-change", (value) => {
-        this.xVar = value
-        this.setup()
-        this.draw()
-      })
-    }
+    // pass in the id of the select tag (must be present in the horizontalbar.html)
+    this.dropdown = new Dropdown(
+      "dataPicker",
+      dataTools.getDropdown(results.sheets.dropdown, this.keys)
+    )
+    // listen to the custom dropdown event
+    this.dropdown.on("dropdown-change", (value) => {
+      this.xVar = value
+      this.setup()
+      this.draw()
+    })
 
     this.setup()
     this.draw()
@@ -209,7 +209,7 @@ export default class horizontalBar {
         if (d.Color) {
           return d.Color
         } else {
-          return this.userKey.color[this.userKey.key.indexOf(d[3])]
+          return this.colors.get(0)
         }
       })
       .attr("y", (d) => {
