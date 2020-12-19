@@ -12,7 +12,6 @@ function parse(value, formatString) {
     const f = formatString ? d3.format(formatString) : d3.format(".1f")
     Object.keys(units).every((u) => {
       if (value > units[u]) {
-        console.log(value)
         v = f(value / units[u]) + u
         return false
       }
