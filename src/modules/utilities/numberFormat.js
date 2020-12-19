@@ -31,6 +31,10 @@ function parse(value, formatString) {
   return v
 }
 
+/**
+  value: Number to be formatted
+  formatString (optional): d3 format strings - https://github.com/d3/d3-format
+****/
 export function numberFormat(value, formatString) {
   return value < 0
     ? "-" + parse(value * -1, formatString)
