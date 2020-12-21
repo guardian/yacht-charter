@@ -25,9 +25,13 @@ export default class StackedBarChart {
     var options = results.sheets.options
     var hasTooltip =  details[0].tooltip != "" ? true : false
     var hasTrendline = false
-    if (trendline.length > 0) {
-      hasTrendline = trendline[0].index != "" ? true : false
+    
+    if (trendline) {
+        if (trendline.length > 0) {
+        hasTrendline = trendline[0].index != "" ? true : false
+      }
     }
+    
     var template
     var keys = Object.keys(data[0])
 
