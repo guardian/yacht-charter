@@ -22,9 +22,15 @@ export default class table {
     const userKey = results["sheets"]["key"]
     const headings = Object.keys(data[0])
 
+    function isNumber(val) {
+        let isnum = /^\d+$/.test(val)
+        console.log(val, isnum)
+        return isnum
+    }
+    
     data.forEach(function(row) {
       for (let cell of headings) {
-        row[cell] = (typeof row[cell] === "string" && !isNaN(parseInt(row[cell]))) ? +row[cell] : row[cell]
+        row[cell] = (typeof row[cell] === "string" && isNumber(row[cell])) ? +row[cell] : row[cell]
       }
     });
     
