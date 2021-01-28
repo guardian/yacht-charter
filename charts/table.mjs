@@ -59,7 +59,6 @@ export default class table {
     if (options[0].enableSearch==='TRUE') {
       document.querySelector("#search-container").style.display = "block";
       this.searchEl.addEventListener("input", () => self.render(this.value));
-      this.searchEl.addEventListener("focus", () => { if (this.value === "Search") { this.value = ""}});
     }
 
     if (options[0].enableSort==='TRUE') {
