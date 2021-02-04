@@ -28,6 +28,10 @@ var helpers = {
   dateYear: function (value, render) {
     var date = new Date(render(value));
     return moment(date).format("Y");
+  },
+
+  roundZero: function (value, render) {
+    return Math.round(render(value));
   }
 
 }

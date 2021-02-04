@@ -51,8 +51,7 @@ export default class LineChart {
     this.userKey = parsed["sheets"]["key"]
     this.options = parsed["sheets"]["options"][0]
     this.tooltipTemplate = this.meta.tooltip
-    this.hasTooltipTemplate = null
-    this.tooltipTemplate && this.tooltipTemplate != "" ? true : false
+    this.hasTooltipTemplate = this.tooltipTemplate && this.tooltipTemplate != "" ? true : false
     this.tooltip = new Tooltip("#graphicContainer")
 
     this.lineLabelling = null
@@ -120,6 +119,8 @@ export default class LineChart {
       userKey: this.userKey,
       option: this.options
     })
+
+    console.log("keyColor",keyColor)
     this.colors.set(keyColor.keys, keyColor.colors)
 
     // ?
@@ -364,7 +365,13 @@ export default class LineChart {
     // setup x and y axis
     const xTicks = this.isMobile ? 4 : 6
     const yTicks = this.meta["yScaleType"] === "scaleLog" ? 3 : 5
-    this.xAxis = d3.axisBottom(this.x).ticks(xTicks)
+    this.xAxis = d3.axisBottom(this.x)
+      .ticks(xTicks)
+  
+    if (this.parseTime == null) {
+      this.xAxis.tickFormat(d3.format("d"))
+    }  
+
     this.yAxis = d3
       .axisLeft(this.y)
       .tickFormat(function (d) {
@@ -553,6 +560,7 @@ export default class LineChart {
     })
 
     if (this.hasTooltipTemplate) {
+      console.log("tooltip")
       this.drawHoverFeature()
     }
 
