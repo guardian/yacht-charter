@@ -116,9 +116,9 @@ export default class table {
     const formatedNumber = function() {
       var value = ""
       if (this.format!=undefined) {
-        let arr = this.format
+        let arr = this.format.map(item => item.trim())
         let val = this.value
-        value += (contains(arr,' $')) ? '$' : '' ;
+        value += (contains(arr,'$')) ? '$' : '' ;
         value += (contains(arr,'numberFormat')) ? numberFormat(val) : (contains(arr,'commas')) ? commas(val) : val ;
       } else {
         value = this.value
