@@ -6,11 +6,17 @@ export default async function colourize(headings, userKey, data, ColorScale) {
 
 	const highlighted = userKey.map(item => item.key)
 
+    const formating = userKey.map(item => item.format.split(","))
+
 	const colourizer = (value, index) => (!contains(headings[index], highlighted)) ? false : pantone.find(item => item.name === headings[index]).profile.get(value) ;
 
 	const values = data.map((row) => Object.values(row))
 
-	return await values.map((row, i) => row.map((value, index) => { return { value : value, color : colourizer(value, index), contrast : setContrast(colourizer(value, index)) }}))
+    var getIndex = (index) => {
+        return (highlighted.indexOf(headings[index]) > -1) ? formating[highlighted.indexOf(headings[index])] : [""]
+    }
+
+	return await values.map((row, i) => row.map((value, index) => { return { value : value, format: getIndex(index), color : colourizer(value, index), contrast : setContrast(colourizer(value, index)) }}))
 }
 
 function contains(a, b) {

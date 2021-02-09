@@ -8,6 +8,8 @@ import styleHeaders from "../utilities/table/styleHeaders"
 import colourize from "../utilities/table/colourize"
 import mustache from "../utilities/mustache"
 import matchArray from "../utilities/table/matchArray"
+import { numberFormat } from "../utilities/numberFormat"
+import { commas } from "../utilities/commas"
 
 export default class table {
   constructor(results) {
@@ -22,15 +24,9 @@ export default class table {
     const userKey = results["sheets"]["key"]
     const headings = Object.keys(data[0])
 
-    function isNumber(val) {
-        let isnum = /^\d+$/.test(val)
-        console.log(val, isnum)
-        return isnum
-    }
-    
     data.forEach(function(row) {
       for (let cell of headings) {
-        row[cell] = (typeof row[cell] === "string" && isNumber(row[cell])) ? +row[cell] : row[cell]
+        row[cell] = (typeof row[cell] === "string" && !isNaN(parseInt(row[cell]))) ? +row[cell] : row[cell]
       }
     });
     
@@ -99,7 +95,7 @@ export default class table {
     const template = `{{#rows}}
         <tr {{#getIndex}}{{/getIndex}}>
             {{#item}}
-                <td {{#styleCheck}}{{/styleCheck}} class="column"><span class="header-prefix"></span><span>{{value}}</span></td>
+                <td {{#styleCheck}}{{/styleCheck}} class="column"><span class="header-prefix"></span><span>{{#formatedNumber}}{{/formatedNumber}}</span></td>
             {{/item}}
         </tr>
     {{/rows}}`;
@@ -114,14 +110,27 @@ export default class table {
 
     const styleCheck = function() {
       return (this.color) ? `style="background-color:${this.color};text-align:center;color:${this.contrast};"` :
-      (!isNaN(this.value)) ? `style="text-align:center;"` : ''
+      (!isNaN(this.value)) ? `style="text-align:center;"` : '' ;
+    }
+
+    const formatedNumber = function() {
+      var value = ""
+      if (this.format!=undefined) {
+        let arr = this.format
+        let val = this.value
+        value += (contains(arr,' $')) ? '$' : '' ;
+        value += (contains(arr,'numberFormat')) ? numberFormat(val) : (contains(arr,'commas')) ? commas(val) : val ;
+      } else {
+        value = this.value
+      }
+      return value
     }
 
     const getIndex = function() {
       return (this.index >= 10 && !self.showingRows) ? `style="display:none;"` : ""
     }
 
-    const html = mustache( template, { rows : finalRows, styleCheck : styleCheck, getIndex : getIndex })
+    const html = mustache( template, { rows : finalRows, styleCheck : styleCheck, getIndex : getIndex, formatedNumber : formatedNumber })
 
     tbodyEl.innerHTML = html;
 

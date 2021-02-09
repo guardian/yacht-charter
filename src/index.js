@@ -6,7 +6,7 @@ import "./main.scss"
 
 //
 
-const key = getURLParams("key") ? getURLParams("key") : "1Rn0TTg3o37sRpYG4BRgPEqgyjVKsoNc4WpD_qzdwTcU"
+const key = getURLParams("key") ? getURLParams("key") : "1Zgdmqghdo9oKvbTt-F6ii2p0YF6Mg8kGFr_4tXvF-90"
 const location = getURLParams("location") ? getURLParams("location") : "docsdata"
 
 //animated = "1wsga1Ja8HalQvwQNisnd1twXLbTYCOjVuyH-RrcZZnA"
