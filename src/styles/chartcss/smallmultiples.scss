@@ -1,6 +1,6 @@
 @import "tooltip";
 
-.barGrid {
+.chart-grid {
   float: left;
   width: 32.9%;
   padding-bottom: 15px;
@@ -19,14 +19,14 @@
 }
 
 @media (max-width: 750px) {
-  .barGrid {
+  .chart-grid {
     width: 49.9%;
     margin: 0;
   }
 }
 
 @media (max-width: 500px) {
-  .barGrid {
+  .chart-grid {
     width: 100%;
     margin: 0;
   }
