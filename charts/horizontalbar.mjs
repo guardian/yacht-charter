@@ -1,72 +1,58 @@
+import { numberFormat } from "../utilities/numberFormat"
+import dataTools from "./dataTools"
+import Dropdown from "./shared/dropdown"
+import ColorScale from "./shared/colorscale"
+
 export default class horizontalBar {
   constructor(results) {
     const container = d3.select("#graphicContainer")
     console.log(results)
-    var data = results.sheets.data
-    var details = results.sheets.template
-    var labels = results.sheets.labels
-    var userKey = results["sheets"]["key"]
+    this.data = results.sheets.data
+    this.details = results.sheets.template
+    this.labels = results.sheets.labels
+    this.userKey = results["sheets"]["key"]
+    this.options = results.sheets.options[0]
 
-    function numberFormat(num) {
-      if (num > 0) {
-        if (num > 1000000000) {
-          return (num / 1000000000).toFixed(1) + "bn"
-        }
-        if (num > 1000000) {
-          return (num / 1000000).toFixed(1) + "m"
-        }
-        if (num > 1000) {
-          return (num / 1000).toFixed(1) + "k"
-        }
-        if (num % 1 != 0) {
-          return num.toFixed(1)
-        } else {
-          return num.toLocaleString()
-        }
-      }
-      if (num < 0) {
-        var posNum = num * -1
-        if (posNum > 1000000000) return ["-" + String((posNum / 1000000000)) + "bn"]
-        if (posNum > 1000000) return ["-" + String((posNum / 1000000)) + "m"]
-        if (posNum > 1000) return ["-" + String((posNum / 1000)) + "k"]
-        else {
-          return num.toLocaleString()
-        }
-      }
-      return num
+    this.keys = Object.keys(this.data[0])
+    this.xVar = null
+    this.yVar = null
+    this.colors = new ColorScale({ domain: [0] })
+
+    if (this.details[0]["yColumn"]) {
+      this.yVar = this.details[0]["yColumn"]
+    } else {
+      this.yVar = this.keys[0]
     }
 
-    function axisFormat(num) {
-      if (num > 0) {
-        if (num > 1000000000) {
-          return (num / 1000000000) + "bn"
-        }
-        if (num > 1000000) {
-          return (num / 1000000) + "m"
-        }
-        if (num > 1000) {
-          return (num / 1000) + "k"
-        }
-        if (num % 1 != 0) {
-          return num.toFixed(1)
-        } else {
-          return num.toLocaleString()
-        }
-      }
-      if (num < 0) {
-        var posNum = num * -1
-        if (posNum > 1000000000) return ["-" + String((posNum / 1000000000)) + "bn"]
-        if (posNum > 1000000) return ["-" + String((posNum / 1000000)) + "m"]
-        if (posNum > 1000) return ["-" + String((posNum / 1000)) + "k"]
-        else {
-          return num.toLocaleString()
-        }
-      }
-      return num
+    if (this.details[0]["xColumn"]) {
+      this.xVar = this.details[0]["xColumn"]
+    } else {
+      this.xVar = this.keys[1]
     }
 
+    // pass in the id of the select tag (must be present in the horizontalbar.html)
+    this.dropdown = new Dropdown(
+      "dataPicker",
+      dataTools.getDropdown(results.sheets.dropdown, this.keys)
+    )
+    // listen to the custom dropdown event
+    this.dropdown.on("dropdown-change", (value) => {
+      this.xVar = value
+      this.setup()
+      this.draw()
+    })
+
+    this.setup()
+    this.draw()
+    this.drawShowMore()
+  }
+
+  setup() {
     var isMobile
-    var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+    var windowWidth = Math.max(
+      document.documentElement.clientWidth,
+      window.innerWidth || 0
+    )
 
     if (windowWidth < 610) {
       isMobile = true
@@ -76,16 +62,18 @@ export default class horizontalBar {
       isMobile = false
     }
 
-    var width = document.querySelector("#graphicContainer").getBoundingClientRect().width
-    var height = data.length * 60
+    var width = document
+      .querySelector("#graphicContainer")
+      .getBoundingClientRect().width
+    var height = this.data.length * 60
     var margin
 
-    if (details[0]["margin-top"]) {
+    if (this.details[0]["margin-top"]) {
       margin = {
-        top: +details[0]["margin-top"],
-        right: +details[0]["margin-right"],
-        bottom: +details[0]["margin-bottom"],
-        left: +details[0]["margin-left"]
+        top: +this.details[0]["margin-top"],
+        right: +this.details[0]["margin-right"],
+        bottom: +this.details[0]["margin-bottom"],
+        left: +this.details[0]["margin-left"]
       }
     } else {
       margin = {
@@ -96,115 +84,101 @@ export default class horizontalBar {
       }
     }
 
-    width = width - margin.left - margin.right,
-      height = height - margin.top - margin.bottom
+    this.width = width - margin.left - margin.right
+    this.height = height - margin.top - margin.bottom
+    this.margin = margin
+    this.isMobile = isMobile
 
-    d3.select("#chartTitle").text(details[0].title)
-    d3.select("#subTitle").text(details[0].subtitle)
-    d3.select("#sourceText").html(details[0].source)
-    d3.select("#footnote").html(details[0].footnote)
-    d3.select("#graphicContainer svg").remove()
-    var chartKey = d3.select("#chartKey")
-    chartKey.html("")
-
-    var svg = d3.select("#graphicContainer").append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .attr("id", "svg")
-      .attr("overflow", "hidden")
-
-    var features = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-
-    var keys = Object.keys(data[0])
-
-    var xVar
-    var yVar
-
-    if (details[0]["yColumn"]) {
-      yVar = details[0]["yColumn"]
-      // keys.splice(keys.indexOf(yVar), 1);
-    } else {
-      yVar = keys[0]
-      // keys.splice(0, 1);
-    }
-
-    if (details[0]["xColumn"]) {
-      xVar = details[0]["xColumn"]
-      // keys.splice(keys.indexOf(xVar), 1);
-    } else {
-      xVar = keys[1]
-      // keys.splice(0, 1);
-    }
-
-    console.log("xVar", xVar, "yVar", yVar)
+    console.log("xVar", this.xVar, "yVar", this.yVar)
 
     // Check first entry and see if it looks like a string. True if string, false if number or number as string
+    var yNaN = isNaN(this.data[0][this.yVar])
 
-    var yNaN = isNaN(data[0][yVar])
+    console.log(this.yVar, this.keys)
 
-    console.log(yVar, keys)
-
-    data.forEach(function (d) {
-      if (typeof d[yVar] == "string" && !yNaN) {
-        d[yVar] = +d[yVar]
+    this.data.forEach((d) => {
+      if (typeof d[this.yVar] == "string" && !yNaN) {
+        d[this.yVar] = +d[this.yVar]
       }
 
-      d[xVar] = +d[xVar]
-
+      d[this.xVar] = +d[this.xVar]
     })
 
-    labels.forEach(function (d) {
+    this.labels.forEach(function (d) {
       d.x = +d.x
       d.y = +d.y
       d.y2 = +d.y2
     })
 
-    console.log(data)
+    console.log(this.data)
+  }
 
-    userKey.forEach(function (key, i) {
+  draw() {
+    d3.select("#chartTitle").text(this.details[0].title)
+    d3.select("#subTitle").text(this.details[0].subtitle)
+    d3.select("#sourceText").html(this.details[0].source)
+    d3.select("#footnote").html(this.details[0].footnote)
+    d3.select("#graphicContainer svg").remove()
 
-      var keyDiv = chartKey.append("div")
-        .attr("class", "keyDiv")
+    var chartKey = d3.select("#chartKey")
+    chartKey.html("")
 
-      keyDiv.append("span")
+    var svg = d3
+      .select("#graphicContainer")
+      .append("svg")
+      .attr("width", this.width + this.margin.left + this.margin.right)
+      .attr("height", this.height + this.margin.top + this.margin.bottom)
+      .attr("id", "svg")
+      .attr("overflow", "hidden")
+
+    var features = svg
+      .append("g")
+      .attr(
+        "transform",
+        "translate(" + this.margin.left + "," + this.margin.top + ")"
+      )
+
+    this.userKey.forEach(function (key, i) {
+      var keyDiv = chartKey.append("div").attr("class", "keyDiv")
+
+      keyDiv
+        .append("span")
         .attr("class", "keyCircle")
         .style("background-color", function () {
           return key.colour
         })
 
-      keyDiv.append("span")
-        .attr("class", "keyText")
-        .text(key.key)
-
+      keyDiv.append("span").attr("class", "keyText").text(key.key)
     })
 
-    var x = d3.scaleLinear().range([0, width])
-    var y = d3.scaleBand().range([0, height]).paddingInner(0.4).paddingOuter(0.4)
+    var x = d3.scaleLinear().range([0, this.width])
+    var y = d3
+      .scaleBand()
+      .range([0, this.height])
+      .paddingInner(0.4)
+      .paddingOuter(0.4)
 
-    y.domain(data.map(function (d) {
-      return d[yVar]
-    }))
-
+    y.domain(
+      this.data.map((d) => {
+        return d[this.yVar]
+      })
+    )
 
     var xMin, xMax
 
-  xMax = d3.max(data, function (d) {  return d[xVar] })
+    xMax = d3.max(this.data, (d) => {
+      return d[this.xVar]
+    })
 
-   if (details[0]["minX"]) {
-      if (details[0]["minX"] != "") {
-        console.log("yeg ")
-        xMin = parseInt(details[0]["minX"])
+    if (this.details[0]["minX"]) {
+      if (this.details[0]["minX"] != "") {
+        xMin = parseInt(this.details[0]["minX"])
+      } else {
+        xMin = 0
       }
-
-      else {
-        xMin = d3.min(data, function (d) {  return d[xVar] })
+    } else {
+      xMin = 0
     }
-  }
-  
-  else {
-    xMin = d3.min(data, function (d) {  return d[xVar] })
-  }
-
 
     x.domain([xMin, xMax]).nice()
 
@@ -213,71 +187,74 @@ export default class horizontalBar {
 
     yAxis = d3.axisLeft(y)
     xAxis = d3.axisBottom(x).tickFormat(function (d) {
-      return axisFormat(d)
+      return numberFormat(d, ".0f")
     })
 
-    features.append("g")
+    features
+      .append("g")
       .attr("class", "x")
-      .attr("transform", "translate(0," + height + ")")
+      .attr("transform", "translate(0," + this.height + ")")
       .call(xAxis)
 
-    features.append("g")
-      .attr("class", "y")
-      .call(yAxis)
+    features.append("g").attr("class", "y").call(yAxis)
 
-    features.selectAll(".bar")
-      .data(data)
-      .enter().append("rect")
+    features
+      .selectAll(".bar")
+      .data(this.data)
+      .enter()
+      .append("rect")
       .attr("class", "bar")
       .attr("x", 0)
-      .style("fill", function (d) {
+      .style("fill", (d) => {
         if (d.Color) {
           return d.Color
         } else {
-          return userKey.color[userKey.key.indexOf(d[3])]
+          return this.colors.get(0)
         }
       })
-      .attr("y", function (d) {
-        return y(d[yVar])
+      .attr("y", (d) => {
+        return y(d[this.yVar])
         // return y(d[keys[0]])
       })
-      .attr("width", function (d) {
-        return x(d[xVar])
+      .attr("width", (d) => {
+        return x(d[this.xVar])
       })
       .attr("height", y.bandwidth())
 
-    features.selectAll(".barText")
-      .data(data)
-      .enter().append("text")
+    features
+      .selectAll(".barText")
+      .data(this.data)
+      .enter()
+      .append("text")
       .attr("class", "barText")
       .attr("x", 5)
-      .attr("y", function (d) {
-        return y(d[yVar]) - 5
+      .attr("y", (d) => {
+        return y(d[this.yVar]) - 5
       })
-      .text(d => d[yVar])
+      .text((d) => d[this.yVar])
 
-    features.selectAll(".barNumber")
-      .data(data)
-      .enter().append("text")
+    features
+      .selectAll(".barNumber")
+      .data(this.data)
+      .enter()
+      .append("text")
       .attr("class", "barNumber")
-      .attr("x", function (d) {
-        if (x(d[xVar]) > 50) {
-          return x(d[xVar]) - 50
+      .attr("x", (d) => {
+        if (x(d[this.xVar]) > 50) {
+          return x(d[this.xVar]) - 50
         } else {
-          return x(d[xVar]) + 5
+          return x(d[this.xVar]) + 5
         }
-
       })
-      .style("fill", function (d) {
-        if (x(d[xVar]) > 50) {
+      .style("fill", (d) => {
+        if (x(d[this.xVar]) > 50) {
           return "#FFF"
         } else {
           return "#000"
         }
-
       })
-      .attr("y", d => y(d[yVar]) + (y.bandwidth() / 2 + 5))
-      .text(d => numberFormat(d[xVar]))
+      .attr("y", (d) => y(d[this.yVar]) + (y.bandwidth() / 2 + 5))
+      .text((d) => numberFormat(d[this.xVar]))
 
     d3.selectAll(".y .tick").remove()
 
@@ -297,9 +274,11 @@ export default class horizontalBar {
       }
     }
 
-    features.selectAll(".annotationLine")
-      .data(labels)
-      .enter().append("line")
+    features
+      .selectAll(".annotationLine")
+      .data(this.labels)
+      .enter()
+      .append("line")
       .attr("class", "annotationLine")
       .attr("x1", function (d) {
         return x(d.x) + x.bandwidth() / 2
@@ -320,11 +299,12 @@ export default class horizontalBar {
 
     footerAnnotations.html("")
 
-    if (isMobile) {
-
-      features.selectAll(".annotationCircles")
-        .data(labels)
-        .enter().append("circle")
+    if (this.isMobile) {
+      features
+        .selectAll(".annotationCircles")
+        .data(this.labels)
+        .enter()
+        .append("circle")
         .attr("class", "annotationCircle")
         .attr("cy", function (d) {
           return y(d.y2) + textPadding(d) / 2
@@ -335,9 +315,11 @@ export default class horizontalBar {
         .attr("r", 8)
         .attr("fill", "#000")
 
-      features.selectAll(".annotationTextMobile")
-        .data(labels)
-        .enter().append("text")
+      features
+        .selectAll(".annotationTextMobile")
+        .data(this.labels)
+        .enter()
+        .append("text")
         .attr("class", "annotationTextMobile")
         .attr("y", function (d) {
           return y(d.y2) + textPaddingMobile(d)
@@ -351,41 +333,39 @@ export default class horizontalBar {
         .text(function (d, i) {
           return i + 1
         })
-      console.log(labels.length)
+      console.log(this.labels.length)
 
-      if (labels.length > 0) {
-        footerAnnotations.append("span")
+      if (this.labels.length > 0) {
+        footerAnnotations
+          .append("span")
           .attr("class", "annotationFooterHeader")
           .text("Notes: ")
       }
 
-
-
-      labels.forEach(function (d, i) {
-
-        footerAnnotations.append("span")
+      this.labels.forEach(function (d, i) {
+        footerAnnotations
+          .append("span")
           .attr("class", "annotationFooterNumber")
           .text(i + 1 + " - ")
 
-        if (i < labels.length - 1) {
-          footerAnnotations.append("span")
+        if (i < this.labels.length - 1) {
+          footerAnnotations
+            .append("span")
             .attr("class", "annotationFooterText")
             .text(d.text + ", ")
         } else {
-          footerAnnotations.append("span")
+          footerAnnotations
+            .append("span")
             .attr("class", "annotationFooterText")
             .text(d.text)
         }
-
-
-
       })
-
     } else {
-
-      features.selectAll(".annotationText")
-        .data(labels)
-        .enter().append("text")
+      features
+        .selectAll(".annotationText")
+        .data(this.labels)
+        .enter()
+        .append("text")
         .attr("class", "annotationText")
         .attr("y", function (d) {
           return y(d.y2)
@@ -400,14 +380,15 @@ export default class horizontalBar {
         .text(function (d) {
           return d.text
         })
-
     }
+  }
 
+  drawShowMore() {
     var button = document.getElementById("button2")
     var wrapper = document.getElementById("outer-wrapper")
     var gradient = document.getElementById("gradientBar")
 
-    if (results.sheets.options[0].enableShowMore === "1") {
+    if (this.options.enableShowMore === "1") {
       console.log("Show more button enabled")
       button.addEventListener("click", toggleButton)
     } else {
@@ -421,29 +402,22 @@ export default class horizontalBar {
       gradient.classList.toggle("gradient")
       button.querySelectorAll(".is-on")[0].classList.toggle("hide")
       button.querySelectorAll(".is-off")[0].classList.toggle("hide")
-
     }
-
   }
 
-  // const $ = selector => document.querySelector(selector)
-  // const $$ = selector => [].slice.apply(document.querySelectorAll(selector))
-
   round(value, exp) {
-    if (typeof exp === "undefined" || +exp === 0)
-      return Math.round(value)
+    if (typeof exp === "undefined" || +exp === 0) return Math.round(value)
 
     value = +value
     exp = +exp
 
-    if (isNaN(value) || !(typeof exp === "number" && exp % 1 === 0))
-      return NaN
+    if (isNaN(value) || !(typeof exp === "number" && exp % 1 === 0)) return NaN
 
     value = value.toString().split("e")
-    value = Math.round(+(value[0] + "e" + (value[1] ? (+value[1] + exp) : exp)))
+    value = Math.round(+(value[0] + "e" + (value[1] ? +value[1] + exp : exp)))
 
     value = value.toString().split("e")
-    return +(value[0] + "e" + (value[1] ? (+value[1] - exp) : -exp))
+    return +(value[0] + "e" + (value[1] ? +value[1] - exp : -exp))
   }
 
   numberWithCommas(x) {
@@ -461,31 +435,23 @@ export default class horizontalBar {
   }
 
   hashPattern(patternId, pathClass, rectClass) {
-
     return `
   		<pattern id='${patternId}' patternUnits='userSpaceOnUse' width='4' height='4'>
   			<rect width='4' height='4' class='${rectClass}'></rect>
   			<path d='M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2' class='${pathClass}'></path>
   		</pattern>
   	`
-
   }
 
   duplicate(el, className) {
-
     const clone = el.cloneNode(true)
     clone.classList.add(className)
     el.parentNode.insertBefore(clone, el)
-
   }
 
   pseq(arr, lambda) {
-
     return arr.reduce((agg, cur) => {
-
-      return agg.then(res => lambda(cur).then(res2 => res.concat(res2)))
-
+      return agg.then((res) => lambda(cur).then((res2) => res.concat(res2)))
     }, Promise.resolve([]))
-
   }
 }

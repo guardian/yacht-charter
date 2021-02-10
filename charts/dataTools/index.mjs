@@ -1,8 +1,46 @@
+/* dataTools module
+  - parsing logic for data
+*/
+
 const COLOR_SCHEME = "colorScheme"
 const COLOR_LINEAR_RANGE = "colorLinearRange"
 const COLOR_MAX = "colorMax"
 
+// dropdown properties
+const COLOR = "Color"
+const KEY_CATEGORY = "keyCategory"
+const checkDropdownProperty = (key) => {
+  return key !== COLOR && key !== KEY_CATEGORY
+}
+
 export default {
+  /**
+    return dropdown if available, otherwise generate dropdown arr from existing keys
+  *******/
+  getDropdown(dropdown, keys) {
+    if (dropdown && dropdown.length > 0) {
+      return dropdown
+    }
+
+    const arr = []
+
+    // generate dropdown based on keys
+    keys.forEach((key, i) => {
+      if (i !== 0 && checkDropdownProperty(key)) {
+        // ignore first key as it's usually for the yAxis
+        arr.push({
+          data: key,
+          display: key
+        })
+      }
+    })
+
+    return arr
+  },
+
+  /**
+    create a html id to be used as chartId
+  *******/
   getId(str) {
     return str.replace(/ /g, "_")
   },

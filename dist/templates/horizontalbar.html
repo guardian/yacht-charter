@@ -1,18 +1,52 @@
 <div class="min" id="outer-wrapper">
-    <link href="chartcss/horizontalbar.css" rel="stylesheet">
-    <div class="row">
-        <div class='chartTitle' id="chartTitle"></div>
-        <div class='subTitle' id="subTitle"></div>
-        <div class='notes' id='chartKey'></div>
-    </div>
-    <div class="row chartSans" id="graphicContainer"></div>
-    <div class='footer offset'>
-        <div id="footerAnnotations"></div><span id="footnote"></span> Guardian graphic | Source: <span id="sourceText"></span>
-    </div>
-    <div class="gradient" id="gradientBar"></div>
+  <link href="chartcss/horizontalbar.css" rel="stylesheet" />
+  <div class="row">
+    <div class="chartTitle" id="chartTitle"></div>
+    <div class="subTitle" id="subTitle"></div>
+    <div class="notes" id="chartKey"></div>
+  </div>
+  <div class="row">
+    <label class="dropdown">
+      <select id="dataPicker"></select>
+    </label>
+  </div>
+  <div class="row chartSans" id="graphicContainer"></div>
+  <div class="footer offset">
+    <div id="footerAnnotations"></div>
+    <span id="footnote"></span> Guardian graphic | Source:
+    <span id="sourceText"></span>
+  </div>
+  <div class="gradient" id="gradientBar"></div>
 </div>
 <div class="buttonWrapper">
-    <span class="button" data-target=".collapse1" data-toggle="collapse1" id="button2"><span class="is-on"><svg class="icon icon--plus" height="18px" viewbox="0 0 18 18" width="18px">
-    <path d="M8.2 0h1.6l.4 7.8 7.8.4v1.6l-7.8.4-.4 7.8H8.2l-.4-7.8L0 9.8V8.2l7.8-.4.4-7.8z"></path></svg> Show</span> <span class="is-off hide"><svg class="icon icon--minus" height="32px" viewbox="0 0 32 32" width="32px">
-    <rect height="3" width="22" x="5" y="15"></rect></svg> Hide</span></span>
+  <span
+    class="button"
+    data-target=".collapse1"
+    data-toggle="collapse1"
+    id="button2"
+    ><span class="is-on"
+      ><svg
+        class="icon icon--plus"
+        height="18px"
+        viewbox="0 0 18 18"
+        width="18px"
+      >
+        <path
+          d="M8.2 0h1.6l.4 7.8 7.8.4v1.6l-7.8.4-.4 7.8H8.2l-.4-7.8L0 9.8V8.2l7.8-.4.4-7.8z"
+        ></path>
+      </svg>
+      Show</span
+    >
+    <span class="is-off hide"
+      ><svg
+        class="icon icon--minus"
+        height="32px"
+        viewbox="0 0 32 32"
+        width="32px"
+      >
+        <rect height="3" width="22" x="5" y="15"></rect>
+      </svg>
+      Hide</span
+    ></span
+  >
 </div>
