@@ -1,5 +1,6 @@
 import * as d3 from "d3"
 import noUiSlider from "nouislider"
+import { numberFormat } from "../utilities/numberFormat"
 
 class AnimatedBarChart {
   constructor() {
@@ -118,7 +119,7 @@ class AnimatedBarChart {
       labels.exit().transition(t).style("opacity", "0").attr("y", (height + margin.top + margin.bottom)).remove()
       //Update
       bars.transition(t).attr("width", (d) => x(d.value)).attr("y", (d) => y(d.category))
-      labels.transition(t).attr("y", (d) => y(d.category) + (y.bandwidth() / 2) + 5).attr("x", 20).text((d) => d.category + " - " + (d.value / 1000).toFixed(1) + "k")
+      labels.transition(t).attr("y", (d) => y(d.category) + (y.bandwidth() / 2) + 5).attr("x", 20).text((d) => d.category + " - " + numberFormat(d.value))
       //Enter
       bars.enter().append("rect").attr("class", "bar").attr("title", (d) => d.category).attr("x", 0).attr("y", height + margin.top + margin.bottom).attr("opacity", 1).attr("height", y.bandwidth()).attr("fill", (d) => color(d.category)).attr("width", (d) => x(d.value)).transition(t).attr("width", (d) => x(d.value)).attr("y", (d) => y(d.category))
       labels.enter().append("text").attr("class", "label").attr("x", 20).attr("y", height + margin.top + margin.bottom + 20).attr("opacity", 1).transition(t).attr("y", (d) => y(d.category) + (y.bandwidth() / 2) + 5).text((d) => d.category + " - " + (d.value / 1000).toFixed(1) + "k")
