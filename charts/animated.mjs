@@ -113,7 +113,7 @@ class AnimatedBarChart {
       y.domain(filteredData.map((d) => d.category)).padding(0.1)
       var bars = svg.selectAll(".bar").data(filteredData, (d) => d.category)
       var labels = svg.selectAll(".label").data(filteredData, (d) => d.category)
-      var t = d3.transition("blah").duration(750)
+      var t = d3.transition("blah").duration(500)
       //Exit
       bars.exit().transition(t).style("opacity", "0").attr("y", (height + margin.top + margin.bottom)).remove()
       labels.exit().transition(t).style("opacity", "0").attr("y", (height + margin.top + margin.bottom)).remove()
@@ -144,7 +144,7 @@ class AnimatedBarChart {
       this.interval.stop()
     }
 
-    this.interval = d3.interval(animate, 2000)
+    this.interval = d3.interval(animate, 1000)
     var playButton = d3.select("#play-pause")
     slider.noUiSlider.on("update", function () {
       var newYear = Math.round(slider.noUiSlider.get())
@@ -177,7 +177,7 @@ class AnimatedBarChart {
         interval.stop()
         playButton.text("play")
       } else if (status == "play") {
-        self.interval = d3.interval(animate, 2000)
+        self.interval = d3.interval(animate, 1000)
         playButton.text("pause")
       }
     }
