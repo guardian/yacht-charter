@@ -2,16 +2,19 @@ import { numberFormat } from "../utilities/numberFormat"
 import dataTools from "./dataTools"
 import Dropdown from "./shared/dropdown"
 import ColorScale from "./shared/colorscale"
+import { ISO_8601 } from "moment"
 
 export default class horizontalBar {
   constructor(results) {
     const container = d3.select("#graphicContainer")
-    console.log(results)
     this.data = results.sheets.data
     this.details = results.sheets.template
     this.labels = results.sheets.labels
     this.userKey = results["sheets"]["key"]
     this.options = results.sheets.options[0]
+
+    // create a clone of the dataset to use to filter y axis
+    this.temp_data = results.sheets.data
 
     this.keys = Object.keys(this.data[0])
     this.xVar = null
@@ -65,7 +68,9 @@ export default class horizontalBar {
     var width = document
       .querySelector("#graphicContainer")
       .getBoundingClientRect().width
-    var height = this.data.length * 60
+      // need to set a constant height otherwise it breaks when the y axis goes small then large
+    // var height = this.data.length * 60
+    var height = this.temp_data.length * 60
     var margin
 
     if (this.details[0]["margin-top"]) {
@@ -91,10 +96,21 @@ export default class horizontalBar {
 
     console.log("xVar", this.xVar, "yVar", this.yVar)
 
+    var temp_data = this.temp_data
+
+    // work out maximum value in dataset
+    var max_value = d3.max(this.data.map(d => d[this.xVar]));
+    // create cutoff point at X% of the maximum value
+    var cut_off = max_value*0.01;
+    this.data = temp_data.filter(d => d[this.xVar] > cut_off)
+
+    // sort the dataset from biggest to smallest
+    this.data = this.data.sort((a, b) => d3.descending(+a[this.xVar], +b[this.xVar]))
+
     // Check first entry and see if it looks like a string. True if string, false if number or number as string
     var yNaN = isNaN(this.data[0][this.yVar])
 
-    console.log(this.yVar, this.keys)
+    // console.log(this.yVar, this.keys)
 
     this.data.forEach((d) => {
       if (typeof d[this.yVar] == "string" && !yNaN) {
@@ -110,7 +126,7 @@ export default class horizontalBar {
       d.y2 = +d.y2
     })
 
-    console.log(this.data)
+
   }
 
   draw() {
@@ -160,9 +176,12 @@ export default class horizontalBar {
 
     y.domain(
       this.data.map((d) => {
+
         return d[this.yVar]
       })
-    )
+      
+      )
+    
 
     var xMin, xMax
 
@@ -333,7 +352,7 @@ export default class horizontalBar {
         .text(function (d, i) {
           return i + 1
         })
-      console.log(this.labels.length)
+      // console.log(this.labels.length)
 
       if (this.labels.length > 0) {
         footerAnnotations
