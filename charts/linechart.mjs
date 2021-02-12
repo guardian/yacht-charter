@@ -50,6 +50,7 @@ export default class LineChart {
     this.periods = parsed["sheets"]["periods"]
     this.userKey = parsed["sheets"]["key"]
     this.options = parsed["sheets"]["options"][0]
+
     this.tooltipTemplate = this.meta.tooltip
     this.hasTooltipTemplate = this.tooltipTemplate && this.tooltipTemplate != "" ? true : false
     this.tooltip = new Tooltip("#graphicContainer")
@@ -157,28 +158,18 @@ export default class LineChart {
     }
 
     // lineLabelling toggling 
-
-    if (this.options.hasOwnProperty('lineLabelling')) {
-      console.log("lineLabelling", this.options['lineLabelling'])
-      if (this.options['lineLabelling'] === "TRUE" | this.options['lineLabelling'] === "") {
-        this.lineLabelling = true
-      }
-      else {
+    if (this.options!=undefined) {
+      if (this.options.hasOwnProperty('lineLabelling')) {
+        this.lineLabelling = (this.options['lineLabelling'] === "TRUE" | this.options['lineLabelling'] === "") ? true : false ;
+      } else {
         this.lineLabelling = false
       }
     }
-
-    // parsers
 
     this.parseTime = this.meta["dateFormat"]
       ? d3.timeParse(this.meta["dateFormat"])
       : null
     this.parsePeriods = d3.timeParse(this.meta["periodDateFormat"])
-
-
-    console.log("containerWidth", this.containerWidth)
-    console.log("width", this.width)
-    console.log("margin", this.margin)
 
     // create svg
     this.$svg = d3
@@ -196,10 +187,6 @@ export default class LineChart {
     this.width = this.containerWidth - this.margin.left - this.margin.right
     this.$svg.attr("width", this.width + this.margin.left + this.margin.right)
 
-    // moved x scale definition to here to fix resize issues
-
-    
-
     // update x scale based on scale type
 
     if (this.parseTime && typeof this.data[0][this.xColumn] == "string") {
@@ -210,10 +197,6 @@ export default class LineChart {
     else {
       this.x = d3.scaleLinear().rangeRound([0, this.width])
     }
-
-    console.log("containerWidth", this.containerWidth)
-    console.log("width", this.width)
-    console.log("svgWidth", this.width + this.margin.left + this.margin.right)
 
     // group for chart features
     this.$features = this.$svg
@@ -331,8 +314,6 @@ export default class LineChart {
       }
     })
 
-    console.log(this.periods)
-
     // determine y min/max of the chart
     this.max = d3.max(this.chartValues)
     this.min =
@@ -347,8 +328,6 @@ export default class LineChart {
       })
     )
     this.y.domain([this.min, this.max])
-
-    console.log(this.x.domain())
 
     // setup x and y axis
     const xTicks = this.isMobile ? 4 : 6
