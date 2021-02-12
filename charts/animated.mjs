@@ -1,5 +1,6 @@
 import * as d3 from "d3"
 import noUiSlider from "nouislider"
+import { numberFormat } from "../utilities/numberFormat"
 
 class AnimatedBarChart {
   constructor() {
@@ -112,13 +113,13 @@ class AnimatedBarChart {
       y.domain(filteredData.map((d) => d.category)).padding(0.1)
       var bars = svg.selectAll(".bar").data(filteredData, (d) => d.category)
       var labels = svg.selectAll(".label").data(filteredData, (d) => d.category)
-      var t = d3.transition("blah").duration(750)
+      var t = d3.transition("blah").duration(500)
       //Exit
       bars.exit().transition(t).style("opacity", "0").attr("y", (height + margin.top + margin.bottom)).remove()
       labels.exit().transition(t).style("opacity", "0").attr("y", (height + margin.top + margin.bottom)).remove()
       //Update
       bars.transition(t).attr("width", (d) => x(d.value)).attr("y", (d) => y(d.category))
-      labels.transition(t).attr("y", (d) => y(d.category) + (y.bandwidth() / 2) + 5).attr("x", 20).text((d) => d.category + " - " + (d.value / 1000).toFixed(1) + "k")
+      labels.transition(t).attr("y", (d) => y(d.category) + (y.bandwidth() / 2) + 5).attr("x", 20).text((d) => d.category + " - " + numberFormat(d.value))
       //Enter
       bars.enter().append("rect").attr("class", "bar").attr("title", (d) => d.category).attr("x", 0).attr("y", height + margin.top + margin.bottom).attr("opacity", 1).attr("height", y.bandwidth()).attr("fill", (d) => color(d.category)).attr("width", (d) => x(d.value)).transition(t).attr("width", (d) => x(d.value)).attr("y", (d) => y(d.category))
       labels.enter().append("text").attr("class", "label").attr("x", 20).attr("y", height + margin.top + margin.bottom + 20).attr("opacity", 1).transition(t).attr("y", (d) => y(d.category) + (y.bandwidth() / 2) + 5).text((d) => d.category + " - " + (d.value / 1000).toFixed(1) + "k")
@@ -143,7 +144,7 @@ class AnimatedBarChart {
       this.interval.stop()
     }
 
-    this.interval = d3.interval(animate, 2000)
+    this.interval = d3.interval(animate, 1000)
     var playButton = d3.select("#play-pause")
     slider.noUiSlider.on("update", function () {
       var newYear = Math.round(slider.noUiSlider.get())
@@ -176,7 +177,7 @@ class AnimatedBarChart {
         interval.stop()
         playButton.text("play")
       } else if (status == "play") {
-        self.interval = d3.interval(animate, 2000)
+        self.interval = d3.interval(animate, 1000)
         playButton.text("pause")
       }
     }
