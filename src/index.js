@@ -31,7 +31,8 @@ const location = getURLParams("location") ? getURLParams("location") : "docsdata
 // const key = "1gZbZMDnbsG5zeIxX3n5SzZzC_YiXBvWwxcre4bEape4"
 // const location = "docsdata"
 
-
+// Table testing
+// 1Zgdmqghdo9oKvbTt-F6ii2p0YF6Mg8kGFr_4tXvF-90
 
 new Chart(key, location)
 //https://interactive.guim.co.uk/yacht-charter-data/australian-states-daily-covid-cases-2020.json
