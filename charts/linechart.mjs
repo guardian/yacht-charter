@@ -169,11 +169,12 @@ export default class LineChart {
     }
 
     // parsers
-    if (this.meta["dateFormat"] != "") {
-      console.log(this.meta["dateFormat"])
-      this.parseTime = d3.timeParse(this.meta["dateFormat"])
-      this.parsePeriods = d3.timeParse(this.meta["periodDateFormat"])
-    }    
+
+    this.parseTime = this.meta["dateFormat"]
+      ? d3.timeParse(this.meta["dateFormat"])
+      : null
+    this.parsePeriods = d3.timeParse(this.meta["periodDateFormat"])
+
 
     console.log("containerWidth", this.containerWidth)
     console.log("width", this.width)
@@ -200,7 +201,9 @@ export default class LineChart {
     
 
     // update x scale based on scale type
-    if (this.parseTime != null) {
+
+    if (this.parseTime && typeof this.data[0][this.xColumn] == "string") {
+
       this.x = d3.scaleTime().rangeRound([0, this.width])
     }
 
@@ -275,15 +278,8 @@ export default class LineChart {
     }
 
     this.data.forEach((d) => {
-      if (typeof d[this.xColumn] == "string") {
-        if (this.parseTime != null) {
-          d[this.xColumn] = this.parseTime(d[this.xColumn])
-        }
-
-        else {
-          d[this.xColumn] = +d[this.xColumn]
-        }
-        
+      if (this.parseTime && typeof d[this.xColumn] == "string") {
+        d[this.xColumn] = this.parseTime(d[this.xColumn])
       }
     })
 
@@ -305,16 +301,8 @@ export default class LineChart {
     })
 
     this.labels.forEach((d) => {
-      if (typeof d.x == "string") {
-        if (this.parseTime != null) {
-          console.log("bleh")
-          d.x = this.parseTime(d.x)
-        }
-
-        else {
-          console.log("nah")
-          d.x = +d.x
-        }
+      if (this.parseTime && typeof d.x == "string") {
+        d.x = this.parseTime(d.x)
       }
 
       if (typeof d.y == "string") {
@@ -590,12 +578,10 @@ export default class LineChart {
     // Handle mouse hover event
     // Find the data based on mouse position
     const getTooltipData = (d, event) => {
-      const bisectDate = d3.bisector((d) => d[xColumn]).left,
+      const bisectX = d3.bisector((d) => d[xColumn]).left,
         x0 = this.x.invert(d3.mouse(event)[0]),
-        i = bisectDate(this.data, x0, 1),
-        tooltipData = {
-          [xColumn]: x0
-        }
+        i = bisectX(this.data, x0, 1),
+        tooltipData = {}
 
       this.keys.forEach((key) => {
         const data = this.chartKeyData[key],
@@ -608,14 +594,14 @@ export default class LineChart {
           d = d0
         }
 
+        tooltipData[xColumn] = d[xColumn]
         tooltipData[key] = d[key]
       })
       return tooltipData
     }
 
     // Render tooltip data
-    const templateRender = (d, event) => {
-      const data = getTooltipData(d, event)
+    const templateRender = (data) => {
       return mustache(this.tooltipTemplate, {
         ...helpers,
         ...data
@@ -624,8 +610,8 @@ export default class LineChart {
 
     $hoverLayerRect
       .on("mousemove touchmove", function (d) {
-        const x0 = self.x.invert(d3.mouse(this)[0])
-        const tooltipText = templateRender(d, this)
+        const tooltipData = getTooltipData(d, this)
+        const tooltipText = templateRender(tooltipData)
 
         self.tooltip.show(
           tooltipText,
@@ -634,8 +620,8 @@ export default class LineChart {
         )
 
         $hoverLine
-          .attr("x1", self.x(x0))
-          .attr("x2", self.x(x0))
+          .attr("x1", self.x(tooltipData[xColumn]))
+          .attr("x2", self.x(tooltipData[xColumn]))
           .style("opacity", 0.5)
       })
       .on("mouseout touchend", function () {
