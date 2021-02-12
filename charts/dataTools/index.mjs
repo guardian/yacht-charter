@@ -6,6 +6,13 @@ const COLOR_SCHEME = "colorScheme"
 const COLOR_LINEAR_RANGE = "colorLinearRange"
 const COLOR_MAX = "colorMax"
 
+// dropdown properties
+const COLOR = "Color"
+const KEY_CATEGORY = "keyCategory"
+const checkDropdownProperty = (key) => {
+  return key !== COLOR && key !== KEY_CATEGORY
+}
+
 export default {
   /**
     return dropdown if available, otherwise generate dropdown arr from existing keys
@@ -19,7 +26,7 @@ export default {
 
     // generate dropdown based on keys
     keys.forEach((key, i) => {
-      if (i !== 0) {
+      if (i !== 0 && checkDropdownProperty(key)) {
         // ignore first key as it's usually for the yAxis
         arr.push({
           data: key,
@@ -78,7 +85,7 @@ export default {
     const colors = []
 
     userDefined.forEach((d) => {
-      keys.push(d.key)
+      keys.push(d.keyName)
       colors.push(d.colour)
     })
     return {
@@ -91,14 +98,15 @@ export default {
     let obj = {
       keys
     }
-    console.log(option)
     // userKey takes precedence over option.colorScheme
     if (userKey.length > 1) {
+      console.log("key",userKey)
       obj = this.getUserDefinedKeysColors(userKey)
     } else if (option[COLOR_SCHEME]) {
       obj.colors = option[COLOR_SCHEME]
     }
 
+    console.log(obj)
     return obj
   }
 }

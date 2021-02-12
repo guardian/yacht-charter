@@ -17,8 +17,8 @@ import ColorScale from "./shared/colorscale"
 // `
 /****** end tooltip template */
 
-function getLongestKeyLength($svg, keys, isMobile) {
-  if (!isMobile) {
+function getLongestKeyLength($svg, keys, isMobile, lineLabelling) {
+  if (!isMobile && lineLabelling) {
     d3.select("#dummyText").remove()
     const longestKey = keys.sort(function (a, b) {
       return b.length - a.length
@@ -49,11 +49,12 @@ export default class LineChart {
     this.labels = parsed["sheets"]["labels"]
     this.periods = parsed["sheets"]["periods"]
     this.userKey = parsed["sheets"]["key"]
-    this.options = parsed["sheets"]["options"]
+    this.options = parsed["sheets"]["options"][0]
     this.tooltipTemplate = this.meta.tooltip
-    this.hasTooltipTemplate =
-      this.tooltipTemplate && this.tooltipTemplate != "" ? true : false
+    this.hasTooltipTemplate = this.tooltipTemplate && this.tooltipTemplate != "" ? true : false
     this.tooltip = new Tooltip("#graphicContainer")
+
+    this.lineLabelling = null
 
     this.x_axis_cross_y = null
     this.colors = new ColorScale()
@@ -67,6 +68,7 @@ export default class LineChart {
       window.innerWidth || 0
     )
     this.isMobile = windowWidth < 610 ? true : false
+    console.log("mobile", this.isMobile)
     this.containerWidth = document
       .querySelector("#graphicContainer")
       .getBoundingClientRect().width
@@ -79,8 +81,7 @@ export default class LineChart {
     }
 
     this.width = this.containerWidth - this.margin.left - this.margin.right
-    this.height =
-      this.containerWidth * 0.6 - this.margin.top - this.margin.bottom
+    this.height = this.containerWidth * 0.6 - this.margin.top - this.margin.bottom
 
     this.y = d3.scaleLinear().rangeRound([this.height, 0])
     this.xAxis = null
@@ -116,8 +117,10 @@ export default class LineChart {
     const keyColor = dataTools.getKeysColors({
       keys: this.keys,
       userKey: this.userKey,
-      option: this.options[0]
+      option: this.options
     })
+
+    console.log("keyColor",keyColor)
     this.colors.set(keyColor.keys, keyColor.colors)
 
     // ?
@@ -153,11 +156,25 @@ export default class LineChart {
       this.y = d3[this.meta["yScaleType"]]().range([this.height, 0]).nice()
     }
 
+    // lineLabelling toggling 
+
+    if (this.options.hasOwnProperty('lineLabelling')) {
+      console.log("lineLabelling", this.options['lineLabelling'])
+      if (this.options['lineLabelling'] === "TRUE" | this.options['lineLabelling'] === "") {
+        this.lineLabelling = true
+      }
+      else {
+        this.lineLabelling = false
+      }
+    }
+
     // parsers
+
     this.parseTime = this.meta["dateFormat"]
       ? d3.timeParse(this.meta["dateFormat"])
       : null
     this.parsePeriods = d3.timeParse(this.meta["periodDateFormat"])
+
 
     console.log("containerWidth", this.containerWidth)
     console.log("width", this.width)
@@ -175,17 +192,23 @@ export default class LineChart {
     // update right margin and svg width based on the longest key
     this.margin.right =
       this.margin.right +
-      getLongestKeyLength(this.$svg, this.keys, this.isMobile)
+      getLongestKeyLength(this.$svg, this.keys, this.isMobile, this.lineLabelling)
     this.width = this.containerWidth - this.margin.left - this.margin.right
     this.$svg.attr("width", this.width + this.margin.left + this.margin.right)
 
     // moved x scale definition to here to fix resize issues
 
-    this.x = d3.scaleLinear().rangeRound([0, this.width])
+    
 
     // update x scale based on scale type
+
     if (this.parseTime && typeof this.data[0][this.xColumn] == "string") {
+
       this.x = d3.scaleTime().rangeRound([0, this.width])
+    }
+
+    else {
+      this.x = d3.scaleLinear().rangeRound([0, this.width])
     }
 
     console.log("containerWidth", this.containerWidth)
@@ -239,7 +262,9 @@ export default class LineChart {
       })
     })
 
-    if (this.isMobile) {
+    // make a chart key    
+
+    if (this.isMobile | !this.lineLabelling) {
       this.keys.forEach((key) => {
         const $keyDiv = this.$chartKey.append("div").attr("class", "keyDiv")
 
@@ -257,6 +282,8 @@ export default class LineChart {
         d[this.xColumn] = this.parseTime(d[this.xColumn])
       }
     })
+
+    console.log(this.labels)
 
     this.keys.forEach((key) => {
       this.chartKeyData[key] = []
@@ -289,11 +316,22 @@ export default class LineChart {
 
     this.periods.forEach((d) => {
       if (typeof d.start == "string") {
-        d.start = this.parsePeriods(d.start)
-        d.end = this.parsePeriods(d.end)
-        d.middle = new Date((d.start.getTime() + d.end.getTime()) / 2)
+        if (this.parsePeriods != null) {
+            d.start = this.parsePeriods(d.start)
+            d.end = this.parsePeriods(d.end)
+            d.middle = new Date((d.start.getTime() + d.end.getTime()) / 2)
+        }
+
+        else {
+          d.start = +d.start
+          d.end = +d.end
+          d.middle = (d.end + d.start) / 2
+        }
+        
       }
     })
+
+    console.log(this.periods)
 
     // determine y min/max of the chart
     this.max = d3.max(this.chartValues)
@@ -310,10 +348,18 @@ export default class LineChart {
     )
     this.y.domain([this.min, this.max])
 
+    console.log(this.x.domain())
+
     // setup x and y axis
     const xTicks = this.isMobile ? 4 : 6
     const yTicks = this.meta["yScaleType"] === "scaleLog" ? 3 : 5
-    this.xAxis = d3.axisBottom(this.x).ticks(xTicks)
+    this.xAxis = d3.axisBottom(this.x)
+      .ticks(xTicks)
+  
+    if (this.parseTime == null) {
+      this.xAxis.tickFormat(d3.format("d"))
+    }  
+
     this.yAxis = d3
       .axisLeft(this.y)
       .tickFormat(function (d) {
@@ -434,6 +480,8 @@ export default class LineChart {
 
     d3.selectAll(".domain").attr("stroke", "#767676")
 
+
+
     this.keys.forEach((key) => {
       this.$features
         .append("path")
@@ -449,16 +497,17 @@ export default class LineChart {
       let lineLabelAlign = "start"
       let lineLabelOffset = 0
 
-      if (
+      if (!this.isMobile && this.lineLabelling) {
+         if (
         this.x(tempLabelData[tempLabelData.length - 1].index) >
         this.width - 20
       ) {
         lineLabelAlign = "end"
         lineLabelOffset = -10
       }
+      }
 
-      if (!this.isMobile) {
-        this.$features
+      this.$features
           .append("circle")
           .attr("cy", (d) => {
             return this.y(tempLabelData[tempLabelData.length - 1][key])
@@ -469,6 +518,9 @@ export default class LineChart {
           })
           .attr("r", 4)
           .style("opacity", 1)
+
+      if (!this.isMobile && this.lineLabelling) {
+        
 
         this.$features
           .append("text")
@@ -491,13 +543,17 @@ export default class LineChart {
             return key
           })
       }
+
+
     })
 
     if (this.hasTooltipTemplate) {
+      console.log("tooltip")
       this.drawHoverFeature()
     }
 
     this.drawAnnotation()
+
   }
 
   drawHoverFeature() {
@@ -575,6 +631,9 @@ export default class LineChart {
   }
 
   drawAnnotation() {
+
+    console.log("drawing annotations")
+
     function textPadding(d) {
       return d.offset > 0 ? 6 : -2
     }
@@ -602,8 +661,9 @@ export default class LineChart {
         return this.x(d.x)
       })
       .attr("y2", (d) => {
-        const yPos = this.y(d.offset)
-        return yPos <= -15 ? -15 : yPos
+        // const yPos = this.y(d.offset)
+        // return yPos <= -15 ? -15 : yPos
+        return this.y(d.y) - d.offset
       })
       .style("opacity", 1)
       .attr("stroke", "#000")
@@ -616,7 +676,7 @@ export default class LineChart {
         .append("circle")
         .attr("class", "annotationCircle")
         .attr("cy", (d) => {
-          return this.y(d.offset) + textPadding(d) / 2
+          return this.y(d.y) - d.offset - 4
         })
         .attr("cx", (d) => {
           return this.x(d.x)
@@ -631,14 +691,14 @@ export default class LineChart {
         .append("text")
         .attr("class", "annotationTextMobile")
         .attr("y", (d) => {
-          return this.y(d.offset) + textPaddingMobile(d)
+          return this.y(d.y) - d.offset
         })
         .attr("x", (d) => {
           return this.x(d.x)
         })
         .style("text-anchor", "middle")
         .style("opacity", 1)
-        .attr("fill", "#FFF")
+        .attr("fill", "white")
         .text((d, i) => {
           return i + 1
         })
@@ -676,13 +736,15 @@ export default class LineChart {
         .append("text")
         .attr("class", "annotationText2")
         .attr("y", (d) => {
-          const yPos = this.y(d.offset)
-          return yPos <= -10 ? -10 : yPos + -1 * textPadding(d)
+          // const yPos = this.y(d.offset)
+          // return yPos <= -10 ? -10 : yPos + -1 * textPadding(d)
+          return this.y(d.y) - d.offset - textPadding(d) / 2
         })
         .attr("x", (d) => {
-          const yPos = this.y(d.offset)
-          const xPos = this.x(d.x)
-          return yPos <= -10 ? xPos - 5 : xPos
+          // const yPos = this.y(d.offset)
+          // const xPos = this.x(d.x)
+          // return yPos <= -10 ? xPos - 5 : xPos
+          return this.x(d.x)
         })
         .style("text-anchor", (d) => {
           return d.align

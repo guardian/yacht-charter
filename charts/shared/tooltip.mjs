@@ -89,6 +89,7 @@ class Tooltip {
     const self = this
     $bindEls
       .on("mouseover", function (d) {
+        // console.log(d)
         const html =
           typeof templateRender === "function"
             ? templateRender(d, this)

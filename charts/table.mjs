@@ -8,6 +8,8 @@ import styleHeaders from "../utilities/table/styleHeaders"
 import colourize from "../utilities/table/colourize"
 import mustache from "../utilities/mustache"
 import matchArray from "../utilities/table/matchArray"
+import { numberFormat } from "../utilities/numberFormat"
+import { commas } from "../utilities/commas"
 
 export default class table {
   constructor(results) {
@@ -53,7 +55,6 @@ export default class table {
     if (options[0].enableSearch==='TRUE') {
       document.querySelector("#search-container").style.display = "block";
       this.searchEl.addEventListener("input", () => self.render(this.value));
-      this.searchEl.addEventListener("focus", () => { if (this.value === "Search") { this.value = ""}});
     }
 
     if (options[0].enableSort==='TRUE') {
@@ -94,7 +95,7 @@ export default class table {
     const template = `{{#rows}}
         <tr {{#getIndex}}{{/getIndex}}>
             {{#item}}
-                <td {{#styleCheck}}{{/styleCheck}} class="column"><span class="header-prefix"></span><span>{{value}}</span></td>
+                <td {{#styleCheck}}{{/styleCheck}} class="column"><span class="header-prefix"></span><span>{{#formatedNumber}}{{/formatedNumber}}</span></td>
             {{/item}}
         </tr>
     {{/rows}}`;
@@ -109,14 +110,27 @@ export default class table {
 
     const styleCheck = function() {
       return (this.color) ? `style="background-color:${this.color};text-align:center;color:${this.contrast};"` :
-      (!isNaN(this.value)) ? `style="text-align:center;"` : ''
+      (!isNaN(this.value)) ? `style="text-align:center;"` : '' ;
+    }
+
+    const formatedNumber = function() {
+      var value = ""
+      if (this.format!=undefined) {
+        let arr = this.format.map(item => item.trim())
+        let val = this.value
+        value += (contains(arr,'$')) ? '$' : '' ;
+        value += (contains(arr,'numberFormat')) ? numberFormat(val) : (contains(arr,'commas')) ? commas(val) : val ;
+      } else {
+        value = this.value
+      }
+      return value
     }
 
     const getIndex = function() {
       return (this.index >= 10 && !self.showingRows) ? `style="display:none;"` : ""
     }
 
-    const html = mustache( template, { rows : finalRows, styleCheck : styleCheck, getIndex : getIndex })
+    const html = mustache( template, { rows : finalRows, styleCheck : styleCheck, getIndex : getIndex, formatedNumber : formatedNumber })
 
     tbodyEl.innerHTML = html;
 
