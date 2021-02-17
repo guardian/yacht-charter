@@ -7,19 +7,26 @@ import { ISO_8601 } from "moment"
 export default class horizontalBar {
   constructor(results) {
     const container = d3.select("#graphicContainer")
+
     this.data = results.sheets.data
+// create a clone of the dataset to use to filter y axis
+    this.temp_data = results.sheets.data
+    
     this.details = results.sheets.template
     this.labels = results.sheets.labels
     this.userKey = results["sheets"]["key"]
-    this.options = results.sheets.options[0]
-
-    // create a clone of the dataset to use to filter y axis
-    this.temp_data = results.sheets.data
+    this.options = results.sheets.options[0]['enableShowMore']
 
     this.keys = Object.keys(this.data[0])
     this.xVar = null
     this.yVar = null
     this.colors = new ColorScale({ domain: [0] })
+
+    // exclude bars that are less than this percent of the max value
+    this.cut_off = results.sheets.options[0]["cut_off_pct"]
+
+  // grab dropdown options to initialise first selection
+    var dropDownVals = results.sheets.dropdown[0]
 
     if (this.details[0]["yColumn"]) {
       this.yVar = this.details[0]["yColumn"]
@@ -30,7 +37,7 @@ export default class horizontalBar {
     if (this.details[0]["xColumn"]) {
       this.xVar = this.details[0]["xColumn"]
     } else {
-      this.xVar = this.keys[1]
+      this.xVar = dropDownVals.data
     }
 
     // pass in the id of the select tag (must be present in the horizontalbar.html)
@@ -41,6 +48,10 @@ export default class horizontalBar {
     // listen to the custom dropdown event
     this.dropdown.on("dropdown-change", (value) => {
       this.xVar = value
+
+
+
+      // height = this.data.length * 60
       this.setup()
       this.draw()
     })
@@ -65,12 +76,28 @@ export default class horizontalBar {
       isMobile = false
     }
 
+    // console.log("xVar", this.xVar, "yVar", this.yVar)
+
+    // regrab original dataset to make calculation
+    this.data = this.temp_data
+    
+    // work out maximum value in dataset
+    var max_value = d3.max(this.data.map(d => d[this.xVar]));
+    
+    // create cutoff point at X% of the maximum value
+    var cut_off = max_value*this.cut_off;
+    this.data = this.temp_data.filter(d => d[this.xVar] > cut_off)
+
+    // sort the dataset from biggest to smallest
+    this.data = this.data.sort((a, b) => d3.descending(+a[this.xVar], +b[this.xVar]))
+
     var width = document
       .querySelector("#graphicContainer")
       .getBoundingClientRect().width
       // need to set a constant height otherwise it breaks when the y axis goes small then large
-    // var height = this.data.length * 60
-    var height = this.temp_data.length * 60
+    var height = this.data.length * 60
+    // var height = this.temp_data.length * 60
+    // var height = width * 1.5
     var margin
 
     if (this.details[0]["margin-top"]) {
@@ -94,23 +121,12 @@ export default class horizontalBar {
     this.margin = margin
     this.isMobile = isMobile
 
-    console.log("xVar", this.xVar, "yVar", this.yVar)
 
-    var temp_data = this.temp_data
 
-    // work out maximum value in dataset
-    var max_value = d3.max(this.data.map(d => d[this.xVar]));
-    // create cutoff point at X% of the maximum value
-    var cut_off = max_value*0.01;
-    this.data = temp_data.filter(d => d[this.xVar] > cut_off)
-
-    // sort the dataset from biggest to smallest
-    this.data = this.data.sort((a, b) => d3.descending(+a[this.xVar], +b[this.xVar]))
-
-    // Check first entry and see if it looks like a string. True if string, false if number or number as string
+    // // Check first entry and see if it looks like a string. True if string, false if number or number as string
     var yNaN = isNaN(this.data[0][this.yVar])
 
-    // console.log(this.yVar, this.keys)
+
 
     this.data.forEach((d) => {
       if (typeof d[this.yVar] == "string" && !yNaN) {
@@ -401,6 +417,9 @@ export default class horizontalBar {
         })
     }
   }
+  // var button = document.getElementById("button2")
+  // var gradient = document.getElementById("gradientBar")
+  // gradient.remove()
 
   drawShowMore() {
     var button = document.getElementById("button2")
