@@ -83,7 +83,7 @@ export default class horizontalBar {
     
     // work out maximum value in dataset
     var max_value = d3.max(this.data.map(d => d[this.xVar]));
-    
+
     // create cutoff point at X% of the maximum value
     var cut_off = max_value*this.cut_off;
     this.data = this.temp_data.filter(d => d[this.xVar] > cut_off)
@@ -417,9 +417,6 @@ export default class horizontalBar {
         })
     }
   }
-  // var button = document.getElementById("button2")
-  // var gradient = document.getElementById("gradientBar")
-  // gradient.remove()
 
   drawShowMore() {
     var button = document.getElementById("button2")
