@@ -9,8 +9,10 @@ export default class horizontalBar {
     const container = d3.select("#graphicContainer")
 
     this.data = results.sheets.data
-// create a clone of the dataset to use to filter y axis
-    this.temp_data = results.sheets.data
+    this.temp_data = null
+  // create a clone of the dataset to use to filter y axis
+
+    // this.temp_data = results.sheets.data
     
     this.details = results.sheets.template
     this.labels = results.sheets.labels
@@ -48,7 +50,6 @@ export default class horizontalBar {
     // listen to the custom dropdown event
     this.dropdown.on("dropdown-change", (value) => {
       this.xVar = value
-
       this.setup()
       this.draw()
     })
@@ -59,6 +60,9 @@ export default class horizontalBar {
   }
 
   setup() {
+
+    console.log("data", this.data)
+
     var isMobile
     var windowWidth = Math.max(
       document.documentElement.clientWidth,
@@ -73,26 +77,64 @@ export default class horizontalBar {
       isMobile = false
     }
 
-    // console.log("xVar", this.xVar, "yVar", this.yVar)
+    console.log("xVar", this.xVar, "yVar", this.yVar)
+
+
+    var yNaN = isNaN(this.data[0][this.yVar])
+
+    this.data.forEach((d) => {
+      if (typeof d[this.yVar] == "string" && !yNaN) {
+
+        d[this.yVar] = +d[this.yVar]
+      
+      }
+
+      if (typeof d[this.xVar] == "string" && d[this.xVar] != "") {
+        d[this.xVar] = +d[this.xVar]
+      }
+
+      else if (typeof d[this.xVar] == "string" && d[this.xVar] == "") {
+        d[this.xVar] = null
+      }
+      
+    })
+
+    console.log("data", this.data)
+
+    this.labels.forEach(function (d) {
+      d.x = +d.x
+      d.y = +d.y
+      d.y2 = +d.y2
+    })
+
 
     // grab original dataset to make calculation
-    this.data = this.temp_data
+    
+    // this.temp_data = 
     
     // work out maximum value in dataset
+
     var max_value = d3.max(this.data.map(d => d[this.xVar]));
 
     // create cutoff point at X% of the maximum value
-    var cut_off = max_value*this.cut_off;
-    this.data = this.temp_data.filter(d => d[this.xVar] > cut_off)
+
+    // var cut_off = max_value*this.cut_off;
+
+    this.temp_data = this.data.filter(d => d[this.xVar] != null)
+
+    console.log("temp data", this.temp_data)
 
     // sort the dataset from biggest to smallest
-    this.data = this.data.sort((a, b) => d3.descending(+a[this.xVar], +b[this.xVar]))
+
+    this.temp_data  = this.temp_data.sort((a, b) => d3.descending(+a[this.xVar], +b[this.xVar]))
 
     var width = document
       .querySelector("#graphicContainer")
       .getBoundingClientRect().width
 
-    var height = this.data.length * 60
+    var height = this.temp_data.length * 60
+
+    console.log("height", height)
     // var height = this.temp_data.length * 60
     // var height = width * 1.5
     var margin
@@ -118,28 +160,7 @@ export default class horizontalBar {
     this.margin = margin
     this.isMobile = isMobile
 
-
-
     // // Check first entry and see if it looks like a string. True if string, false if number or number as string
-    var yNaN = isNaN(this.data[0][this.yVar])
-
-
-
-    this.data.forEach((d) => {
-      if (typeof d[this.yVar] == "string" && !yNaN) {
-        d[this.yVar] = +d[this.yVar]
-      }
-
-      d[this.xVar] = +d[this.xVar]
-    })
-
-    this.labels.forEach(function (d) {
-      d.x = +d.x
-      d.y = +d.y
-      d.y2 = +d.y2
-    })
-
-
   }
 
   draw() {
@@ -188,7 +209,7 @@ export default class horizontalBar {
       .paddingOuter(0.4)
 
     y.domain(
-      this.data.map((d) => {
+      this.temp_data.map((d) => {
 
         return d[this.yVar]
       })
@@ -198,7 +219,7 @@ export default class horizontalBar {
 
     var xMin, xMax
 
-    xMax = d3.max(this.data, (d) => {
+    xMax = d3.max(this.temp_data, (d) => {
       return d[this.xVar]
     })
 
@@ -232,7 +253,7 @@ export default class horizontalBar {
 
     features
       .selectAll(".bar")
-      .data(this.data)
+      .data(this.temp_data)
       .enter()
       .append("rect")
       .attr("class", "bar")
@@ -255,7 +276,7 @@ export default class horizontalBar {
 
     features
       .selectAll(".barText")
-      .data(this.data)
+      .data(this.temp_data)
       .enter()
       .append("text")
       .attr("class", "barText")
@@ -267,7 +288,7 @@ export default class horizontalBar {
 
     features
       .selectAll(".barNumber")
-      .data(this.data)
+      .data(this.temp_data)
       .enter()
       .append("text")
       .attr("class", "barNumber")
