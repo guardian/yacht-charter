@@ -437,6 +437,7 @@ export default class horizontalBar {
   }
 
   drawShowMore() {
+
     var button = document.getElementById("button2")
     var wrapper = document.getElementById("outer-wrapper")
     var gradient = document.getElementById("gradientBar")
@@ -445,9 +446,12 @@ export default class horizontalBar {
       console.log("Show more button enabled")
       button.addEventListener("click", toggleButton)
     } else {
-      button.remove()
-      wrapper.classList.toggle("min")
-      gradient.remove()
+      if (button != null) {
+        button.remove()
+        wrapper.classList.toggle("min")
+        gradient.remove()
+      }
+      
     }
 
     function toggleButton() {

@@ -93,6 +93,7 @@ export class Chart {
       import("./charts/horizontalbar")
         .then((importedChartModule) => {
           let instance = new importedChartModule.default(data)
+          this._addListener(instance, data, type, importedChartModule)
         })
       break
     case "smallmultiples":
