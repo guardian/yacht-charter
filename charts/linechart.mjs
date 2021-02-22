@@ -166,10 +166,8 @@ export default class LineChart {
       }
     }
 
-    this.parseTime = this.meta["dateFormat"]
-      ? d3.timeParse(this.meta["dateFormat"])
-      : null
-    this.parsePeriods = d3.timeParse(this.meta["periodDateFormat"])
+    this.parseTime = this.meta["dateFormat"] ? d3.timeParse(this.meta["dateFormat"]) : null
+    this.parsePeriods = this.meta["periodDateFormat"] ? d3.timeParse(this.meta["periodDateFormat"]) : null
 
     // create svg
     this.$svg = d3
