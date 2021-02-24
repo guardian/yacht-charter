@@ -10,39 +10,42 @@ export default class horizontalBar {
 
     this.data = results.sheets.data
     this.temp_data = null
-  // create a clone of the dataset to use to filter y axis
-
-    // this.temp_data = results.sheets.data
     
     this.details = results.sheets.template
     this.labels = results.sheets.labels
     this.userKey = results["sheets"]["key"]
     this.options = results.sheets.options[0]['enableShowMore']
+    this.maxXticks = results.sheets.options[0]['maxXticks']
 
     this.keys = Object.keys(this.data[0])
     this.xVar = null
     this.yVar = null
     this.colors = new ColorScale({ domain: [0] })
+    
 
     // exclude bars that are less than this percent of the max value
-    this.cut_off = results.sheets.options[0]["cut_off_pct"]
+    // this.cut_off = results.sheets.options[0]["cut_off_pct"]
 
   // grab dropdown options to initialise first selection
     var dropDownVals = results.sheets.dropdown[0]
+    // find column names to use in case it is not a drop down bar chart
+    var columns = this.keys.filter(d => d != "Color" && d != "keyCategory")
 
-    if (this.details[0]["yColumn"]) {
-      this.yVar = this.details[0]["yColumn"]
-    } else {
-      this.yVar = this.keys[0]
-    }
+    // Only assign key names to x and y axis if it is actually a dropdown
+    if (dropDownVals){
 
-    if (this.details[0]["xColumn"]) {
-      this.xVar = this.details[0]["xColumn"]
-    } else {
-      this.xVar = dropDownVals.data
-    }
-
-    // pass in the id of the select tag (must be present in the horizontalbar.html)
+      if (this.details[0]["yColumn"]) {
+        this.yVar = this.details[0]["yColumn"]
+      } else {
+        this.yVar = this.keys[0]
+      }
+  
+      if (this.details[0]["xColumn"]) {
+        this.xVar = this.details[0]["xColumn"]
+      } else {
+        this.xVar = dropDownVals.data
+      }
+    
     this.dropdown = new Dropdown(
       "dataPicker",
       dataTools.getDropdown(results.sheets.dropdown, this.keys)
@@ -53,6 +56,13 @@ export default class horizontalBar {
       this.setup()
       this.draw()
     })
+    } else {
+      // If it is not a dropdown then just assign first two column names yo x and y, and remove selector
+      this.xVar = columns[1]
+      this.yVar = columns[0]
+      d3.select("#dataPicker").remove()
+
+    }
 
     this.setup()
     this.draw()
@@ -77,7 +87,7 @@ export default class horizontalBar {
       isMobile = false
     }
 
-    console.log("xVar", this.xVar, "yVar", this.yVar)
+    // console.log("xVar", this.xVar, "yVar", this.yVar)
 
 
     var yNaN = isNaN(this.data[0][this.yVar])
@@ -99,8 +109,6 @@ export default class horizontalBar {
       
     })
 
-    console.log("data", this.data)
-
     this.labels.forEach(function (d) {
       d.x = +d.x
       d.y = +d.y
@@ -108,21 +116,7 @@ export default class horizontalBar {
     })
 
 
-    // grab original dataset to make calculation
-    
-    // this.temp_data = 
-    
-    // work out maximum value in dataset
-
-    var max_value = d3.max(this.data.map(d => d[this.xVar]));
-
-    // create cutoff point at X% of the maximum value
-
-    // var cut_off = max_value*this.cut_off;
-
     this.temp_data = this.data.filter(d => d[this.xVar] != null)
-
-    console.log("temp data", this.temp_data)
 
     // sort the dataset from biggest to smallest
 
@@ -134,9 +128,6 @@ export default class horizontalBar {
 
     var height = this.temp_data.length * 60
 
-    console.log("height", height)
-    // var height = this.temp_data.length * 60
-    // var height = width * 1.5
     var margin
 
     if (this.details[0]["margin-top"]) {
@@ -239,9 +230,16 @@ export default class horizontalBar {
     var yAxis
 
     yAxis = d3.axisLeft(y)
-    xAxis = d3.axisBottom(x).tickFormat(function (d) {
+    xAxis = d3.axisBottom(x)
+      .tickFormat(function (d) {
       return numberFormat(d, ".0f")
     })
+    if (this.isMobile && this.maxXticks != null){
+      // REDUCE TICKS TO MAXIMUM NUMBER OF TICKS ON MOBILE
+      xAxis.ticks(this.maxXticks)
+
+    }
+      
 
     features
       .append("g")
