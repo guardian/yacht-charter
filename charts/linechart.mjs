@@ -51,6 +51,8 @@ export default class LineChart {
     this.userKey = parsed["sheets"]["key"]
     this.options = parsed["sheets"]["options"][0]
 
+    console.log("options",this.options)
+    
     this.tooltipTemplate = this.meta.tooltip
     this.hasTooltipTemplate = this.tooltipTemplate && this.tooltipTemplate != "" ? true : false
     this.tooltip = new Tooltip("#graphicContainer")

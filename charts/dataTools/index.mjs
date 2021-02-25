@@ -99,7 +99,7 @@ export default {
       keys
     }
     // userKey takes precedence over option.colorScheme
-    if (userKey.length > 1) {
+    if (userKey.length >= 1) {
       console.log("key",userKey)
       obj = this.getUserDefinedKeysColors(userKey)
     } else if (option[COLOR_SCHEME]) {

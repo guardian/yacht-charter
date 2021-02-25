@@ -115,7 +115,6 @@ export default class StackedBarChart {
     const keyColor = dataTools.getKeysColors({ keys: keys, userKey: userKey, option: options[0]})
     this.colors.set(keyColor.keys, keyColor.colors)
 
-
     keys.forEach((key, i) => {
       var keyDiv = chartKey.append("div").attr("class", "keyDiv")
       keyDiv
@@ -202,6 +201,8 @@ export default class StackedBarChart {
         subLayer.total = subLayer.data.Total
       })
     })
+
+    // console.log(layers)
 
     y.domain([d3.min(layers, stackMin), d3.max(layers, stackMax)]).nice()
     var xAxis

@@ -43,7 +43,6 @@ export default class AnnotatedBarChart {
     var chartKey = d3.select("#chartKey")
     chartKey.html("")
 
-
     var svg = d3.select("#graphicContainer").append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
