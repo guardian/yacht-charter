@@ -39,11 +39,11 @@ export default class LineChart {
   constructor(results) {
     const parsed = JSON.parse(JSON.stringify(results))
 
+    console.log(parsed)
     this.data = parsed["sheets"]["data"]
     this.keys = Object.keys(this.data[0])
     this.xColumn = this.keys[0] // use first key, string or date
     this.keys.splice(0, 1) // remove the first key
-
     this.template = parsed["sheets"]["template"]
     this.meta = this.template[0]
     this.labels = parsed["sheets"]["labels"]
@@ -208,20 +208,26 @@ export default class LineChart {
 
     this.keys.forEach((key) => {
       // setup how to draw line
-      this.lineGenerators[key] = d3
-        .line()
-        .x((d) => {
-          return this.x(d[this.xColumn])
-        })
-        .y((d) => {
-          return this.y(d[key])
-        })
+     
+
+         this.lineGenerators[key] = d3
+          .line()
+          .x((d) => {       
+            return this.x(d[this.xColumn])
+          })
+          .y((d) => {
+            return this.y(d[key])
+          })
+
+      
 
       if (this.hideNullValues === "yes") {
-        this.lineGenerators[key].defined(function (d) {
+     
+       this.lineGenerators[key].defined(function (d) {
           return d
-        })
-      }
+          })
+    }
+    
 
       // get all chart values for each key
       this.data.forEach((d) => {
@@ -270,18 +276,21 @@ export default class LineChart {
 
     this.keys.forEach((key) => {
       this.chartKeyData[key] = []
-
       this.data.forEach((d) => {
         if (d[key] != null) {
           let newData = {}
           newData[this.xColumn] = d[this.xColumn]
           newData[key] = d[key]
           this.chartKeyData[key].push(newData)
-        } else {
+        } 
+
+        else if (this.hideNullValues === "yes") {
           this.chartKeyData[key].push(null)
         }
       })
     })
+
+    console.log(this.chartKeyData)
 
     this.labels.forEach((d) => {
       if (this.parseTime && typeof d.x == "string") {
@@ -296,6 +305,8 @@ export default class LineChart {
         d.offset = +d.offset
       }
     })
+
+    console.log("labels",this.labels)
 
     this.periods.forEach((d) => {
       if (typeof d.start == "string") {
@@ -458,7 +469,6 @@ export default class LineChart {
     d3.selectAll(".tick text").attr("fill", "#767676")
 
     d3.selectAll(".domain").attr("stroke", "#767676")
-
 
 
     this.keys.forEach((key) => {
