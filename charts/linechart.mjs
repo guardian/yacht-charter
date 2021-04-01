@@ -29,6 +29,8 @@ function getLongestKeyLength($svg, keys, isMobile, lineLabelling) {
       .attr("y", -50)
       .attr("id", "dummyText")
       .attr("class", "annotationText")
+      .style("font-weight", "bold")
+      .style("font-size", "15px")
       .text(longestKey)
     return dummyText.node().getBBox().width
   }
@@ -486,15 +488,15 @@ export default class LineChart {
       let lineLabelAlign = "start"
       let lineLabelOffset = 0
 
-      if (!this.isMobile && this.lineLabelling) {
-         if (
-        this.x(tempLabelData[tempLabelData.length - 1].index) >
-        this.width - 20
-      ) {
-        lineLabelAlign = "end"
-        lineLabelOffset = -10
-      }
-      }
+      // if (!this.isMobile && this.lineLabelling) {
+      //    if (
+      //   this.x(tempLabelData[tempLabelData.length - 1].index) >
+      //   this.width - 20
+      // ) {
+      //   lineLabelAlign = "end"
+      //   lineLabelOffset = -10
+      // }
+      // }
 
       this.$features
           .append("circle")
@@ -513,7 +515,9 @@ export default class LineChart {
 
         this.$features
           .append("text")
-          .attr("class", "annotationText")
+          .attr("class", "lineLabels")
+          .style("font-weight","bold")
+          .style("font-size","15px")
           .attr("y", (d) => {
             return (
               this.y(tempLabelData[tempLabelData.length - 1][key]) +
@@ -528,6 +532,7 @@ export default class LineChart {
           })
           .style("opacity", 1)
           .attr("text-anchor", lineLabelAlign)
+          .attr("fill", (d) => this.colors.get(key))
           .text((d) => {
             return key
           })

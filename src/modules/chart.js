@@ -93,7 +93,8 @@ export class Chart {
       import("./charts/horizontalbar")
         .then((importedChartModule) => {
           let instance = new importedChartModule.default(data)
-          this._addListener(instance, data, type, importedChartModule)
+          // Horizontal bar should resize itself otherwise it can't use select
+          // this._addListener(instance, data, type, importedChartModule)
         })
       break
     case "smallmultiples":
@@ -136,6 +137,7 @@ export class Chart {
       if (lastWidth != thisWidth) {
         window.clearTimeout(to)
         to = window.setTimeout(function () {
+          console.log("Resizing")
           var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
 
           if (windowWidth < 610) {
