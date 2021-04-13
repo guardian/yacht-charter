@@ -32,19 +32,52 @@ function parse(value, formatString) {
 }
 
 
+// function fixed(num,dec) {
+
+// }
+
 function numberFormatOG(num) {
         if ( num > 0 ) {
-            if ( num >= 1000000000 ) { return ( num / 1000000000 ) + 'bn' }
-            if ( num >= 1000000 ) { return ( num / 1000000 ) + 'm' }
-            if ( num >= 1000 ) { return ( num / 1000 ) + 'k' }
-            if (num % 1 != 0) { return num.toFixed(2) }
+            if ( num >= 1000000000 ) { 
+
+                if ((num / 1000000000) % 1 == 0) {
+                    return ( num / 1000000000 ) + 'bn' 
+                }
+                else {
+                    return ( num / 1000000000 ).toFixed(1) + 'bn' 
+                }
+                
+                }
+            if ( num >= 1000000 ) { 
+
+                if (( num / 1000000 ) % 1 == 0) {
+                  return ( num / 1000000 ) + 'm' 
+                }  
+                else {
+                  return ( num / 1000000 ).toFixed(1) + 'm' 
+                }
+                
+                }
+            if ( num >= 1000 ) {
+
+                if (( num / 1000 ) % 1 == 0) {
+                  return ( num / 1000 ) + 'k' 
+                }
+
+                else {
+                  return ( num / 1000 ).toFixed(1) + 'k' 
+                }
+              }
+            if (num % 1 != 0) { 
+                return num.toFixed(2) 
+              }
             else { return num.toLocaleString() }
         }
         if ( num < 0 ) {
             var posNum = num * -1;
-            if ( posNum >= 1000000000 ) return [ "-" + String(( posNum / 1000000000 )) + 'bn'];
-            if ( posNum >= 1000000 ) return ["-" + String(( posNum / 1000000 )) + 'm'];
-            if ( posNum >= 1000 ) return ["-" + String(( posNum / 1000 )) + 'k'];
+            if ( posNum >= 1000000000 ) return [ "-" + String(( posNum / 1000000000 ).toFixed(1)) + 'bn'];
+            if ( posNum >= 1000000 ) return ["-" + String(( posNum / 1000000 ).toFixed(1)) + 'm'];
+            if ( posNum >= 1000 ) return ["-" + String(( posNum / 1000 ).toFixed(1)) + 'k'];
             else { return num.toLocaleString() }
         }
         return num;

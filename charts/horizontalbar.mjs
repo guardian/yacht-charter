@@ -232,12 +232,11 @@ export default class horizontalBar {
     yAxis = d3.axisLeft(y)
     xAxis = d3.axisBottom(x)
       .tickFormat(function (d) {
-      return numberFormat(d, ".0f")
+      return numberFormat(d)
     })
     if (this.isMobile && this.maxXticks != null){
       // REDUCE TICKS TO MAXIMUM NUMBER OF TICKS ON MOBILE
       xAxis.ticks(this.maxXticks)
-
     }
       
 

@@ -14,19 +14,27 @@ import { commas } from "../utilities/commas"
 export default class table {
   constructor(results) {
 
+
     const self = this
 
     this.showingRows = true
     const table = document.querySelector("#int-table")
     const data = results.sheets.data
+      
     const details = results.sheets.template
     const options = results.sheets.options
     const userKey = results["sheets"]["key"]
     const headings = Object.keys(data[0])
 
+    console.log("isNaN", !  isNaN("1.25pm"))
+    console.log(userKey)
     data.forEach(function(row) {
+      // console.log("yep")
       for (let cell of headings) {
-        row[cell] = (typeof row[cell] === "string" && !isNaN(parseInt(row[cell]))) ? +row[cell] : row[cell]
+        // console.log(row[cell])
+        // console.log(parseInt(row[cell]))
+        // console.log(!isNaN(parseInt(row[cell])))
+        row[cell] = (typeof row[cell] === "string" && !isNaN(row[cell])) ? +row[cell] : row[cell]
       }
     });
 
