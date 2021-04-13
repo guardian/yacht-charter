@@ -43,7 +43,7 @@ export default class groupedBar {
 
     var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 
-    var width = 620 //document.querySelector("#graphicContainer").getBoundingClientRect().width
+    var width = document.querySelector("#graphicContainer").getBoundingClientRect().width
 
     var height = 100 * groupKey.length   
 
