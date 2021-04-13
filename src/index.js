@@ -4,7 +4,7 @@ import {
 } from "./modules/chart"
 import "./main.scss"
 
-const key = getURLParams("key") ? getURLParams("key") : "1JFbrsqMVl9NSNBr-xC7OteSSDvgT5JFhVKoUKn5grVc"
+const key = getURLParams("key") ? getURLParams("key") : "1LLWGOIVoY04guA_TViTzEp3z5sb6ZjD8c8x7ZiYP2rQ"
 const location = getURLParams("location") ? getURLParams("location") : "docsdata"
 
 new Chart(key, location)

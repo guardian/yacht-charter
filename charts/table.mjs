@@ -29,6 +29,8 @@ export default class table {
         row[cell] = (typeof row[cell] === "string" && !isNaN(parseInt(row[cell]))) ? +row[cell] : row[cell]
       }
     });
+
+    //console.log(data)
     
     createTable(table, headings, options[0].enableSort)
     

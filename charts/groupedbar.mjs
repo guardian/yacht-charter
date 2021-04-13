@@ -29,6 +29,8 @@ export default class groupedBar {
 
     var groupKey = data.map(d => d[columns[0]])
 
+    console.log(groupKey)
+
     columns.shift()
 
     var keys = columns
@@ -41,9 +43,9 @@ export default class groupedBar {
 
     var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 
-    var width = document.querySelector("#graphicContainer").getBoundingClientRect().width
+    var width = 620 //document.querySelector("#graphicContainer").getBoundingClientRect().width
 
-    var height = width * 0.6;    
+    var height = 100 * groupKey.length   
 
     var margin
 
