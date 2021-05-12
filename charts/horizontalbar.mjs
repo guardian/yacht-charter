@@ -21,7 +21,13 @@ export default class horizontalBar {
     this.xVar = null
     this.yVar = null
     this.colors = new ColorScale({ domain: [0] })
-    
+    this.suffix = null
+
+    if (this.details[0]["suffix"]) {
+        this.suffix = this.details[0]["suffix"]
+      } else {
+        this.suffix = ""
+    }
 
     // exclude bars that are less than this percent of the max value
     // this.cut_off = results.sheets.options[0]["cut_off_pct"]
@@ -230,6 +236,7 @@ export default class horizontalBar {
     var yAxis
 
     yAxis = d3.axisLeft(y)
+
     xAxis = d3.axisBottom(x)
       .tickFormat(function (d) {
       return numberFormat(d)
@@ -246,7 +253,9 @@ export default class horizontalBar {
       .attr("transform", "translate(0," + this.height + ")")
       .call(xAxis)
 
-    features.append("g").attr("class", "y").call(yAxis)
+    // features.select("")  
+
+    // features.append("g").attr("class", "y").call(yAxis)
 
     features
       .selectAll(".bar")
@@ -277,7 +286,7 @@ export default class horizontalBar {
       .enter()
       .append("text")
       .attr("class", "barText")
-      .attr("x", 5)
+      .attr("x", 0)
       .attr("y", (d) => {
         return y(d[this.yVar]) - 5
       })
@@ -289,6 +298,7 @@ export default class horizontalBar {
       .enter()
       .append("text")
       .attr("class", "barNumber")
+      .style("font-weight", "bold")
       .attr("x", (d) => {
         if (x(d[this.xVar]) > 50) {
           return x(d[this.xVar]) - 50
@@ -304,7 +314,7 @@ export default class horizontalBar {
         }
       })
       .attr("y", (d) => y(d[this.yVar]) + (y.bandwidth() / 2 + 5))
-      .text((d) => numberFormat(d[this.xVar]))
+      .text((d) => numberFormat(d[this.xVar]) + this.suffix)
 
     d3.selectAll(".y .tick").remove()
 
