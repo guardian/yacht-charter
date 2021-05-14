@@ -1,7 +1,9 @@
 import { numberFormat } from '../utilities/numberFormat'
 
 export default class AnnotatedBarChart {
+  
   constructor(results) {
+
     console.log(results)
     let clone = JSON.parse(JSON.stringify(results))
     var data = clone["sheets"]["data"]
@@ -33,7 +35,7 @@ export default class AnnotatedBarChart {
     }
 
     width = width - margin.left - margin.right,
-      height = height - margin.top - margin.bottom
+    height = height - margin.top - margin.bottom
 
     d3.select("#chartTitle").text(details[0].title)
     d3.select("#subTitle").text(details[0].subtitle)

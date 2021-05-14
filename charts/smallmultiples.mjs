@@ -29,13 +29,18 @@ export default class SmallMultiples {
       window.innerWidth || 0
     )
 
+    this.details = details
+       console.log(this.details[0]["dateFormat"])
+    this.parseTime = this.details[0]["dateFormat"] ? d3.timeParse(this.details[0]["dateFormat"]) : null
+    console.log(this.parseTime)
+
     data.forEach(function (d) {
       if (typeof d[self.yVar] == "string") {
         d[self.yVar] = +d[self.yVar]
       }
       if (typeof d[self.xVar] == "string") {
-        let timeParse = d3.timeParse("%Y-%m-%d")
-        d[self.xVar] = timeParse(d[self.xVar])
+        // let timeParse = d3.timeParse("%Y-%m-%d")
+        d[self.xVar] = self.parseTime(d[self.xVar])
       }
     })
 
@@ -47,8 +52,10 @@ export default class SmallMultiples {
 
     this.keys = keys
 
-    this.details = details
+    
 
+    // this.parseTime = null
+ 
     this.isMobile = windowWidth < 610 ? true : false
 
     this.template = details[0].tooltip
@@ -57,6 +64,8 @@ export default class SmallMultiples {
 
     this.chartType =
       options[0] && options[0].chartType ? options[0].chartType : "area" // bar, line, area (default)
+
+    // this.chartType = "bar"  
 
     if (options[0] && options[0]["scaleBy"] == "group") {
       this.showGroupMax = true
@@ -174,9 +183,28 @@ export default class SmallMultiples {
         "translate(" + this.margin.left + "," + this.margin.top + ")"
       )
 
-    const x = isBar
-      ? d3.scaleBand().range([0, this.width]).padding(0)
-      : d3.scaleLinear().range([0, this.width])
+    var x = d3.scaleBand().range([0, this.width]).padding(0)
+
+    console.log(this.parseTime)
+    if (this.parseTime) {
+      if (!isBar) {
+        console.log("yeh")
+          x = d3.scaleTime().range([0, this.width])
+      }
+    }
+
+    else {
+      if (!isBar) {
+          x = d3.scaleLinear().range([0, this.width])
+      }
+    } 
+
+    // const x = isBar
+    //   ? d3.scaleBand().range([0, this.width]).padding(0)
+    //   : d3.scaleLinear().range([0, this.width])
+
+    console.log("x",x)
+
     const y = d3.scaleLinear().range([this.height, 0])
     const duration = 1000
     let yMax = this.showGroupMax
@@ -195,10 +223,17 @@ export default class SmallMultiples {
     const ticks = x
       .domain()
       .filter((d, i) => !(i % tickMod) || i === x.domain().length - 1)
+
     const xAxis = d3
       .axisBottom(x)
-      .tickValues(ticks)
-      .tickFormat(d3.timeFormat("%d %b"))
+      // .tickValues(ticks)
+      // .tickFormat(d3.timeFormat())
+      .ticks(4)
+
+     if (isBar) {
+        xAxis.tickValues(ticks).tickFormat(d3.timeFormat("%b %Y"))
+     } 
+      
     const yAxis = d3
       .axisLeft(y)
       .tickFormat((d) => numberFormat(d))
