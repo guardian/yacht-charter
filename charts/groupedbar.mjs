@@ -29,8 +29,6 @@ export default class groupedBar {
 
     var groupKey = data.map(d => d[columns[0]])
 
-    console.log(groupKey)
-
     columns.shift()
 
     var keys = columns
@@ -104,6 +102,8 @@ export default class groupedBar {
       .domain([0, d3.max(dataset)])
       .rangeRound([margin.left, ( width + margin.left )  - margin.right])
     
+    console.log(dataset)
+
     var color = d3.scaleOrdinal()
 
     color.range(this.userKey.map(item => item.colour))
@@ -114,7 +114,7 @@ export default class groupedBar {
       .attr("transform", `translate(0,${height - margin.bottom})`)
       .call(d3.axisBottom(x).tickSizeOuter(0))
       .call(g => g.select(".domain").remove())
-      .call(d3.axisBottom(x).ticks(3, "s"))
+      .call(d3.axisBottom(x)) //.ticks(3, "s")
       .call(g => g.select(".tick:last-of-type text").clone()
         .attr("x", 15)
         .attr("text-anchor", "start")
@@ -123,7 +123,7 @@ export default class groupedBar {
       
     var yAxis = g => g
       .attr("transform", `translate(${margin.left},0)`)
-      .call(d3.axisLeft(y0).ticks(null, "s"))
+      .call(d3.axisLeft(y0)) //.ticks(null, "s")
       .call(g => g.select(".domain").remove())
 
     svg.append("g")
