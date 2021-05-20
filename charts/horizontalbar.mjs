@@ -14,7 +14,8 @@ export default class horizontalBar {
     this.details = results.sheets.template
     this.labels = results.sheets.labels
     this.userKey = results["sheets"]["key"]
-    this.options = results.sheets.options[0]['enableShowMore']
+    this.options = results.sheets.options[0]
+
     this.maxXticks = results.sheets.options[0]['maxXticks']
 
     this.keys = Object.keys(this.data[0])
@@ -28,6 +29,26 @@ export default class horizontalBar {
       } else {
         this.suffix = ""
     }
+
+    this.scaleByAllMax = null
+
+    if (this.options["scaleByAllMax"]) {
+        this.scaleByAllMax = this.options["scaleByAllMax"]
+    }
+
+    this.enableShowMore = null
+
+    if (this.options["enableShowMore"]) {
+        this.enableShowMore = this.options["enableShowMore"]
+    }
+
+    this.autoSort = null 
+
+    if (this.options["autoSort"]) {
+        this.autoSort = this.options["autoSort"]
+    }
+
+    console.log(this.enableShowMore)
 
     // exclude bars that are less than this percent of the max value
     // this.cut_off = results.sheets.options[0]["cut_off_pct"]
@@ -97,8 +118,10 @@ export default class horizontalBar {
 
 
     var yNaN = isNaN(this.data[0][this.yVar])
+    var allValues = []
 
     this.data.forEach((d) => {
+
       if (typeof d[this.yVar] == "string" && !yNaN) {
 
         d[this.yVar] = +d[this.yVar]
@@ -113,7 +136,15 @@ export default class horizontalBar {
         d[this.xVar] = null
       }
       
+       for (let i = 1; i < this.keys.length; i++) {
+        console.log(this.keys[i])
+        allValues.push(d[this.keys[i]])
+      
+      }
+
     })
+
+ 
 
     this.labels.forEach(function (d) {
       d.x = +d.x
@@ -126,7 +157,20 @@ export default class horizontalBar {
 
     // sort the dataset from biggest to smallest
 
-    this.temp_data  = this.temp_data.sort((a, b) => d3.descending(+a[this.xVar], +b[this.xVar]))
+    if (this.options.autoSort != null) {
+      if (this.options.autoSort == "TRUE") {
+        this.temp_data  = this.temp_data.sort((a, b) => d3.descending(+a[this.xVar], +b[this.xVar]))  
+      }
+
+      else {
+        console.log("Not sorting")
+      }
+    }
+
+    else {
+      this.temp_data  = this.temp_data.sort((a, b) => d3.descending(+a[this.xVar], +b[this.xVar]))  
+    }
+    
 
     var width = document
       .querySelector("#graphicContainer")
@@ -156,6 +200,7 @@ export default class horizontalBar {
     this.height = height - margin.top - margin.bottom
     this.margin = margin
     this.isMobile = isMobile
+    this.allMax = d3.max(allValues)
 
     // // Check first entry and see if it looks like a string. True if string, false if number or number as string
   }
@@ -216,9 +261,16 @@ export default class horizontalBar {
 
     var xMin, xMax
 
-    xMax = d3.max(this.temp_data, (d) => {
+    if (this.scaleByAllMax != null) {
+      xMax = this.allMax
+    }
+
+    else {
+      xMax = d3.max(this.temp_data, (d) => {
       return d[this.xVar]
-    })
+      })
+    }
+    
 
     if (this.details[0]["minX"]) {
       if (this.details[0]["minX"] != "") {
@@ -449,7 +501,7 @@ export default class horizontalBar {
     var wrapper = document.getElementById("outer-wrapper")
     var gradient = document.getElementById("gradientBar")
 
-    if (this.options.enableShowMore === "1") {
+    if (this.options.enableShowMore === "TRUE") {
       console.log("Show more button enabled")
       button.addEventListener("click", toggleButton)
     } else {
