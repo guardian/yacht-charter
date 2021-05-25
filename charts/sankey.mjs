@@ -24,6 +24,8 @@ export default class Sankey {
 		var optionalColours = []
 		var hasTooltip = details[0].tooltip != "" ? true : false
 
+		console.log(data)
+
 		var template
 
 		if (userKey.length > 1) {
@@ -125,6 +127,12 @@ export default class Sankey {
 		var arrows = labels.filter(d => d.class === "arrow")
 		var headings = labels.filter(d => d.class === "heading")
 		
+		function sanitiseString(s) {
+			var newString = s.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"")
+			newString = newString.replace(/ |,/g, '_')
+			return newString
+		}
+
   		const dataNodes = Array.from(new Set(data.flatMap(l => [l.source, l.target])), name => ({name}));
   	
   		
@@ -141,6 +149,13 @@ export default class Sankey {
   		
   		// console.log(graphData)
 
+  		function sanitiseString(s) {
+			var newString = s.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"")
+			newString = newString.replace(/ |,/g, '_')
+			return newString
+		}
+
+
   		var sankey = d3sankey.sankey()
       		.size([width, height])
       		.nodeId(d => d.name)
@@ -155,8 +170,8 @@ export default class Sankey {
 			.data(graph.links)
 			.enter().append("path")
 			.attr("class", "link")
-			.attr("id", d => d.source.name.replace(/ |,/g, '_') + d.target.name.replace(/ |,/g, '_'))
-			.style("mix-blend-mode", "multiply")
+			.attr("id", d => sanitiseString(d.source.name) + sanitiseString(d.target.name))
+			// .style("mix-blend-mode", "multiply")
 			.style("fill", "none")
       		.attr("stroke-opacity", 0.5)
       		.on('mouseover.fade', fade2(0.1, 'over'))
@@ -171,6 +186,7 @@ export default class Sankey {
 
 			const startColor = color(d.source.name);
 			const stopColor = color(d.target.name);
+			console.log(startColor,stopColor)
 
 			const linearGradient = defs.append('linearGradient')
 				.attr('id', gradientID)
@@ -192,6 +208,7 @@ export default class Sankey {
 			});
 
 			return `url(#${gradientID})`;
+			// return d.color;
 		})
 
 		var node = features.append("g").selectAll(".node")
@@ -238,19 +255,22 @@ export default class Sankey {
 				.style("opacity", 0)
 				.style("pointer-events", "none")
 
+		
+
 		var linkCircles = linkContainers
 			.append("circle")
 			.attr("class", "linkCircle")
 			.attr("fill", "#FFF")
 			.attr("cx", function(d) {
-				var pathEl = d3.select("#" + d.source.name.replace(/ |,/g, '_') + d.target.name.replace(/ |,/g, '_')).node()
+				console.log(d)
+				var pathEl = d3.select("#" + sanitiseString(d.source.name) + sanitiseString(d.target.name)).node()
 				return pathEl.getPointAtLength(pathEl.getTotalLength()/2).x
 			})
 			.attr("cy", function(d) {
-				var pathEl = d3.select("#" + d.source.name.replace(/ |,/g, '_') + d.target.name.replace(/ |,/g, '_')).node()
+				var pathEl = d3.select("#" + sanitiseString(d.source.name) + sanitiseString(d.target.name)).node()
 				return pathEl.getPointAtLength(pathEl.getTotalLength()/2).y
 			})
-			.attr("r",12)
+			.attr("r",20)
 			.attr("stroke", "#bababa")      
 
 		var linkText = linkContainers
@@ -258,15 +278,15 @@ export default class Sankey {
 			.attr("class", "label")
 			.attr("text-anchor", "middle")
 			.attr("x", function(d) {
-				var pathEl = d3.select("#" + d.source.name.replace(/ |,/g, '_') + d.target.name.replace(/ |,/g, '_')).node()
+				var pathEl = d3.select("#" + sanitiseString(d.source.name) + sanitiseString(d.target.name)).node()
 				return pathEl.getPointAtLength(pathEl.getTotalLength()/2).x
 			})
 			.attr("y", function(d) {
-				var pathEl = d3.select("#" + d.source.name.replace(/ |,/g, '_') + d.target.name.replace(/ |,/g, '_')).node()
+				var pathEl = d3.select("#" + sanitiseString(d.source.name) + sanitiseString(d.target.name)).node()
 				return pathEl.getPointAtLength(pathEl.getTotalLength()/2).y + 4
 			})
 			.style("font-size","10px")
-			.text(d => d.value)    
+			.text(d => numberFormat(d.value))    
 
 
 		svg.selectAll(".heading")

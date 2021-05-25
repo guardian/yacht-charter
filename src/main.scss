@@ -22,7 +22,7 @@ figure {
 }
 
 .interactive-wrapper {
-  background: #fff;
+  background: #ffffff;
   position: relative;
   margin: 0 !important;
   border-top: 1px solid #dcdcdc;
@@ -31,6 +31,7 @@ figure {
   #graphicContainer {
     position: relative;
     max-width: 1200px;
+    z-index: 100;
   }
 
   .min {
