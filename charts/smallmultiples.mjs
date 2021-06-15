@@ -1,3 +1,8 @@
+// To do:
+//  -Add support for custom user key like other charts
+//  -Make a key when it is a multiSeries
+//  -Label support
+
 import moment from "moment"
 import { numberFormat } from "../utilities/numberFormat"
 import mustache from "../utilities/mustache"
@@ -13,34 +18,77 @@ export default class SmallMultiples {
     var data = results.sheets.data
     var details = results.sheets.template
     var options = results.sheets.options
+    
 
-    var dataKeys = Object.keys(data[0])
+    this.dataKeys = Object.keys(data[0])
 
-    console.log(dataKeys)
+    console.log(this.dataKeys)
 
-    this.groupVar = dataKeys[1]
-    this.xVar = dataKeys[0]
-    this.yVar = dataKeys[2]
+    this.xVar = this.dataKeys[0]
+
+    if (details[0]["xColumn"]) {
+      this.xVar = details[0]["xColumn"] 
+    }
+
+    this.groupVar = this.dataKeys[1]
+    
+    if (details[0]["groupColumn"]) {
+      this.groupVar = details[0]["groupColumn"]
+      // this.dataKeys.splice(keys.indexOf(this.groupVar), 1)
+    }
+
+    this.yVar = this.dataKeys[2]
+
+    if (details[0]["yColumn"]) {
+      this.groupVar = details[0]["yColumn"]
+    }
+
+    this.multiSeries = false
+
+    this.dataKeys.splice(this.dataKeys.indexOf(this.xVar), 1)
+    this.dataKeys.splice(this.dataKeys.indexOf(this.groupVar), 1)
+
+    if (this.dataKeys.length > 1) {
+      this.multiSeries = true
+      console.log("multiSeries", this.multiSeries)
+    }
+
     this.hasTooltip = details[0].tooltip != "" ? true : false
 
     var keys = [...new Set(data.map((d) => d[this.groupVar]))]
+
+    console.log("keys",keys)
+
     var windowWidth = Math.max(
       document.documentElement.clientWidth,
       window.innerWidth || 0
     )
 
     this.details = details
-       console.log(this.details[0]["dateFormat"])
     this.parseTime = this.details[0]["dateFormat"] ? d3.timeParse(this.details[0]["dateFormat"]) : null
-    console.log(this.parseTime)
 
     data.forEach(function (d) {
-      if (typeof d[self.yVar] == "string") {
-        d[self.yVar] = +d[self.yVar]
+      
+      if (self.multiSeries) {
+          self.dataKeys.forEach(key  => {
+            if (typeof d[key] == "string") {
+              d[key] = +d[key]
+            }
+
+          })
+
       }
+
+      else {
+          if (typeof d[self.yVar] == "string") {
+          d[self.yVar] = +d[self.yVar]
+        }
+      }
+
       if (typeof d[self.xVar] == "string") {
         // let timeParse = d3.timeParse("%Y-%m-%d")
         d[self.xVar] = self.parseTime(d[self.xVar])
+      
       }
     })
 
@@ -51,8 +99,6 @@ export default class SmallMultiples {
     this.data = data
 
     this.keys = keys
-
-    
 
     // this.parseTime = null
  
@@ -185,7 +231,6 @@ export default class SmallMultiples {
 
     var x = d3.scaleBand().range([0, this.width]).padding(0)
 
-    console.log(this.parseTime)
     if (this.parseTime) {
       if (!isBar) {
         console.log("yeh")
@@ -203,7 +248,6 @@ export default class SmallMultiples {
     //   ? d3.scaleBand().range([0, this.width]).padding(0)
     //   : d3.scaleLinear().range([0, this.width])
 
-    console.log("x",x)
 
     const y = d3.scaleLinear().range([this.height, 0])
     const duration = 1000
@@ -211,14 +255,30 @@ export default class SmallMultiples {
       ? data
       : data.filter((item) => item[this.groupVar] === key)
 
+    // console.log("yMax",data.filter((item) => item[this.groupVar] === key))  
+
     if (isBar) {
       x.domain(data.map((d) => d[this.xVar]))
     } else {
       x.domain(d3.extent(data, (d) => d[this.xVar]))
     }
 
-    y.domain(d3.extent(yMax, (d) => d[this.yVar])).nice()
+    if (this.multiSeries) {
+      var allValues = []
+      this.dataKeys.forEach(key => {
+          console.log(d3.extent(yMax, (d) => d[key]))
+          allValues = allValues.concat(d3.extent(yMax, (d) => d[key]))
+      })
+      console.log("allValues",allValues)
+      y.domain(d3.extent(allValues)).nice()
+    
+    }
 
+    else {
+      y.domain(d3.extent(yMax, (d) => d[this.yVar])).nice()
+    }
+
+  
     const tickMod = Math.round(x.domain().length / 3)
     const ticks = x
       .domain()
@@ -349,7 +409,46 @@ export default class SmallMultiples {
   }
 
   drawAreaChart({ features, data, duration, x, y }) {
+
+    console.log(data)
+
     const $area = features.selectAll(".area-path").data([data])
+    
+    if (this.multiSeries) {
+
+      this.dataKeys.forEach((key, i) => {
+
+           const area = d3
+            .area()
+            .x((d) => x(d[this.xVar]))
+            .y0((d) => y(0))
+            .y1((d) => y(d[key]))
+
+          const initialArea = d3
+            .area()
+            .x((d) => x(d[this.xVar]))
+            .y0((d) => y(0))
+            .y1((d) => this.height)
+
+          $area
+            .enter()
+            .append("path")
+            .attr("class", "area-path")
+            .attr("fill", this.colors.get(i))
+            .attr("d", initialArea)
+            .merge($area)
+            .transition()
+            .duration(duration)
+            .attr("d", area)
+
+          $area.exit().transition().duration(duration).attr("d", initialArea).remove()
+      
+      })
+
+    }
+
+    else {
+
     const area = d3
       .area()
       .x((d) => x(d[this.xVar]))
@@ -374,6 +473,10 @@ export default class SmallMultiples {
       .attr("d", area)
 
     $area.exit().transition().duration(duration).attr("d", initialArea).remove()
+
+    }
+
+
   }
 
   drawHoverFeature({ features, data, x }) {
