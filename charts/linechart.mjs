@@ -690,7 +690,14 @@ export default class LineChart {
         .attr("x", (d) => {
           return this.x(d.x)
         })
-        .style("text-anchor", "middle")
+        .attr("text-anchor", (d) => {
+          if (d.align != "") {
+            return d.align
+          }
+          else {
+            return "start"
+          }
+        })
         .style("opacity", 1)
         .attr("fill", "white")
         .text((d, i) => {
