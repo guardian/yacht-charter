@@ -4,8 +4,10 @@ import {
 } from "./modules/chart"
 import "./main.scss"
 
-const key = getURLParams("key") ? getURLParams("key") : "victransport_patronage_covid"
-const location = getURLParams("location") ? getURLParams("location") : "yacht-charter-data"
+// https://docs.google.com/spreadsheets/d/1Rn0TTg3o37sRpYG4BRgPEqgyjVKsoNc4WpD_qzdwTcU/edit#gid=117658605
+
+const key = getURLParams("key") ? getURLParams("key") : "1Rn0TTg3o37sRpYG4BRgPEqgyjVKsoNc4WpD_qzdwTcU"
+const location = getURLParams("location") ? getURLParams("location") : "docsdata"
 
 new Chart(key, location)
 

@@ -6,7 +6,11 @@ export default async function colourize(headings, userKey, data, ColorScale) {
 
 	const highlighted = userKey.map(item => item.key)
 
-    const formating = userKey.map(item => item.format.split(","))
+    const formating = userKey.map(item => { 
+
+        return (item.format) ? item.format.split(",") : undefined ;
+        
+    })
 
 	const colourizer = (value, index) => (!contains(headings[index], highlighted)) ? false : pantone.find(item => item.name === headings[index]).profile.get(value) ;
 
