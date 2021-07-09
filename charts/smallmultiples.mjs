@@ -18,7 +18,6 @@ export default class SmallMultiples {
     var data = results.sheets.data
     var details = results.sheets.template
     var options = results.sheets.options
-    
 
     this.dataKeys = Object.keys(data[0])
 
@@ -42,6 +41,19 @@ export default class SmallMultiples {
     if (details[0]["yColumn"]) {
       this.groupVar = details[0]["yColumn"]
     }
+
+    this.numCols = null
+
+    if (options[0]["numCols"]) {
+      this.numCols = +options[0]["numCols"]
+    }
+
+    this.height = null
+    
+    if (options[0]["height"]) {
+      this.height = +options[0]["height"]
+    }
+
 
     this.multiSeries = false
 
@@ -140,7 +152,7 @@ export default class SmallMultiples {
     } else {
       margin = {
         top: 0,
-        right: 0,
+        right: 20,
         bottom: 20,
         left: 50
       }
@@ -148,8 +160,7 @@ export default class SmallMultiples {
 
     this.margin = margin
     this.width
-    this.height
-
+    
     this.setup()
   }
 
@@ -163,25 +174,37 @@ export default class SmallMultiples {
 
     console.log("containerWidth", containerWidth)
 
-    var numCols
-    if (containerWidth <= 500) {
-      numCols = 1
-    } else if (containerWidth <= 750) {
-      numCols = 2
-    } else {
-      numCols = 3
+    // var numCols
+
+    if (self.numCols === null) {
+  
+        if (containerWidth <= 500) {
+          self.numCols = 1
+        } else if (containerWidth <= 750) {
+          self.numCols = 2
+        } else {
+          self.numCols = 3
+        }
     }
 
-    console.log(numCols)
 
-    var width = containerWidth / numCols
+    console.log(self.numCols)
+
+    var width = containerWidth / self.numCols
 
     console.log("width", width)
 
-    var height = 200
+    var height
 
-    if (self.isMobile) {
+    if (self.height != null) {
+      height = self.height
+    }
+
+    else {
+      height = 200
+      if (self.isMobile) {
       height = 150
+      }
     }
 
     self.width = width - self.margin.left - self.margin.right
@@ -202,6 +225,8 @@ export default class SmallMultiples {
   }
 
   drawChart({ data, key, details, chartType, isMobile, hasTooltip }) {
+    var self = this 
+
     const id = dataTools.getId(key),
       chartId = `#${id}`,
       isBar = chartType === "bar", // use different x scale
@@ -212,6 +237,15 @@ export default class SmallMultiples {
       .append("div")
       .attr("id", id)
       .attr("class", "chart-grid")
+      .style("width", function(d) {
+          if (self.numCols === 1) {
+            return "100%"
+          } else if (self.numCols === 2) {
+            return "49.9%"
+          } else {
+            return "32.9%"
+          }
+      })
 
     d3.select(chartId).append("div").text(key).attr("class", "chartSubTitle")
 
@@ -403,6 +437,7 @@ export default class SmallMultiples {
       .transition()
       .duration(duration)
       .attr("d", line)
+      .attr("stroke-width", 2)
       .attr("stroke", this.colors.get(0))
 
     $line.exit().transition().duration(duration).attr("d", initialLine).remove()
