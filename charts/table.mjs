@@ -16,7 +16,6 @@ export default class table {
 
 
     const self = this
-
     this.showingRows = true
     const table = document.querySelector("#int-table")
     const data = results.sheets.data
@@ -26,20 +25,18 @@ export default class table {
     const userKey = results["sheets"]["key"]
     const headings = Object.keys(data[0])
 
-    console.log("isNaN", !  isNaN("1.25pm"))
-    console.log(userKey)
     data.forEach(function(row) {
-      // console.log("yep")
       for (let cell of headings) {
-        // console.log(row[cell])
-        // console.log(parseInt(row[cell]))
-        // console.log(!isNaN(parseInt(row[cell])))
         row[cell] = (typeof row[cell] === "string" && !isNaN(row[cell])) ? +row[cell] : row[cell]
       }
     });
 
-    //console.log(data)
-    
+    for (const key of userKey) {
+
+      key.format = (key.format) ? key.format : undefined ;
+
+    }
+
     createTable(table, headings, options[0].enableSort)
     
     addCustomCSS(headings, options[0].format)
