@@ -228,7 +228,7 @@ export default class LineChart {
        this.lineGenerators[key].defined(function (d) {
           return d
           })
-    }
+      }
     
 
       // get all chart values for each key

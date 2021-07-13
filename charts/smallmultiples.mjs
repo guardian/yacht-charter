@@ -81,29 +81,33 @@ export default class SmallMultiples {
     this.parseTime = this.details[0]["dateFormat"] ? d3.timeParse(this.details[0]["dateFormat"]) : null
 
     data.forEach(function (d) {
-      
+        
         self.dataKeys.forEach(key  => {
-          if (d[key].includes(",")) {
-            if (!isNaN(d[key].replace(/,/g, ""))) {
-              d[key] = +d[key].replace(/,/g, "")
-              // this.chartValues.push(d[key])
-            }
-          } else if (d[key] != "") {
-            if (!isNaN(d[key])) {
-              d[key] = +d[key]
-              // this.chartValues.push(d[key])
-            }
-          } 
 
-          else if (d[key] == "") {
-            if (self.hideNullValues === "yes") {
-              d[key] = NaN
+          if (typeof d[key] == "string") {
+
+            if (d[key].indexOf(',') > -1) {
+              if (!isNaN(d[key].replace(/,/g, ""))) {
+                d[key] = +d[key].replace(/,/g, "")
+                // this.chartValues.push(d[key])
+              }
+            } else if (d[key] != "") {
+              if (!isNaN(d[key])) {
+                d[key] = +d[key]
+                // this.chartValues.push(d[key])
+              }
+            } 
+
+            else if (d[key] == "") {
+              if (self.hideNullValues === "yes") {
+                d[key] = NaN
+              }
+              else {
+                d[key] = ""
+              }
             }
-            else {
-              d[key] = ""
-            }
+
           }
-
           })
       
 
@@ -291,7 +295,6 @@ export default class SmallMultiples {
 
     if (this.parseTime) {
       if (!isBar) {
-        console.log("yeh")
           x = d3.scaleTime().range([0, this.width])
       }
     }
@@ -324,10 +327,8 @@ export default class SmallMultiples {
     if (this.multiSeries) {
       var allValues = []
       this.dataKeys.forEach(key => {
-          console.log(d3.extent(yMax, (d) => d[key]))
           allValues = allValues.concat(d3.extent(yMax, (d) => d[key]))
       })
-      console.log("allValues",allValues)
       y.domain(d3.extent(allValues)).nice()
     
     }
@@ -444,8 +445,6 @@ export default class SmallMultiples {
 
     const $line = features.selectAll(".line-path").data([data])
 
-    console.log("yeh", this.hideNullValues)
-
       this.dataKeys.forEach((key, i) => {
 
           const line = d3
@@ -456,8 +455,6 @@ export default class SmallMultiples {
           if (this.hideNullValues === "yes") {
        
            line.defined(function (d) {
-              console.log(d[key])
-              console.log(!isNaN(d[key]))
               return !isNaN(d[key])
               })
           }  
@@ -517,8 +514,6 @@ export default class SmallMultiples {
   }
 
   drawAreaChart({ features, data, duration, x, y }) {
-
-    console.log(data)
 
     const $area = features.selectAll(".area-path").data([data])
     
