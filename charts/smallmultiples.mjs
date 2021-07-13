@@ -13,15 +13,18 @@ import ColorScale from "./shared/colorscale"
 
 export default class SmallMultiples {
   constructor(results) {
-    console.log(results)
     var self = this
     var data = results.sheets.data
     var details = results.sheets.template
     var options = results.sheets.options
 
     this.dataKeys = Object.keys(data[0])
+    this.hideNullValues = "yes"
+    this.$chartKey = d3.select("#chartKey")
 
-    console.log(this.dataKeys)
+    if (options["breaks"]) {
+      this.hideNullValues = options["breaks"]
+    }
 
     this.xVar = this.dataKeys[0]
 
@@ -69,8 +72,6 @@ export default class SmallMultiples {
 
     var keys = [...new Set(data.map((d) => d[this.groupVar]))]
 
-    console.log("keys",keys)
-
     var windowWidth = Math.max(
       document.documentElement.clientWidth,
       window.innerWidth || 0
@@ -81,21 +82,36 @@ export default class SmallMultiples {
 
     data.forEach(function (d) {
       
-      if (self.multiSeries) {
-          self.dataKeys.forEach(key  => {
-            if (typeof d[key] == "string") {
-              d[key] = +d[key]
+        self.dataKeys.forEach(key  => {
+          if (d[key].includes(",")) {
+            if (!isNaN(d[key].replace(/,/g, ""))) {
+              d[key] = +d[key].replace(/,/g, "")
+              // this.chartValues.push(d[key])
             }
+          } else if (d[key] != "") {
+            if (!isNaN(d[key])) {
+              d[key] = +d[key]
+              // this.chartValues.push(d[key])
+            }
+          } 
+
+          else if (d[key] == "") {
+            if (self.hideNullValues === "yes") {
+              d[key] = NaN
+            }
+            else {
+              d[key] = ""
+            }
+          }
 
           })
+      
 
-      }
-
-      else {
-          if (typeof d[self.yVar] == "string") {
-          d[self.yVar] = +d[self.yVar]
-        }
-      }
+      // else {
+      //     if (typeof d[self.yVar] == "string") {
+      //     d[self.yVar] = +d[self.yVar]
+      //   }
+      // }
 
       if (typeof d[self.xVar] == "string") {
         // let timeParse = d3.timeParse("%Y-%m-%d")
@@ -118,7 +134,7 @@ export default class SmallMultiples {
 
     this.template = details[0].tooltip
 
-    this.colors = new ColorScale({ domain: [0] })
+    this.colors = new ColorScale({ domain: this.dataKeys })
 
     this.chartType =
       options[0] && options[0].chartType ? options[0].chartType : "area" // bar, line, area (default)
@@ -172,8 +188,6 @@ export default class SmallMultiples {
 
     self.containerHeight = containerWidth
 
-    console.log("containerWidth", containerWidth)
-
     // var numCols
 
     if (self.numCols === null) {
@@ -187,12 +201,7 @@ export default class SmallMultiples {
         }
     }
 
-
-    console.log(self.numCols)
-
     var width = containerWidth / self.numCols
-
-    console.log("width", width)
 
     var height
 
@@ -222,6 +231,21 @@ export default class SmallMultiples {
         hasTooltip: this.hasTooltip
       })
     })
+
+    if (this.multiSeries) {
+      
+      this.dataKeys.forEach((key) => {
+        const $keyDiv = this.$chartKey.append("div").attr("class", "keyDiv")
+
+        $keyDiv
+          .append("span")
+          .attr("class", "keyCircle")
+          .style("background-color", () => this.colors.get(key))
+
+        $keyDiv.append("span").attr("class", "keyText").text(key)
+      })
+    }
+  
   }
 
   drawChart({ data, key, details, chartType, isMobile, hasTooltip }) {
@@ -417,30 +441,79 @@ export default class SmallMultiples {
   }
 
   drawLineChart({ features, data, duration, x, y }) {
+
     const $line = features.selectAll(".line-path").data([data])
-    const line = d3
-      .line()
-      .x((d) => x(d[this.xVar]))
-      .y((d) => y(d[this.yVar]))
-    const initialLine = d3
-      .line()
-      .x((d) => x(d[this.xVar]))
-      .y(this.height)
 
-    $line
-      .enter()
-      .append("path")
-      .attr("class", "line-path")
-      .attr("fill", "transparent")
-      .attr("d", initialLine)
-      .merge($line)
-      .transition()
-      .duration(duration)
-      .attr("d", line)
-      .attr("stroke-width", 2)
-      .attr("stroke", this.colors.get(0))
+    console.log("yeh", this.hideNullValues)
 
-    $line.exit().transition().duration(duration).attr("d", initialLine).remove()
+      this.dataKeys.forEach((key, i) => {
+
+          const line = d3
+            .line()
+            .x((d) => x(d[this.xVar]))
+            .y((d) => y(d[key]))
+
+          if (this.hideNullValues === "yes") {
+       
+           line.defined(function (d) {
+              console.log(d[key])
+              console.log(!isNaN(d[key]))
+              return !isNaN(d[key])
+              })
+          }  
+           
+          const initialLine = d3
+            .line()
+            .x((d) => x(d[this.xVar]))
+            .y(this.height)
+
+          if (this.hideNullValues === "yes") {
+     
+           initialLine.defined(function (d) {
+              return !isNaN(d[key])
+              })
+          }   
+
+          $line
+            .enter()
+            .append("path")
+            .attr("class", "line-path")
+            .attr("fill", "transparent")
+            .attr("d", initialLine)
+            .merge($line)
+            .transition()
+            .duration(duration)
+            .attr("d", line)
+            .attr("stroke-width", 2)
+            .attr("stroke", (d) => this.colors.get(key))
+
+          $line.exit().transition().duration(duration).attr("d", initialLine).remove()
+      
+      })
+
+    // const line = d3
+    //   .line()
+    //   .x((d) => x(d[this.xVar]))
+    //   .y((d) => y(d[this.yVar]))
+    // const initialLine = d3
+    //   .line()
+    //   .x((d) => x(d[this.xVar]))
+    //   .y(this.height)
+
+    // $line
+    //   .enter()
+    //   .append("path")
+    //   .attr("class", "line-path")
+    //   .attr("fill", "transparent")
+    //   .attr("d", initialLine)
+    //   .merge($line)
+    //   .transition()
+    //   .duration(duration)
+    //   .attr("d", line)
+    //   .attr("stroke-width", 2)
+    //   .attr("stroke", this.colors.get(0))
+
+    // $line.exit().transition().duration(duration).attr("d", initialLine).remove()
   }
 
   drawAreaChart({ features, data, duration, x, y }) {

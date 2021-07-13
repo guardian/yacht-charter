@@ -113,6 +113,7 @@ export default class StackedBarChart {
 
     // set up color domain/range
     const keyColor = dataTools.getKeysColors({ keys: keys, userKey: userKey, option: options[0]})
+    
     this.colors.set(keyColor.keys, keyColor.colors)
 
     keys.forEach((key, i) => {
