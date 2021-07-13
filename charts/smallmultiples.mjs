@@ -21,6 +21,7 @@ export default class SmallMultiples {
     this.dataKeys = Object.keys(data[0])
     this.hideNullValues = "yes"
     this.$chartKey = d3.select("#chartKey")
+    this.chartValues = {}
 
     if (options["breaks"]) {
       this.hideNullValues = options["breaks"]
@@ -152,6 +153,7 @@ export default class SmallMultiples {
       d3.select("#switch").html("Show max scale for group")
     }
     d3.select("#switch").on("click", function () {
+      console.log("switch")
       self.showGroupMax = self.showGroupMax ? false : true
 
       var label = self.showGroupMax
@@ -309,12 +311,13 @@ export default class SmallMultiples {
     //   ? d3.scaleBand().range([0, this.width]).padding(0)
     //   : d3.scaleLinear().range([0, this.width])
 
-
     const y = d3.scaleLinear().range([this.height, 0])
     const duration = 1000
     let yMax = this.showGroupMax
       ? data
       : data.filter((item) => item[this.groupVar] === key)
+
+    // console.log("yMax", yMax)  
 
     // console.log("yMax",data.filter((item) => item[this.groupVar] === key))  
 
@@ -330,7 +333,8 @@ export default class SmallMultiples {
           allValues = allValues.concat(d3.extent(yMax, (d) => d[key]))
       })
       y.domain(d3.extent(allValues)).nice()
-    
+      // console.log(allValues)
+      // console.log(d3.extent(allValues))
     }
 
     else {
@@ -367,11 +371,27 @@ export default class SmallMultiples {
     features.append("g").attr("class", "y")
 
     const update = () => {
+      console.log("update")
       yMax = this.showGroupMax
         ? data
         : data.filter((item) => item[this.groupVar] === key)
+        
 
-      y.domain(d3.extent(yMax, (d) => d[this.yVar]))
+        if (this.multiSeries) {
+        var allValues = []
+        this.dataKeys.forEach(key => {
+            allValues = allValues.concat(d3.extent(yMax, (d) => d[key]))
+        })
+        y.domain(d3.extent(allValues)).nice()
+        console.log(allValues)
+        console.log(d3.extent(allValues))
+      }
+
+        else {
+          y.domain(d3.extent(yMax, (d) => d[this.yVar])).nice()
+      }  
+
+      // y.domain(d3.extent(yMax, (d) => d[this.yVar]))
 
       const chartData = data.filter((d) => d[this.groupVar] === key)
       const drawOptions = {
@@ -443,9 +463,16 @@ export default class SmallMultiples {
 
   drawLineChart({ features, data, duration, x, y }) {
 
-    const $line = features.selectAll(".line-path").data([data])
+    // console.log("data", data, "x", x, "y", y)
+    
 
       this.dataKeys.forEach((key, i) => {
+
+          // const $line = features.selectAll(`.${key}.line-path`).data([data])  
+          features.selectAll(`.line-path`).remove()
+        
+
+          console.log(key)
 
           const line = d3
             .line()
@@ -471,20 +498,41 @@ export default class SmallMultiples {
               })
           }   
 
-          $line
-            .enter()
+          // $line
+          //   .enter()
+          //   .append("path")
+          //   .attr("class", `${key} line-path`)
+          //   .attr("fill", "transparent")
+          //   .attr("d", initialLine)
+          //   .merge($line)
+          //   .transition()
+          //   .duration(duration)
+          //   .attr("d", line)
+          //   .attr("stroke-width", 2)
+          //   .attr("stroke", (d) => this.colors.get(key))
+
+          features
             .append("path")
-            .attr("class", "line-path")
+            .datum(data)
+            .attr("class", `${key} line-path`)
             .attr("fill", "transparent")
             .attr("d", initialLine)
-            .merge($line)
             .transition()
             .duration(duration)
             .attr("d", line)
             .attr("stroke-width", 2)
             .attr("stroke", (d) => this.colors.get(key))
 
-          $line.exit().transition().duration(duration).attr("d", initialLine).remove()
+          // features
+          //   .append("path")
+          //   .datum(data)
+          //   .attr("class", `${key} line-path`)
+          //   .attr("fill", "transparent")
+          //   .attr("d", line)
+          //   .attr("stroke-width", 2)
+          //   .attr("stroke", (d) => this.colors.get(key))
+
+          // $line.exit().transition().duration(duration).attr("d", initialLine).remove()
       
       })
 
@@ -629,21 +677,21 @@ export default class SmallMultiples {
       })
     }
 
-    $hoverLayerRect
-      .on("mousemove touchmove", function (d) {
-        const x0 = x.invert(d3.mouse(this)[0])
-        const tooltipText = templateRender(d, this)
+    // $hoverLayerRect
+    //   .on("mousemove touchmove", function (d) {
+    //     const x0 = x.invert(d3.mouse(this)[0])
+    //     const tooltipText = templateRender(d, this)
 
-        self.tooltip.show(
-          tooltipText,
-          self.width,
-          self.height + self.margin.top + self.margin.bottom
-        )
-        $hoverLine.attr("x1", x(x0)).attr("x2", x(x0)).style("opacity", 0.5)
-      })
-      .on("mouseout touchend", function () {
-        self.tooltip.hide()
-        $hoverLine.style("opacity", 0)
-      })
+    //     self.tooltip.show(
+    //       tooltipText,
+    //       self.width,
+    //       self.height + self.margin.top + self.margin.bottom
+    //     )
+    //     $hoverLine.attr("x1", x(x0)).attr("x2", x(x0)).style("opacity", 0.5)
+    //   })
+    //   .on("mouseout touchend", function () {
+    //     self.tooltip.hide()
+    //     $hoverLine.style("opacity", 0)
+    //   })
   }
 }
