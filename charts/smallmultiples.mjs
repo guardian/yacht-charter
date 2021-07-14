@@ -17,14 +17,27 @@ export default class SmallMultiples {
     var data = results.sheets.data
     var details = results.sheets.template
     var options = results.sheets.options
+    
+    this.periods = null
+    if (results.sheets.periods) {
+      this.periods = results.sheets.periods
+    }
+    
 
     this.dataKeys = Object.keys(data[0])
     this.hideNullValues = "yes"
     this.$chartKey = d3.select("#chartKey")
     this.chartValues = {}
+    this.chartType =
+      options[0] && options[0].chartType ? options[0].chartType : "area" // bar, line, area (default)
+
 
     if (options["breaks"]) {
       this.hideNullValues = options["breaks"]
+    }
+
+    if (this.chartType === "bar") {
+        this.hideNullValues = "no"
     }
 
     this.xVar = this.dataKeys[0]
@@ -58,7 +71,6 @@ export default class SmallMultiples {
       this.height = +options[0]["height"]
     }
 
-
     this.multiSeries = false
 
     this.dataKeys.splice(this.dataKeys.indexOf(this.xVar), 1)
@@ -83,7 +95,7 @@ export default class SmallMultiples {
 
     data.forEach(function (d) {
         
-        self.dataKeys.forEach(key  => {
+      self.dataKeys.forEach(key  => {
 
           if (typeof d[key] == "string") {
 
@@ -109,7 +121,7 @@ export default class SmallMultiples {
             }
 
           }
-          })
+      })
       
 
       // else {
@@ -124,6 +136,27 @@ export default class SmallMultiples {
       
       }
     })
+
+    if (this.periods) {
+        this.periods.forEach((d) => {
+        if (typeof d.start == "string") {
+          if (this.parseTime != null) {
+              d.start = this.parseTime(d.start)
+              d.end = this.parseTime(d.end)
+              d.middle = new Date((d.start.getTime() + d.end.getTime()) / 2)
+          }
+
+          else {
+            d.start = +d.start
+            d.end = +d.end
+            d.middle = (d.end + d.start) / 2
+          }
+          
+        }
+      })
+    }
+    
+    console.log(this.periods)
 
     if (this.hasTooltip) {
       this.tooltip = new Tooltip("#graphicContainer")
@@ -141,8 +174,7 @@ export default class SmallMultiples {
 
     this.colors = new ColorScale({ domain: this.dataKeys })
 
-    this.chartType =
-      options[0] && options[0].chartType ? options[0].chartType : "area" // bar, line, area (default)
+  
 
     // this.chartType = "bar"  
 
@@ -173,7 +205,7 @@ export default class SmallMultiples {
       }
     } else {
       margin = {
-        top: 0,
+        top: 10,
         right: 20,
         bottom: 20,
         left: 50
@@ -332,13 +364,13 @@ export default class SmallMultiples {
       this.dataKeys.forEach(key => {
           allValues = allValues.concat(d3.extent(yMax, (d) => d[key]))
       })
-      y.domain(d3.extent(allValues)).nice()
+      y.domain(d3.extent(allValues))
       // console.log(allValues)
       // console.log(d3.extent(allValues))
     }
 
     else {
-      y.domain(d3.extent(yMax, (d) => d[this.yVar])).nice()
+      y.domain(d3.extent(yMax, (d) => d[this.yVar]))
     }
 
   
@@ -382,13 +414,13 @@ export default class SmallMultiples {
         this.dataKeys.forEach(key => {
             allValues = allValues.concat(d3.extent(yMax, (d) => d[key]))
         })
-        y.domain(d3.extent(allValues)).nice()
+        y.domain(d3.extent(allValues))
         console.log(allValues)
         console.log(d3.extent(allValues))
       }
 
         else {
-          y.domain(d3.extent(yMax, (d) => d[this.yVar])).nice()
+          y.domain(d3.extent(yMax, (d) => d[this.yVar]))
       }  
 
       // y.domain(d3.extent(yMax, (d) => d[this.yVar]))
@@ -415,6 +447,8 @@ export default class SmallMultiples {
         this.drawHoverFeature(drawOptions)
       }
 
+      // this.drawPeriods(drawOptions)
+
       features.select(".y").transition().duration(duration).call(yAxis)
     }
 
@@ -423,8 +457,9 @@ export default class SmallMultiples {
   }
 
   drawBarChart({ features, data, duration, x, y, hasTooltip }) {
-    var bars = features.selectAll(".bar").data(data)
 
+    var bars = features.selectAll(".bar").data(data)
+    console.log(data)
     bars
       .enter()
       .append("rect")
@@ -463,15 +498,14 @@ export default class SmallMultiples {
 
   drawLineChart({ features, data, duration, x, y }) {
 
-    // console.log("data", data, "x", x, "y", y)
-    
+      console.log("data", data)
+      features.selectAll(`.line-path`).remove()
 
       this.dataKeys.forEach((key, i) => {
 
           // const $line = features.selectAll(`.${key}.line-path`).data([data])  
-          features.selectAll(`.line-path`).remove()
+          
         
-
           console.log(key)
 
           const line = d3
@@ -694,4 +728,86 @@ export default class SmallMultiples {
     //     $hoverLine.style("opacity", 0)
     //   })
   }
+
+  drawPeriods({ features, data, x }) {
+
+    features.selectAll(".periodLine").remove()
+    features.selectAll(".periodLabel").remove()
+
+    features
+      .selectAll(".periodLine .start")
+      .data(this.periods)
+      .enter()
+      .append("line")
+      .attr("x1", (d) => {
+        return x(d.start)
+      })
+      .attr("y1", 0)
+      .attr("x2", (d) => {
+        return x(d.start)
+      })
+      .attr("y2", this.height)
+      .attr("class", "periodLine mobHide start")
+      .attr("stroke", "#bdbdbd")
+      .attr("opacity", (d) => {
+        if (d.start < x.domain()[0]) {
+          return 0
+        } else {
+          return 1
+        }
+      })
+      .attr("stroke-width", 1)
+
+    features
+      .selectAll(".periodLine .end")
+      .data(this.periods.filter(b => b.end != ""))
+      .enter()
+      .append("line")
+      .attr("x1", (d) => {
+        return x(d.end)
+      })
+      .attr("y1", 0)
+      .attr("x2", (d) => {
+        return x(d.end)
+      })
+      .attr("y2", this.height)
+      .attr("class", "periodLine mobHide")
+      .attr("stroke", "#bdbdbd")
+      .attr("opacity", (d) => {
+        if (d.end > x.domain()[1]) {
+          return 0
+        } else {
+          return 1
+        }
+      })
+      .attr("stroke-width", 1)
+
+    features
+      .selectAll(".periodLabel")
+      .data(this.periods)
+      .enter()
+      .append("text")
+      .attr("x", (d) => {
+        if (d.labelAlign == "start") {
+          return x(d.start) + 5
+        } else {
+          return x(d.middle)
+        }
+      })
+      .attr("y", -5)
+      .attr("text-anchor", (d) => {
+        if (d.labelAlign == "start") {
+        return "start"
+        }
+        else {
+          return "middle"
+        }
+      })
+      .attr("class", "periodLabel mobHide")
+      .attr("opacity", 1)
+      .text((d) => {
+        return d.label
+      })
+  }
+
 }
