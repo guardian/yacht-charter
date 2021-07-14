@@ -146,6 +146,8 @@ export default class StackedBarChart {
       d.y1 = +d.y1
       d.y2 = +d.y2
     })
+
+    console.log(labels)
     // Time scales for bar charts are heaps annoying
     var barWidth
     var xRange
@@ -181,15 +183,28 @@ export default class StackedBarChart {
           d3.timeMonth.offset(data[data.length - 1][xVar], 1)
         )
       }
+
+      if (timeInterval == "week") {
+        console.log("week")
+        xRange = d3.timeWeek.range(
+          data[0][xVar],
+          d3.timeWeek.offset(data[data.length - 1][xVar], 1)
+        )
+      }
+
     } else {
       xRange = data.map(function (d) {
         return d[xVar]
       })
     }
 
+    console.log("xRange",xRange)
+
     var x = d3.scaleBand().range([0, width]).paddingInner(0.08)
 
     x.domain(xRange)
+
+    console.log("test",x(labels[0].x1))
 
     var y = d3.scaleLinear().range([height, 0])
 
@@ -203,7 +218,7 @@ export default class StackedBarChart {
       })
     })
 
-    // console.log(layers)
+    console.log(layers)
 
     y.domain([d3.min(layers, stackMin), d3.max(layers, stackMax)]).nice()
     var xAxis
@@ -343,6 +358,7 @@ export default class StackedBarChart {
       .append("line")
       .attr("class", "annotationLine")
       .attr("x1", function (d) {
+        console.log(d.x1)
         return x(d.x1) + x.bandwidth() / 2
       })
       .attr("y1", function (d) {
@@ -431,7 +447,7 @@ export default class StackedBarChart {
         .attr("x", function (d) {
           return x(d.x1) + x.bandwidth() / 2
         })
-        .style("text-anchor", function (d) {
+        .attr("text-anchor", function (d) {
           return d.align
         })
         .style("opacity", 1)
