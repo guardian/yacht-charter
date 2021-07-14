@@ -23,6 +23,7 @@ export default class SmallMultiples {
       this.periods = results.sheets.periods
     }
     
+    console.log("periods",this.periods)
 
     this.dataKeys = Object.keys(data[0])
     this.hideNullValues = "yes"
@@ -138,21 +139,36 @@ export default class SmallMultiples {
     })
 
     if (this.periods) {
-        this.periods.forEach((d) => {
-        if (typeof d.start == "string") {
-          if (this.parseTime != null) {
-              d.start = this.parseTime(d.start)
-              d.end = this.parseTime(d.end)
-              d.middle = new Date((d.start.getTime() + d.end.getTime()) / 2)
-          }
+          this.periods.forEach((d) => {
+          if (typeof d.start == "string") {
+            if (this.parseTime != null) {
 
-          else {
-            d.start = +d.start
-            d.end = +d.end
-            d.middle = (d.end + d.start) / 2
-          }
-          
-        }
+                d.start = this.parseTime(d.start)
+                if (d.end != "") {
+                  d.end = this.parseTime(d.end)
+                  d.middle = new Date((d.start.getTime() + d.end.getTime()) / 2)
+                }
+
+                else {
+                  d.middle = d.start
+                }
+                
+            }
+
+            else {
+              d.start = +d.start
+
+              if (d.end != "") {
+                d.end = +d.end
+                d.middle = (d.end + d.start) / 2
+              }
+
+              else {
+                  d.middle = d.start
+                }
+            }
+        
+      }
       })
     }
     
@@ -266,13 +282,16 @@ export default class SmallMultiples {
         details: this.details,
         chartType: this.chartType,
         isMobile: this.isMobile,
-        hasTooltip: this.hasTooltip
+        hasTooltip: this.hasTooltip,
+        index
       })
     })
 
     if (this.multiSeries) {
       
-      this.dataKeys.forEach((key) => {
+    this.$chartKey.html("")  
+
+    this.dataKeys.forEach((key) => {
         const $keyDiv = this.$chartKey.append("div").attr("class", "keyDiv")
 
         $keyDiv
@@ -286,7 +305,7 @@ export default class SmallMultiples {
   
   }
 
-  drawChart({ data, key, details, chartType, isMobile, hasTooltip }) {
+  drawChart({ data, key, details, chartType, isMobile, hasTooltip, index }) {
     var self = this 
 
     const id = dataTools.getId(key),
@@ -432,7 +451,8 @@ export default class SmallMultiples {
         duration,
         x,
         y,
-        hasTooltip
+        hasTooltip,
+        index
       }
 
       if (isBar) {
@@ -447,7 +467,10 @@ export default class SmallMultiples {
         this.drawHoverFeature(drawOptions)
       }
 
-      // this.drawPeriods(drawOptions)
+      if (this.periods) {
+        this.drawPeriods(drawOptions)
+      }
+      
 
       features.select(".y").transition().duration(duration).call(yAxis)
     }
@@ -456,7 +479,7 @@ export default class SmallMultiples {
     update()
   }
 
-  drawBarChart({ features, data, duration, x, y, hasTooltip }) {
+  drawBarChart({ features, data, duration, x, y, hasTooltip}) {
 
     var bars = features.selectAll(".bar").data(data)
     console.log(data)
@@ -595,7 +618,7 @@ export default class SmallMultiples {
     // $line.exit().transition().duration(duration).attr("d", initialLine).remove()
   }
 
-  drawAreaChart({ features, data, duration, x, y }) {
+  drawAreaChart({ features, data, duration, x, y}) {
 
     const $area = features.selectAll(".area-path").data([data])
     
@@ -729,7 +752,7 @@ export default class SmallMultiples {
     //   })
   }
 
-  drawPeriods({ features, data, x }) {
+  drawPeriods({ features, data, x, index }) {
 
     features.selectAll(".periodLine").remove()
     features.selectAll(".periodLabel").remove()
@@ -782,7 +805,9 @@ export default class SmallMultiples {
       })
       .attr("stroke-width", 1)
 
-    features
+    if (index === 0) {
+
+       features
       .selectAll(".periodLabel")
       .data(this.periods)
       .enter()
@@ -808,6 +833,10 @@ export default class SmallMultiples {
       .text((d) => {
         return d.label
       })
+
+    }  
+
+   
   }
 
 }
