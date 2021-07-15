@@ -204,8 +204,6 @@ export default class StackedBarChart {
 
     x.domain(xRange)
 
-    console.log("test",x(labels[0].x1))
-
     var y = d3.scaleLinear().range([height, 0])
 
     var layers = d3.stack().offset(d3.stackOffsetDiverging).keys(keys)(data)
