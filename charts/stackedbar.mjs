@@ -12,6 +12,8 @@ export default class StackedBarChart {
     this.trendColors = new ColorScale()
     this.results = results
     this.render()
+
+
   }
 
   render() {
@@ -243,7 +245,16 @@ export default class StackedBarChart {
       .attr("class", "x")
       .attr("transform", "translate(0," + height + ")")
       .call(xAxis)
+
     features.append("g").attr("class", "y").call(yAxis)
+
+    d3.selectAll(".y .tick line")
+      .style("stroke", "#dcdcdc")
+      .style("stroke-dasharray", "2 2")  
+      .attr("x2", width)
+    
+    d3.selectAll(".y path").style("stroke-width", "0") 
+    
     var layer = features
       .selectAll("layer")
       .data(layers, (d) => d.key)
@@ -264,12 +275,12 @@ export default class StackedBarChart {
       .attr("data-count", (d) => d.data[d.key])
       .attr("height", (d) => y(d[0]) - y(d[1]))
       .attr("width", x.bandwidth())
+
     features
       .append("g")
       .attr("class", "x")
       .attr("transform", "translate(0," + height + ")")
       .call(xAxis)
-    features.append("g").attr("class", "y").call(yAxis)
 
     if (hasTooltip) {
       const templateRender = (d) => {
@@ -307,9 +318,10 @@ export default class StackedBarChart {
 
         let tline = d3.line()
 
-        let tdata = trendline.map((item) => [x(item[xVar]), y(+item[trend])])
+        let offset = x.bandwidth() / 2
 
-        console.log(tdata)
+        let tdata = trendline.map((item) => [x(item[xVar]) + offset, y(+item[trend])])
+
         features
           .append("path")
           .attr("d", tline(tdata))
@@ -365,7 +377,6 @@ export default class StackedBarChart {
         return y(d.y2)
       })
       .style("opacity", 1)
-      .attr("stroke", "#000")
 
     var footerAnnotations = d3.select("#footerAnnotations")
 
