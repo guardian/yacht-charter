@@ -297,8 +297,8 @@ export default class StackedBarChart {
 
       console.log(trendline)
 
-      if (details[0].trendColours) {
-        const tColors = details[0].trendColours.split(",")
+      if (options[0].trendColours) {
+        const tColors = options[0].trendColours.split(",")
         this.trendColors.set(tColors.length, tColors)
       }
 
