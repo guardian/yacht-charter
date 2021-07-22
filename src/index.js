@@ -6,7 +6,7 @@ import "./main.scss"
 
 // https://docs.google.com/spreadsheets/d/1Rn0TTg3o37sRpYG4BRgPEqgyjVKsoNc4WpD_qzdwTcU/edit#gid=117658605
 
-const key = getURLParams("key") ? getURLParams("key") : "1Rn0TTg3o37sRpYG4BRgPEqgyjVKsoNc4WpD_qzdwTcU"
+const key = getURLParams("key") ? getURLParams("key") : "1vr4y135MvVV-4OanjA17io2qGL5U132_cvaa2XyxHnQ"
 const location = getURLParams("location") ? getURLParams("location") : "docsdata"
 
 new Chart(key, location)

@@ -295,17 +295,15 @@ export default class StackedBarChart {
 
       })
 
-      console.log(trendline)
-
-      if (details[0].trendColours) {
-        const tColors = details[0].trendColours.split(",")
+      if (options[0].trendColors) {
+        const tColors = options[0].trendColors.split(",")
         this.trendColors.set(tColors.length, tColors)
       }
 
       var colourIndex = 0
 
       for (const trend of tkeys) {
-        console.log(tkeys)
+
         let tline = d3.line()
 
         let tdata = trendline.map((item) => [x(item[xVar]), y(+item[trend])])
@@ -316,6 +314,7 @@ export default class StackedBarChart {
           .attr("d", tline(tdata))
           .attr("stroke", this.trendColors.get(colourIndex))
           .attr("fill", "none")
+          .attr("stroke-width", "3")
 
         var keyDiv = chartKey.append("div").attr("class", "keyDiv")
 
