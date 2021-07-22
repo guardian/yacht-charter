@@ -11,6 +11,10 @@
     shape-rendering: crispEdges;
   }
 
+  .dashed.y line {
+    stroke: #dcdcdc;
+  }
+
   .chartTitle {
     font-size: 20px;
     line-height: 28px;

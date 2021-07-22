@@ -375,6 +375,7 @@ export default class LineChart {
         return numberFormat(d)
       })
       .ticks(yTicks)
+      .tickSize(-this.width)
   }
 
   render() {
@@ -454,6 +455,11 @@ export default class LineChart {
         return d.label
       })
 
+    this.$features.append("g")
+        .attr("class", "y dashed")
+        .call(this.yAxis)
+        .style("stroke-dasharray", "2 2")  
+
     this.$features
       .append("g")
       .attr("class", "x")
@@ -466,7 +472,9 @@ export default class LineChart {
       })
       .call(this.xAxis)
 
-    this.$features.append("g").attr("class", "y").call(this.yAxis)
+   
+
+    this.$features.select(".y .domain").remove()    
 
     this.$features
       .append("text")

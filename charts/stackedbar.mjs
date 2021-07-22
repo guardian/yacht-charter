@@ -35,9 +35,6 @@ export default class StackedBarChart {
     var template
     var keys = Object.keys(data[0])
 
-    console.log(options)
-
-
     if (hasTooltip) {
       template = details[0].tooltip
     }
@@ -111,9 +108,10 @@ export default class StackedBarChart {
       keys.splice(0, 1)
     }
 
+    console.log(userKey)
     // set up color domain/range
     const keyColor = dataTools.getKeysColors({ keys: keys, userKey: userKey, option: options[0]})
-    
+    console.log("keyColor",keyColor)
     this.colors.set(keyColor.keys, keyColor.colors)
 
     keys.forEach((key, i) => {
@@ -147,7 +145,6 @@ export default class StackedBarChart {
       d.y2 = +d.y2
     })
 
-    console.log(labels)
     // Time scales for bar charts are heaps annoying
     var barWidth
     var xRange
@@ -185,7 +182,6 @@ export default class StackedBarChart {
       }
 
       if (timeInterval == "week") {
-        console.log("week")
         xRange = d3.timeWeek.range(
           data[0][xVar],
           d3.timeWeek.offset(data[data.length - 1][xVar], 1)
@@ -197,8 +193,6 @@ export default class StackedBarChart {
         return d[xVar]
       })
     }
-
-    console.log("xRange",xRange)
 
     var x = d3.scaleBand().range([0, width]).paddingInner(0.08)
 
@@ -215,8 +209,6 @@ export default class StackedBarChart {
         subLayer.total = subLayer.data.Total
       })
     })
-
-    console.log(layers)
 
     y.domain([d3.min(layers, stackMin), d3.max(layers, stackMax)]).nice()
     var xAxis
@@ -300,7 +292,10 @@ export default class StackedBarChart {
             d[xVar] = dateParse(d[xVar])
           }
         }
+
       })
+
+      console.log(trendline)
 
       if (details[0].trendColours) {
         const tColors = details[0].trendColours.split(",")
@@ -310,10 +305,12 @@ export default class StackedBarChart {
       var colourIndex = 0
 
       for (const trend of tkeys) {
+        console.log(tkeys)
         let tline = d3.line()
 
-        let tdata = trendline.map((item) => [x(item.index), y(+item[trend])])
+        let tdata = trendline.map((item) => [x(item[xVar]), y(+item[trend])])
 
+        console.log(tdata)
         features
           .append("path")
           .attr("d", tline(tdata))
@@ -356,7 +353,6 @@ export default class StackedBarChart {
       .append("line")
       .attr("class", "annotationLine")
       .attr("x1", function (d) {
-        console.log(d.x1)
         return x(d.x1) + x.bandwidth() / 2
       })
       .attr("y1", function (d) {
