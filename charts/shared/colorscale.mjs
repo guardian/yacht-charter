@@ -2,7 +2,7 @@ import colorPresets from "../constants/colors"
 
 class ColorScale {
   constructor(options) {
-
+    console.log(options)
     const colorPreset = colorPresets["guardian"]
     const isString = typeof options === "string"
     const getProp = (p) => (!options || isString ? null : options[p])

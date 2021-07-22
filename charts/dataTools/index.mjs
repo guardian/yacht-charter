@@ -83,11 +83,14 @@ export default {
   getUserDefinedKeysColors(userDefined) {
     const keys = []
     const colors = []
-
+    console.log("userDefined", userDefined)
     userDefined.forEach((d) => {
-      keys.push(d.keyName)
+      // key name is "key" in bar charts but "keyName" in line charts
+      keys.push(d.key)
       colors.push(d.colour)
     })
+
+    console.l
     return {
       keys,
       colors
@@ -98,6 +101,8 @@ export default {
     let obj = {
       keys
     }
+
+    console.log("obj", obj)
     // userKey takes precedence over option.colorScheme
     if (userKey.length >= 1) {
       console.log("key",userKey)
@@ -106,7 +111,7 @@ export default {
       obj.colors = option[COLOR_SCHEME]
     }
 
-    console.log(obj)
+    console.log("obj",obj)
     return obj
   }
 }

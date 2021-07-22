@@ -173,7 +173,7 @@ export class Chart {
       instance.render()
       break
     case "smallmultiples":
-      instance.render()
+      instance = new importedChartModule.default(data)
       break
     case "sankey":
       instance.render()

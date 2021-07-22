@@ -228,7 +228,7 @@ export default class LineChart {
        this.lineGenerators[key].defined(function (d) {
           return d
           })
-    }
+      }
     
 
       // get all chart values for each key
@@ -312,20 +312,37 @@ export default class LineChart {
 
     this.periods.forEach((d) => {
       if (typeof d.start == "string") {
-        if (this.parsePeriods != null) {
-            d.start = this.parsePeriods(d.start)
-            d.end = this.parsePeriods(d.end)
-            d.middle = new Date((d.start.getTime() + d.end.getTime()) / 2)
+        if (this.parseTime != null) {
+
+            d.start = this.parseTime(d.start)
+            if (d.end != "") {
+              d.end = this.parseTime(d.end)
+              d.middle = new Date((d.start.getTime() + d.end.getTime()) / 2)
+            }
+
+            else {
+              d.middle = d.start
+            }
+            
         }
 
         else {
           d.start = +d.start
-          d.end = +d.end
-          d.middle = (d.end + d.start) / 2
+
+          if (d.end != "") {
+            d.end = +d.end
+            d.middle = (d.end + d.start) / 2
+          }
+
+          else {
+              d.middle = d.start
+            }
         }
         
       }
     })
+
+    console.log("periods",this.periods)
 
     // determine y min/max of the chart
     this.max = d3.max(this.chartValues)
@@ -358,6 +375,7 @@ export default class LineChart {
         return numberFormat(d)
       })
       .ticks(yTicks)
+      .tickSize(-this.width)
   }
 
   render() {
@@ -366,7 +384,7 @@ export default class LineChart {
     d3.selectAll(".periodLabel").remove()
 
     this.$features
-      .selectAll(".periodLine")
+      .selectAll(".periodLine .start")
       .data(this.periods)
       .enter()
       .append("line")
@@ -378,7 +396,7 @@ export default class LineChart {
         return this.x(d.start)
       })
       .attr("y2", this.height)
-      .attr("class", "periodLine mobHide")
+      .attr("class", "periodLine mobHide start")
       .attr("stroke", "#bdbdbd")
       .attr("opacity", (d) => {
         if (d.start < this.x.domain()[0]) {
@@ -389,9 +407,11 @@ export default class LineChart {
       })
       .attr("stroke-width", 1)
 
+      console.log("blah",this.periods.filter(b => b.end != ""))
+
     this.$features
-      .selectAll(".periodLine")
-      .data(this.periods)
+      .selectAll(".periodLine .end")
+      .data(this.periods.filter(b => b.end != ""))
       .enter()
       .append("line")
       .attr("x1", (d) => {
@@ -402,7 +422,7 @@ export default class LineChart {
         return this.x(d.end)
       })
       .attr("y2", this.height)
-      .attr("class", "periodLine mobHide")
+      .attr("class", "periodLine mobHide end")
       .attr("stroke", "#bdbdbd")
       .attr("opacity", (d) => {
         if (d.end > this.x.domain()[1]) {
@@ -435,6 +455,11 @@ export default class LineChart {
         return d.label
       })
 
+    this.$features.append("g")
+        .attr("class", "y dashed")
+        .call(this.yAxis)
+        .style("stroke-dasharray", "2 2")  
+
     this.$features
       .append("g")
       .attr("class", "x")
@@ -447,7 +472,9 @@ export default class LineChart {
       })
       .call(this.xAxis)
 
-    this.$features.append("g").attr("class", "y").call(this.yAxis)
+   
+
+    this.$features.select(".y .domain").remove()    
 
     this.$features
       .append("text")

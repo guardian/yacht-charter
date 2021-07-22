@@ -21,8 +21,11 @@ export default class Sankey {
 		var labels = results.sheets.labels
 		var userKey = results.sheets.key
 		var optionalKeys = []
+		var options = results.sheets.options
 		var optionalColours = []
 		var hasTooltip = details[0].tooltip != "" ? true : false
+
+		var sankeyAlign = d3sankey.sankeyJustify
 
 		console.log(data)
 
@@ -54,6 +57,34 @@ export default class Sankey {
 				height = +details[0].min_height
 			}
 		}
+
+		if (options.length > 0) {
+
+			if ("alignment" in options[0]) {
+							
+				if (options[0].alignment != "") {
+					if (options[0].alignment === "left") {
+						sankeyAlign = d3sankey.sankeyLeft
+					}
+
+					else if (options[0].alignment === "right") {
+						sankeyAlign = d3sankey.sankeyRight
+					}
+
+					else if (options[0].alignment === "justify") {
+						sankeyAlign = d3sankey.sankeyJustify
+					}
+
+					else if (options[0].alignment === "center") {
+						sankeyAlign = d3sankey.sankeyCenter
+					}
+
+				}
+
+			}
+
+		}
+		
 
 		var margin
 		
@@ -156,13 +187,17 @@ export default class Sankey {
 		}
 
 
+
   		var sankey = d3sankey.sankey()
       		.size([width, height])
       		.nodeId(d => d.name)
       		.linkSort((a, b) => b.dy - a.dy)
+			.nodeAlign(sankeyAlign)
 
 
 		var graph = sankey(graphData);
+
+		console.log(graph)
 		
 		const edgeColor = 'path'
 
