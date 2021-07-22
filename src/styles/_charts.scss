@@ -82,20 +82,20 @@
   }
 
   #chartKey div {
-    margin-left: 10px;
+    margin-right: 10px;
   }
 
-  #chartKey div:first-child {
-    margin-left: 0px;
-  }
+  // #chartKey div:first-child {
+  //   margin-left: 0px;
+  // }
 
   .keyDiv {
     display: inline-block;
   }
 
-  .keyDiv .keyCircle:first-of-type {
-    margin-left: 0;
-  }
+  // .keyDiv .keyCircle:first-of-type {
+  //   margin-left: 0;
+  // }
 
   .keyCircle {
     width: 12px;

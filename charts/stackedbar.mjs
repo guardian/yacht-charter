@@ -332,7 +332,7 @@ export default class StackedBarChart {
         var keyDiv = chartKey.append("div").attr("class", "keyDiv")
 
         keyDiv
-          .append("div")
+          .append("span")
           .attr("class", "keyDash")
           .style("border-color", () => this.trendColors.get(colourIndex))
 
