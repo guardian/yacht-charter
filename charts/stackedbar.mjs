@@ -4,20 +4,49 @@ import helpers from "../utilities/helpers"
 import dataTools from "./dataTools"
 import Tooltip from "./shared/tooltip"
 import ColorScale from "./shared/colorscale"
+import * as rasterizeHTML from 'rasterizehtml';
 
 export default class StackedBarChart {
-  constructor(results) {
+  constructor(results, social) {
     this.tooltip = new Tooltip("#graphicContainer")
     this.colors = new ColorScale()
     this.trendColors = new ColorScale()
     this.results = results
+    this.social = social
     this.render()
+    if (social) {
+      this.renderCanvas()
+    }
 
+  }
+
+  renderCanvas () {
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+
+    var d = document.implementation.createHTMLDocument();
+    d.body.appendChild(document.getElementById('app'));
+
+    rasterizeHTML.drawDocument(d, canvas).then(function(renderResult) {
+    ctx.drawImage(renderResult.image, -8, -8);
+
+    // var dataUrl = canvas.toDataURL();
+    // var blob = canvas.toBlob(function(blob) {
+    // var url = URL.createObjectURL(blob);
+    // console.log(blob);
+    // var textbox = document.getElementById("textbox");
+    // textbox.value = url;
+
+    // var output = document.getElementById("output");
+    // output.src = url;
+    });
 
   }
 
   render() {
+
     var self = this
+    console.log("social",self.social)
     var results = JSON.parse(JSON.stringify(self.results))
     var data = results.sheets.data
     var details = results.sheets.template
@@ -46,10 +75,48 @@ export default class StackedBarChart {
       window.innerWidth || 0
     )
     var isMobile = windowWidth < 610 ? true : false
+    
+
+    // Default height and width setup
+
     var width = document
       .querySelector("#graphicContainer")
       .getBoundingClientRect().width
     var height = width * 0.5
+
+
+    // Set up for social media views
+
+    const dimensons = {"twitter": {"width":1200,"height":675}, 
+        "instagram": {"width":1200,"height":1200}    
+        }
+    const body = document.querySelector("body")
+    const furniture = document.querySelector("#furniture")
+    const footer = document.querySelector("#footer")
+    // var canvas
+
+    console.log(furniture, footer)
+    
+    if (self.social) {
+      console.log("setting up social stuff")
+      body.classList.add(self.social);
+      height = dimensons[self.social].height - furniture.getBoundingClientRect().height - footer.getBoundingClientRect().height - 33
+      
+      if (document.querySelector("canvas")) {
+        document.querySelector("canvas").remove()
+      }
+
+      var canvas = document.createElement("canvas")
+      canvas.id = "canvas"
+      canvas.width = dimensons[self.social].width
+      canvas.height = dimensons[self.social].height
+      console.log("canvas", canvas)
+      document.body.appendChild(canvas)
+      // width = width - 20;
+    }
+    
+    console.log("height", height, "width", width)
+
     var margin
     var dateParse = null
     var timeInterval = null

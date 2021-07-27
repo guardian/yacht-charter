@@ -6,8 +6,10 @@ import Ractive from 'ractive'
 
 export class Chart {
 
-  constructor(key, location) {
+  constructor(key, location, social) {
     let configure = this._configure.bind(this)
+    this.social = social
+    console.log(this.social)
     if (key != null) {
       loadJson(`https://interactive.guim.co.uk/${location}/${key}.json`)
         .then((data) => {
@@ -36,6 +38,7 @@ export class Chart {
   }
 
   _initialiseChart(data, type, isMobile) {
+    
     switch (type) {
     case "animated":
       import("./charts/animated")
@@ -55,7 +58,7 @@ export class Chart {
     case "stackedbar":
       import("./charts/stackedbar")
         .then((importedChartModule) => {
-          let instance = new importedChartModule.default(data)
+          let instance = new importedChartModule.default(data, this.social)
           this._addListener(instance, data, type)
         })
       break

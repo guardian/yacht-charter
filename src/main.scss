@@ -21,8 +21,23 @@ figure {
   margin: 0;
 }
 
+.twitter {
+ 
+  // overflow: hidden;
+  #outer-wrapper {
+    padding-left:10px;
+    padding-right:10px;
+    width: 1200px;
+    height: 675px;
+
+  }
+}
+
+
 .interactive-wrapper {
-  background: #ffffff;
+  background-color: red;
+  padding: none;
+  // background: #ffffff;
   position: relative;
   margin: 0 !important;
   border-top: 1px solid #dcdcdc;
