@@ -4,6 +4,8 @@ import helpers from "../utilities/helpers"
 import dataTools from "./dataTools"
 import Tooltip from "./shared/tooltip"
 import ColorScale from "./shared/colorscale"
+import renderCanvas from "../utilities/renderCanvas"
+
 // import * as rasterizeHTML from 'rasterizehtml'
 
 export default class StackedBarChart {
@@ -15,72 +17,14 @@ export default class StackedBarChart {
     this.social = social
     this.render()
     if (social) {
-      this.renderCanvas()
+      renderCanvas(social)
     }
 
   }
 
   // turn this into a module !!!!!
 
-  renderCanvas () {
-
-    var realStyle = function(_elem, _style) {
-    var computedStyle;
-    if ( typeof _elem.currentStyle != 'undefined' ) {
-        computedStyle = _elem.currentStyle;
-    } else {
-        computedStyle = document.defaultView.getComputedStyle(_elem, null);
-    }
-
-        return _style ? computedStyle[_style] : computedStyle;
-    };
-
-    var copyComputedStyle = function(src, dest) {
-        var s = realStyle(src);
-        for ( var i in s ) {
-            // Do not use `hasOwnProperty`, nothing will get copied
-            if ( typeof s[i] == "string" && s[i] && i != "cssText" && !/\d/.test(i) ) {
-                // The try is for setter only properties
-                try {
-                    dest.style[i] = s[i];
-                    // `fontSize` comes before `font` If `font` is empty, `fontSize` gets
-                    // overwritten.  So make sure to reset this property. (hackyhackhack)
-                    // Other properties may need similar treatment
-                    if ( i == "font" ) {
-                        dest.style.fontSize = s.fontSize;
-                    }
-                } catch (e) {}
-            }
-        }
-    };
-
-    var element = document.getElementById('app')
-    var copy = element.cloneNode(true);
-    // console.log("copy",copy)
-    copyComputedStyle(element, copy); 
-
-    var childNodes = Array.from(element.querySelectorAll("*"))
-    var copyNodes = Array.from(copy.querySelectorAll("*"))
-    childNodes.forEach(function(node, i) {
-      copyComputedStyle(node, copyNodes[i]);
-    })
-
-    console.log("copy",copy.querySelector(".keyDash"))
-    // copyComputedStyle(document.getElementById('chartTitle'), copy.querySelector('#chartTitle'));
-
-    var canvas = document.getElementById('canvas');
-    var ctx = canvas.getContext('2d');
-
-    var d = document.implementation.createHTMLDocument();
-
-    d.body.appendChild(copy);
-
-    rasterizeHTML.drawDocument(d, canvas).then(function(renderResult) {
-    ctx.drawImage(renderResult.image, -8, -8);
-
-    });
-
-  }
+  
 
   render() {
 
@@ -138,17 +82,6 @@ export default class StackedBarChart {
       console.log("setting up social stuff")
       body.classList.add(self.social);
       height = dimensons[self.social].height - furniture.getBoundingClientRect().height - footer.getBoundingClientRect().height - 33
-      
-      if (document.querySelector("canvas")) {
-        document.querySelector("canvas").remove()
-      }
-
-      var canvas = document.createElement("canvas")
-      canvas.id = "canvas"
-      canvas.width = dimensons[self.social].width
-      canvas.height = dimensons[self.social].height
-      console.log("canvas", canvas)
-      document.body.appendChild(canvas)
       // width = width - 20;
     }
     
@@ -438,6 +371,8 @@ export default class StackedBarChart {
         //   .append("span")
         //   .attr("class", "keyDash")
         //   .style("border-color", () => this.trendColors.get(colourIndex))
+
+        // THIS IS A HACK TO SUPPORT IMAGE RENDERING
 
         keyDiv
           .append("svg")
