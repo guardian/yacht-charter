@@ -35,9 +35,8 @@ figure {
 
 
 .interactive-wrapper {
-  background-color: red;
   padding: none;
-  // background: #ffffff;
+  background: #ffffff;
   position: relative;
   margin: 0 !important;
   border-top: 1px solid #dcdcdc;
@@ -56,13 +55,7 @@ figure {
 
   #outer-wrapper {
     position: relative;
-
-    /*	max-height: 500px;*/
   }
-  /*.spacer {
-	height:50px;
-	width: 100%;
-}*/
 
   .chartSubTitle {
     font-size: 14px;

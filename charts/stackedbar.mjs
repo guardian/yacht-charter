@@ -4,7 +4,7 @@ import helpers from "../utilities/helpers"
 import dataTools from "./dataTools"
 import Tooltip from "./shared/tooltip"
 import ColorScale from "./shared/colorscale"
-import * as rasterizeHTML from 'rasterizehtml';
+// import * as rasterizeHTML from 'rasterizehtml'
 
 export default class StackedBarChart {
   constructor(results, social) {
@@ -20,25 +20,64 @@ export default class StackedBarChart {
 
   }
 
+  // turn this into a module !!!!!
+
   renderCanvas () {
+
+    var realStyle = function(_elem, _style) {
+    var computedStyle;
+    if ( typeof _elem.currentStyle != 'undefined' ) {
+        computedStyle = _elem.currentStyle;
+    } else {
+        computedStyle = document.defaultView.getComputedStyle(_elem, null);
+    }
+
+        return _style ? computedStyle[_style] : computedStyle;
+    };
+
+    var copyComputedStyle = function(src, dest) {
+        var s = realStyle(src);
+        for ( var i in s ) {
+            // Do not use `hasOwnProperty`, nothing will get copied
+            if ( typeof s[i] == "string" && s[i] && i != "cssText" && !/\d/.test(i) ) {
+                // The try is for setter only properties
+                try {
+                    dest.style[i] = s[i];
+                    // `fontSize` comes before `font` If `font` is empty, `fontSize` gets
+                    // overwritten.  So make sure to reset this property. (hackyhackhack)
+                    // Other properties may need similar treatment
+                    if ( i == "font" ) {
+                        dest.style.fontSize = s.fontSize;
+                    }
+                } catch (e) {}
+            }
+        }
+    };
+
+    var element = document.getElementById('app')
+    var copy = element.cloneNode(true);
+    // console.log("copy",copy)
+    copyComputedStyle(element, copy); 
+
+    var childNodes = Array.from(element.querySelectorAll("*"))
+    var copyNodes = Array.from(copy.querySelectorAll("*"))
+    childNodes.forEach(function(node, i) {
+      copyComputedStyle(node, copyNodes[i]);
+    })
+
+    console.log("copy",copy.querySelector(".keyDash"))
+    // copyComputedStyle(document.getElementById('chartTitle'), copy.querySelector('#chartTitle'));
+
     var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext('2d');
 
     var d = document.implementation.createHTMLDocument();
-    d.body.appendChild(document.getElementById('app'));
+
+    d.body.appendChild(copy);
 
     rasterizeHTML.drawDocument(d, canvas).then(function(renderResult) {
     ctx.drawImage(renderResult.image, -8, -8);
 
-    // var dataUrl = canvas.toDataURL();
-    // var blob = canvas.toBlob(function(blob) {
-    // var url = URL.createObjectURL(blob);
-    // console.log(blob);
-    // var textbox = document.getElementById("textbox");
-    // textbox.value = url;
-
-    // var output = document.getElementById("output");
-    // output.src = url;
     });
 
   }
@@ -94,8 +133,6 @@ export default class StackedBarChart {
     const furniture = document.querySelector("#furniture")
     const footer = document.querySelector("#footer")
     // var canvas
-
-    console.log(furniture, footer)
     
     if (self.social) {
       console.log("setting up social stuff")
@@ -177,10 +214,9 @@ export default class StackedBarChart {
       keys.splice(0, 1)
     }
 
-    console.log(userKey)
     // set up color domain/range
     const keyColor = dataTools.getKeysColors({ keys: keys, userKey: userKey, option: options[0]})
-    console.log("keyColor",keyColor)
+
     this.colors.set(keyColor.keys, keyColor.colors)
 
     keys.forEach((key, i) => {
@@ -396,14 +432,27 @@ export default class StackedBarChart {
           .attr("fill", "none")
           .attr("stroke-width", "3")
 
-        var keyDiv = chartKey.append("div").attr("class", "keyDiv")
+        var keyDiv = chartKey.append("div").attr("class", "keyDiv").style("position", "relative")
+
+        // keyDiv
+        //   .append("span")
+        //   .attr("class", "keyDash")
+        //   .style("border-color", () => this.trendColors.get(colourIndex))
 
         keyDiv
-          .append("span")
-          .attr("class", "keyDash")
-          .style("border-color", () => this.trendColors.get(colourIndex))
+          .append("svg")
+           .attr("class", "keyDash")
+          .attr("width", 12)
+          .attr("height", 12)
+          .attr("fill", "none")
+          .append("rect")
+          .attr("x", 0)
+          .attr("y", 6)
+          .attr("width", 12)
+          .attr("height", 2)
+          .attr("fill", () => this.trendColors.get(colourIndex))  
 
-        keyDiv.append("span").attr("class", "keyText").text(tkeys[colourIndex])
+        keyDiv.append("span").attr("class", "keyText").style("margin-left", "18px").text(tkeys[colourIndex])
 
         colourIndex++
       }

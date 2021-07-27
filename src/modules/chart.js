@@ -59,7 +59,7 @@ export class Chart {
       import("./charts/stackedbar")
         .then((importedChartModule) => {
           let instance = new importedChartModule.default(data, this.social)
-          this._addListener(instance, data, type)
+          this._addListener(instance, data, type, importedChartModule)
         })
       break
     case "groupedbar":
@@ -173,7 +173,7 @@ export class Chart {
       instance = new importedChartModule.default(data)
       break
     case "stackedbar":
-      instance.render()
+      instance = new importedChartModule.default(data, this.social)
       break
     case "smallmultiples":
       instance = new importedChartModule.default(data)
