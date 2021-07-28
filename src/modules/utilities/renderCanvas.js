@@ -1,9 +1,9 @@
 export default function renderCanvas (social) {
-
+    console.log("renderCanvas")
     // Maybe re-write with https://html2canvas.hertzen.com/ instead which seems supported and popular
 
-    const dimensons = {"twitter": {"width":1200,"height":675}, 
-        "instagram": {"width":1200,"height":1200}    
+    const dimensons = {"twitter": {"width":1200,"height":675, "scaling": 2}, 
+        "instagram": {"width":1200,"height":1200, "scaling": 2}    
         }
 
     if (document.querySelector("canvas")) {
@@ -70,8 +70,12 @@ export default function renderCanvas (social) {
 
     d.body.appendChild(copy);
 
-    rasterizeHTML.drawDocument(d, canvas).then(function(renderResult) {
-        ctx.drawImage(renderResult.image, -8, -8);
+    // setTimeout(function() {
+
+    // }, 1000)
+
+    rasterizeHTML.drawDocument(d, canvas, {zoom: dimensons[social].scaling}).then(function(renderResult) {
+        ctx.drawImage(renderResult.image, -15, -15);
         document.getElementById('downloadLink').innerHTML = " | "
         var link = document.createElement('a');
         link.download = 'chart.png'

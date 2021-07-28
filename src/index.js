@@ -9,7 +9,7 @@ import "./main.scss"
 const key = getURLParams("key") ? getURLParams("key") : "1vr4y135MvVV-4OanjA17io2qGL5U132_cvaa2XyxHnQ"
 const location = getURLParams("location") ? getURLParams("location") : "docsdata"
 const social = getURLParams("social") ? getURLParams("social") : false
-console.log("social",social)
+
 new Chart(key, location, social)
 
 

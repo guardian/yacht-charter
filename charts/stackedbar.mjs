@@ -17,14 +17,10 @@ export default class StackedBarChart {
     this.social = social
     this.render()
     if (social) {
-      renderCanvas(social)
+       renderCanvas(social)
     }
-
+   
   }
-
-  // turn this into a module !!!!!
-
-  
 
   render() {
 
@@ -45,6 +41,13 @@ export default class StackedBarChart {
         hasTrendline = trendline[0].index != "" ? true : false
       }
     }
+
+     const dimensons = {"twitter": {"width":1200,"height":675, "scaling": 1.5}, 
+        "instagram": {"width":1200,"height":1200, "scaling": 2}    
+        }
+    const body = document.querySelector("body")
+    const furniture = document.querySelector("#furniture")
+    const footer = document.querySelector("#footer")
     
     var template
     var keys = Object.keys(data[0])
@@ -59,33 +62,16 @@ export default class StackedBarChart {
     )
     var isMobile = windowWidth < 610 ? true : false
     
-
+    if (self.social) {
+      body.classList.add(self.social);
+      isMobile = true
+    }
     // Default height and width setup
 
     var width = document
       .querySelector("#graphicContainer")
       .getBoundingClientRect().width
     var height = width * 0.5
-
-
-    // Set up for social media views
-
-    const dimensons = {"twitter": {"width":1200,"height":675}, 
-        "instagram": {"width":1200,"height":1200}    
-        }
-    const body = document.querySelector("body")
-    const furniture = document.querySelector("#furniture")
-    const footer = document.querySelector("#footer")
-    // var canvas
-    
-    if (self.social) {
-      console.log("setting up social stuff")
-      body.classList.add(self.social);
-      height = dimensons[self.social].height - furniture.getBoundingClientRect().height - footer.getBoundingClientRect().height - 33
-      // width = width - 20;
-    }
-    
-    console.log("height", height, "width", width)
 
     var margin
     var dateParse = null
@@ -118,26 +104,6 @@ export default class StackedBarChart {
       xAxisDateFormat = d3.timeFormat(details[0]["xAxisDateFormat"])
     }
 
-    ;(width = width - margin.left - margin.right),
-      (height = height - margin.top - margin.bottom)
-
-    d3.select("#graphicContainer svg").remove()
-
-    var chartKey = d3.select("#chartKey")
-
-    chartKey.html("")
-
-    var svg = d3
-      .select("#graphicContainer")
-      .append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .attr("id", "svg")
-      .attr("overflow", "hidden")
-    var features = svg
-      .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-
     var xVar
     if (details[0]["xColumn"]) {
       xVar = details[0]["xColumn"]
@@ -147,10 +113,15 @@ export default class StackedBarChart {
       keys.splice(0, 1)
     }
 
-    // set up color domain/range
     const keyColor = dataTools.getKeysColors({ keys: keys, userKey: userKey, option: options[0]})
 
-    this.colors.set(keyColor.keys, keyColor.colors)
+    self.colors.set(keyColor.keys, keyColor.colors)
+
+
+    var chartKey = d3.select("#chartKey")
+
+    chartKey.html("")
+
 
     keys.forEach((key, i) => {
       var keyDiv = chartKey.append("div").attr("class", "keyDiv")
@@ -158,7 +129,7 @@ export default class StackedBarChart {
         .append("span")
         .attr("class", "keyCircle")
         .style("background-color", () => {
-          return this.colors.get(key)
+          return self.colors.get(key)
         })
       keyDiv.append("span").attr("class", "keyText").text(key)
     })
@@ -232,11 +203,6 @@ export default class StackedBarChart {
       })
     }
 
-    var x = d3.scaleBand().range([0, width]).paddingInner(0.08)
-
-    x.domain(xRange)
-
-    var y = d3.scaleLinear().range([height, 0])
 
     var layers = d3.stack().offset(d3.stackOffsetDiverging).keys(keys)(data)
 
@@ -247,6 +213,83 @@ export default class StackedBarChart {
         subLayer.total = subLayer.data.Total
       })
     })
+
+    // Set up for social media views
+
+   
+    // var canvas
+  
+    function adjustSize() {
+
+      console.log("setting up social stuff")
+      // document.querySelector("html").style.fontSize = dimensons[self.social].scaling
+      var furnitureHeight = furniture.getBoundingClientRect().height
+      var footerHeight = footer.getBoundingClientRect().height
+      console.log(furnitureHeight, footerHeight)
+      height = dimensons[self.social].height/2 - furniture.getBoundingClientRect().height - footer.getBoundingClientRect().height - 33
+      // margin.top = margin.top * 1.5
+      // margin.left = margin.left * 1.5
+      // margin.bottom = margin.bottom * 1.5
+      // margin.right = margin.right * 1.5
+      width = width - 20
+      width = width - margin.left - margin.right
+      height = height - margin.top - margin.bottom
+      
+      makeChart()
+
+    }
+
+    if (self.social) {
+
+      adjustSize()
+
+      const resizeObserver = new ResizeObserver(entries => {
+        console.log("height changed")
+        adjustSize()
+      })
+
+      // start observing a DOM node
+      resizeObserver.observe(furniture)
+
+    }
+    
+    else {
+      width = width - margin.left - margin.right
+      height = height - margin.top - margin.bottom
+      makeChart()
+    }
+
+  
+    function makeChart() {
+
+     console.log("height", height, "width", width)
+
+      d3.select("#graphicContainer svg").remove()
+
+      var svg = d3
+      .select("#graphicContainer")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .attr("id", "svg")
+      .attr("overflow", "hidden")
+
+    var features = svg
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+
+    
+
+    // set up color domain/range
+    
+
+    var x = d3.scaleBand().range([0, width]).paddingInner(0.08)
+
+    x.domain(xRange)
+
+    var y = d3.scaleLinear().range([height, 0])
+
+   
 
     y.domain([d3.min(layers, stackMin), d3.max(layers, stackMax)]).nice()
     var xAxis
@@ -276,6 +319,7 @@ export default class StackedBarChart {
         return numberFormat(d)
       })
     }
+
     features
       .append("g")
       .attr("class", "x")
@@ -297,7 +341,7 @@ export default class StackedBarChart {
       .enter()
       .append("g")
       .attr("class", (d) => "layer " + d.key)
-      .style("fill", (d, i) => this.colors.get(d.key))
+      .style("fill", (d, i) => self.colors.get(d.key))
     layer
       .selectAll("rect")
       .data((d) => d)
@@ -322,7 +366,7 @@ export default class StackedBarChart {
       const templateRender = (d) => {
         return mustache(template, { ...helpers, ...d })
       }
-      this.tooltip.bindEvents(
+      self.tooltip.bindEvents(
         d3.selectAll(".barPart"),
         width,
         height + margin.top + margin.bottom,
@@ -361,11 +405,13 @@ export default class StackedBarChart {
         features
           .append("path")
           .attr("d", tline(tdata))
-          .attr("stroke", this.trendColors.get(colourIndex))
+          .attr("stroke", self.trendColors.get(colourIndex))
           .attr("fill", "none")
           .attr("stroke-width", "3")
 
-        var keyDiv = chartKey.append("div").attr("class", "keyDiv").style("position", "relative")
+        d3.selectAll(".trendKey").remove()  
+
+        var keyDiv = chartKey.append("div").attr("class", "keyDiv trendKey").style("position", "relative")
 
         // keyDiv
         //   .append("span")
@@ -385,7 +431,7 @@ export default class StackedBarChart {
           .attr("y", 6)
           .attr("width", 12)
           .attr("height", 2)
-          .attr("fill", () => this.trendColors.get(colourIndex))  
+          .attr("fill", () => self.trendColors.get(colourIndex))  
 
         keyDiv.append("span").attr("class", "keyText").style("margin-left", "18px").text(tkeys[colourIndex])
 
@@ -511,5 +557,12 @@ export default class StackedBarChart {
           return d.text
         })
     }
+  
+    }
+    
+
+    
+
   }
+
 }

@@ -1,7 +1,7 @@
 .interactive-wrapper {
   border-top: 1px solid #dcdcdc;
   border-bottom: 1px solid #dcdcdc;
-  padding-top: 20px;
+  padding-top: 10px;
   padding-bottom: 5px;
 
   .axis path,
@@ -16,8 +16,8 @@
   }
 
   .chartTitle {
-    font-size: 20px;
-    line-height: 28px;
+    font-size: 1.25rem;
+    line-height: 1.35rem;
     font-weight: 600;
     -webkit-font-smoothing: antialiased;
     color: #333333;
@@ -43,17 +43,17 @@
   }*/
 
   .subTitle {
-    font-size: 16px;
-      line-height: 20px;
-      color: #333333;
-      font-family: "Guardian Egyptian Web", Georgia, serif;
-      margin-bottom:10px;
+    font-size: 1rem;
+    line-height: 1.25rem;
+    color: #333333;
+    font-family: "Guardian Egyptian Web", Georgia, serif;
+    margin-bottom:10px;
   }
 
   .footer {
     margin-top: 5px;
-    font-size: 12px;
-    line-height: 16px;
+    font-size: 0.75rem;
+    line-height: 1rem;
     color: rgb(118, 118, 118);
     font-family: "Guardian Text Sans Web", "Helvetica Neue", Helvetica, Arial,
       "Lucida Grande", sans-serif;
@@ -61,7 +61,7 @@
 
   .notes {
     font-family: "Guardian Text Sans Web", Arial;
-    font-size: 16px;
+    font-size: 1rem;
     color: #767676;
   }
 
@@ -78,7 +78,7 @@
   }
 
   .keyText {
-    font-size: 0.8em;
+    font-size: 0.8rem;
     margin-left: 5px;
   }
 
@@ -99,8 +99,8 @@
   // }
 
   .keyCircle {
-    width: 12px;
-    height: 12px;
+    width: 0.75rem;
+    height: 0.75rem;
     border-radius: 50%;
     display: inline-block;
   }

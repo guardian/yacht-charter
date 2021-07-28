@@ -12,6 +12,10 @@ html {
   background-color: white;
 }
 
+html {
+  font-size: 100%;
+}
+
 .element-atom,
 .interactive-atom {
   margin: 0 !important;
@@ -22,13 +26,22 @@ figure {
 }
 
 .twitter {
- 
   // overflow: hidden;
   #outer-wrapper {
     padding-left:10px;
     padding-right:10px;
-    width: 1200px;
-    height: 675px;
+    width: 600px;
+    height: 337.5px;
+  }
+}
+
+.instagram {
+  // overflow: hidden;
+  #outer-wrapper {
+    padding-left:10px;
+    padding-right:10px;
+    width: 610px;
+    height: 610px;
   }
 }
 
@@ -43,6 +56,7 @@ figure {
   background: #ffffff;
   position: relative;
   margin: 0 !important;
+
   border-top: 1px solid #dcdcdc;
   border-bottom: 1px solid #dcdcdc;
 
@@ -61,13 +75,13 @@ figure {
     position: relative;
   }
 
-  .chartSubTitle {
-    font-size: 14px;
-    color: #000;
-    font-family: "Guardian Text Sans Web", "Agate Sans", sans-serif;
-    padding-left: 60px;
-    margin-bottom: 10px;
-  }
+  // .chartSubTitle {
+  //   font-size: 14px;
+  //   color: #000;
+  //   font-family: "Guardian Text Sans Web", "Agate Sans", sans-serif;
+  //   padding-left: 60px;
+  //   margin-bottom: 10px;
+  // }
 
   .gradient {
     position: absolute;
@@ -133,4 +147,12 @@ figure {
   .buttonWrapper {
     margin-bottom: 10px;
   }
+}
+
+.twitter, .instagram {
+  .interactive-wrapper {
+    border-top: none;
+    border-bottom: none;
+  }
+   
 }
