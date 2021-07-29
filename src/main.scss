@@ -30,8 +30,8 @@ figure {
   #outer-wrapper {
     padding-left:10px;
     padding-right:10px;
-    width: 600px;
-    height: 337.5px;
+    width: 580px;
+    height: 322.5px;
   }
 }
 
@@ -41,6 +41,16 @@ figure {
     padding-left:10px;
     padding-right:10px;
     width: 610px;
+    height: 610px;
+  }
+}
+
+.facebook {
+  // overflow: hidden;
+  #outer-wrapper {
+    padding-left:10px;
+    padding-right:10px;
+    width: 580px;
     height: 610px;
   }
 }
@@ -149,10 +159,14 @@ figure {
   }
 }
 
-.twitter, .instagram {
+.twitter, .instagram, .facebook {
   .interactive-wrapper {
     border-top: none;
     border-bottom: none;
+  }
+
+  .subTitle {
+    font-size:0.9rem;
   }
    
 }

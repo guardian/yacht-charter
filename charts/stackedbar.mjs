@@ -42,8 +42,9 @@ export default class StackedBarChart {
       }
     }
 
-     const dimensons = {"twitter": {"width":1200,"height":675, "scaling": 1.5}, 
-        "instagram": {"width":1200,"height":1200, "scaling": 2}    
+     const dimensons = {"twitter": {"width":1200,"height":675, "scaling": 2}, 
+        "instagram": {"width":1200,"height":1200, "scaling": 2},
+        "facebook": {"width":1200,"height":630, "scaling": 2}    
         }
     const body = document.querySelector("body")
     const furniture = document.querySelector("#furniture")
@@ -231,7 +232,7 @@ export default class StackedBarChart {
       // margin.left = margin.left * 1.5
       // margin.bottom = margin.bottom * 1.5
       // margin.right = margin.right * 1.5
-      width = width - 20
+      width = document.querySelector("#graphicContainer").getBoundingClientRect().width - 20
       width = width - margin.left - margin.right
       height = height - margin.top - margin.bottom
       

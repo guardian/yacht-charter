@@ -86,7 +86,7 @@ export class Chart {
     case "linechart":
       import("./charts/linechart")
         .then((importedChartModule) => {
-          let instance = new importedChartModule.default(data)
+          let instance = new importedChartModule.default(data, this.social)
           this._addListener(instance, data, type, importedChartModule)
         })
       break
@@ -167,7 +167,7 @@ export class Chart {
       instance = new importedChartModule.default(data.sheets.data, data.sheets.colours, data.sheets.settings)
       break
     case "linechart":
-      instance = new importedChartModule.default(data)
+      instance = new importedChartModule.default(data, this.social)
       break
     case "horizontalbar":
       instance = new importedChartModule.default(data)
