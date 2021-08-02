@@ -292,7 +292,7 @@ export default class StackedBarChart {
 
    
 
-    y.domain([d3.min(layers, stackMin), d3.max(layers, stackMax)]).nice()
+    y.domain([d3.min(layers, stackMin), d3.max(layers, stackMax)])
     var xAxis
     var yAxis
     var ticks = 3
