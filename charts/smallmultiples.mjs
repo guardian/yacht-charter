@@ -32,6 +32,7 @@ export default class SmallMultiples {
     this.chartType =
       options[0] && options[0].chartType ? options[0].chartType : "area" // bar, line, area (default)
 
+    this.noColsSet = false 
 
     if (options["breaks"]) {
       this.hideNullValues = options["breaks"]
@@ -245,7 +246,6 @@ export default class SmallMultiples {
     // var numCols
 
     if (self.numCols === null) {
-  
         if (containerWidth <= 500) {
           self.numCols = 1
         } else if (containerWidth <= 750) {
@@ -253,6 +253,15 @@ export default class SmallMultiples {
         } else {
           self.numCols = 3
         }
+    }
+
+    else {
+      self.noColsSet = true
+      if (self.numCols > 3) {
+        if (self.isMobile) {
+          self.numCols = 2
+        }
+      }
     }
 
     var width = containerWidth / self.numCols
@@ -274,6 +283,7 @@ export default class SmallMultiples {
     self.height = height - self.margin.top - self.margin.bottom
 
     d3.select("#graphicContainer").selectAll(".chart-grid").remove()
+    
 
     this.keys.forEach((key, index) => {
       this.drawChart({
@@ -319,16 +329,22 @@ export default class SmallMultiples {
       .attr("id", id)
       .attr("class", "chart-grid")
       .style("width", function(d) {
+          
           if (self.numCols === 1) {
             return "100%"
           } else if (self.numCols === 2) {
             return "49.9%"
-          } else {
+          } else if (self.numCols === 3) {
             return "32.9%"
+          }
+          else if (self.numCols > 3) {
+              var smWidth = (100/self.numCols - 0.1).toString() + "%"
+              return smWidth
           }
       })
 
-    d3.select(chartId).append("div").text(key).attr("class", "chartSubTitle")
+    d3.select(chartId).append("div").text(key).attr("class", "chartSubTitle").style("padding-left", this.margin.left + "px")
+    // d3.selectAll(".chartSubTitle")
 
     const svg = d3
       .select(chartId)
@@ -394,19 +410,40 @@ export default class SmallMultiples {
 
   
     const tickMod = Math.round(x.domain().length / 3)
+    console.log("tickMod", tickMod, "blah", x.domain().length)
+    // if (isBar) {
+    //   const ticks = x
+    //   .domain()
+    //   .filter((d, i) => !(i % tickMod) || i === x.domain().length - 1)
+    // }
     const ticks = x
       .domain()
       .filter((d, i) => !(i % tickMod) || i === x.domain().length - 1)
 
-    const xAxis = d3
+    console.log("ticks",Math.round(this.width/100))   
+    
+    var xAxis = d3
       .axisBottom(x)
       // .tickValues(ticks)
       // .tickFormat(d3.timeFormat())
-      .ticks(4)
+      .ticks(3)
 
      if (isBar) {
         xAxis.tickValues(ticks).tickFormat(d3.timeFormat("%b %Y"))
      } 
+
+     if (this.numCols > 3) {
+    
+      var blahTicks = [x.domain()[0],
+                      new Date((x.domain()[0].getTime() + x.domain()[1].getTime())/2),
+                      x.domain()[1]
+                    ]
+
+      xAxis = d3
+        .axisBottom(x)
+        .tickValues(blahTicks )
+        .tickFormat(d3.timeFormat("%-d %b"))
+     }
       
     const yAxis = d3
       .axisLeft(y)
