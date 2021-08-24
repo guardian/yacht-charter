@@ -32,6 +32,7 @@ export default class SmallMultiples {
     this.chartType =
       options[0] && options[0].chartType ? options[0].chartType : "area" // bar, line, area (default)
 
+    this.noColsSet = false 
 
     if (options["breaks"]) {
       this.hideNullValues = options["breaks"]
@@ -172,7 +173,7 @@ export default class SmallMultiples {
       })
     }
     
-    console.log(this.periods)
+    // console.log(this.periods)
 
     if (this.hasTooltip) {
       this.tooltip = new Tooltip("#graphicContainer")
@@ -201,7 +202,7 @@ export default class SmallMultiples {
       d3.select("#switch").html("Show max scale for group")
     }
     d3.select("#switch").on("click", function () {
-      console.log("switch")
+      // console.log("switch")
       self.showGroupMax = self.showGroupMax ? false : true
 
       var label = self.showGroupMax
@@ -245,7 +246,6 @@ export default class SmallMultiples {
     // var numCols
 
     if (self.numCols === null) {
-  
         if (containerWidth <= 500) {
           self.numCols = 1
         } else if (containerWidth <= 750) {
@@ -253,6 +253,15 @@ export default class SmallMultiples {
         } else {
           self.numCols = 3
         }
+    }
+
+    else {
+      self.noColsSet = true
+      if (self.numCols > 3) {
+        if (self.isMobile) {
+          self.numCols = 2
+        }
+      }
     }
 
     var width = containerWidth / self.numCols
@@ -274,6 +283,7 @@ export default class SmallMultiples {
     self.height = height - self.margin.top - self.margin.bottom
 
     d3.select("#graphicContainer").selectAll(".chart-grid").remove()
+    
 
     this.keys.forEach((key, index) => {
       this.drawChart({
@@ -307,7 +317,7 @@ export default class SmallMultiples {
 
   drawChart({ data, key, details, chartType, isMobile, hasTooltip, index }) {
     var self = this 
-
+    console.log(self.height, self.width)
     const id = dataTools.getId(key),
       chartId = `#${id}`,
       isBar = chartType === "bar", // use different x scale
@@ -319,42 +329,48 @@ export default class SmallMultiples {
       .attr("id", id)
       .attr("class", "chart-grid")
       .style("width", function(d) {
+          
           if (self.numCols === 1) {
             return "100%"
           } else if (self.numCols === 2) {
             return "49.9%"
-          } else {
+          } else if (self.numCols === 3) {
             return "32.9%"
+          }
+          else if (self.numCols > 3) {
+              var smWidth = (100/self.numCols - 0.1).toString() + "%"
+              return smWidth
           }
       })
 
-    d3.select(chartId).append("div").text(key).attr("class", "chartSubTitle")
+    d3.select(chartId).append("div").text(key).attr("class", "chartSubTitle").style("padding-left", this.margin.left + "px")
+    // d3.selectAll(".chartSubTitle")
 
     const svg = d3
       .select(chartId)
       .append("svg")
-      .attr("width", this.width + this.margin.left + this.margin.right)
-      .attr("height", this.height + this.margin.top + this.margin.bottom)
+      .attr("width", self.width + self.margin.left + self.margin.right)
+      .attr("height", self.height + self.margin.top + self.margin.bottom)
       .attr("overflow", "hidden")
 
     const features = svg
       .append("g")
       .attr(
         "transform",
-        "translate(" + this.margin.left + "," + this.margin.top + ")"
+        "translate(" + self.margin.left + "," + self.margin.top + ")"
       )
 
-    var x = d3.scaleBand().range([0, this.width]).padding(0)
+    var x = d3.scaleBand().range([0, self.width]).padding(0)
 
-    if (this.parseTime) {
+    if (self.parseTime) {
       if (!isBar) {
-          x = d3.scaleTime().range([0, this.width])
+          x = d3.scaleTime().range([0, self.width])
       }
     }
 
     else {
       if (!isBar) {
-          x = d3.scaleLinear().range([0, this.width])
+          x = d3.scaleLinear().range([0, self.width])
       }
     } 
 
@@ -362,25 +378,26 @@ export default class SmallMultiples {
     //   ? d3.scaleBand().range([0, this.width]).padding(0)
     //   : d3.scaleLinear().range([0, this.width])
 
-    const y = d3.scaleLinear().range([this.height, 0])
+    const y = d3.scaleLinear().range([self.height, 0])
+    console.log("range",y.range())  
     const duration = 1000
-    let yMax = this.showGroupMax
+    let yMax = self.showGroupMax
       ? data
-      : data.filter((item) => item[this.groupVar] === key)
+      : data.filter((item) => item[self.groupVar] === key)
 
-    // console.log("yMax", yMax)  
+    console.log("yMax", yMax)  
 
-    // console.log("yMax",data.filter((item) => item[this.groupVar] === key))  
+    console.log("yMax",data.filter((item) => item[this.groupVar] === key))  
 
     if (isBar) {
-      x.domain(data.map((d) => d[this.xVar]))
+      x.domain(data.map((d) => d[self.xVar]))
     } else {
-      x.domain(d3.extent(data, (d) => d[this.xVar]))
+      x.domain(d3.extent(data, (d) => d[self.xVar]))
     }
 
-    if (this.multiSeries) {
+    if (self.multiSeries && !isBar) {
       var allValues = []
-      this.dataKeys.forEach(key => {
+      self.dataKeys.forEach(key => {
           allValues = allValues.concat(d3.extent(yMax, (d) => d[key]))
       })
       y.domain(d3.extent(allValues))
@@ -389,31 +406,57 @@ export default class SmallMultiples {
     }
 
     else {
-      y.domain(d3.extent(yMax, (d) => d[this.yVar]))
+      if (isBar) {
+        y.domain([0, d3.max(yMax, (d) => d[self.yVar])])
+      }
+      else {
+        y.domain(d3.extent(yMax, (d) => d[self.yVar]))
+      }  
     }
 
-  
+    console.log("range",y.range())  
+    console.log("domain",y.domain())
+
     const tickMod = Math.round(x.domain().length / 3)
+    // console.log("tickMod", tickMod, "blah", x.domain().length)
+    // if (isBar) {
+    //   const ticks = x
+    //   .domain()
+    //   .filter((d, i) => !(i % tickMod) || i === x.domain().length - 1)
+    // }
     const ticks = x
       .domain()
       .filter((d, i) => !(i % tickMod) || i === x.domain().length - 1)
 
-    const xAxis = d3
+    // console.log("ticks",Math.round(this.width/100))   
+    
+    var xAxis = d3
       .axisBottom(x)
-      // .tickValues(ticks)
-      // .tickFormat(d3.timeFormat())
-      .ticks(4)
+      .ticks(3)
 
      if (isBar) {
         xAxis.tickValues(ticks).tickFormat(d3.timeFormat("%b %Y"))
      } 
+
+     if (self.numCols > 3 && !isBar) {
+    
+      var blahTicks = [x.domain()[0],
+                      new Date((x.domain()[0].getTime() + x.domain()[1].getTime())/2),
+                      x.domain()[1]
+                    ]
+
+      xAxis = d3
+        .axisBottom(x)
+        .tickValues(blahTicks)
+        .tickFormat(d3.timeFormat("%-d %b"))
+     }
       
     const yAxis = d3
       .axisLeft(y)
       .tickFormat((d) => numberFormat(d))
       .ticks(3)
-
-    features
+    
+   features
       .append("g")
       .attr("class", "x")
       .attr("transform", "translate(0," + this.height + ")")
@@ -428,19 +471,29 @@ export default class SmallMultiples {
         : data.filter((item) => item[this.groupVar] === key)
         
 
-        if (this.multiSeries) {
+        if (this.multiSeries && !isBar) {
         var allValues = []
         this.dataKeys.forEach(key => {
             allValues = allValues.concat(d3.extent(yMax, (d) => d[key]))
         })
         y.domain(d3.extent(allValues))
-        console.log(allValues)
-        console.log(d3.extent(allValues))
+        // console.log(allValues)
+        // console.log(d3.extent(allValues))
       }
 
+      //   else {
+      //     y.domain(d3.extent(yMax, (d) => d[this.yVar]))
+      // }  
+
+      else {
+        if (isBar) {
+          y.domain([0, d3.max(yMax, (d) => d[self.yVar])])
+        }
         else {
-          y.domain(d3.extent(yMax, (d) => d[this.yVar]))
-      }  
+          y.domain(d3.extent(yMax, (d) => d[self.yVar]))
+        }  
+      }
+
 
       // y.domain(d3.extent(yMax, (d) => d[this.yVar]))
 
@@ -471,7 +524,6 @@ export default class SmallMultiples {
         this.drawPeriods(drawOptions)
       }
       
-
       features.select(".y").transition().duration(duration).call(yAxis)
     }
 
@@ -482,7 +534,8 @@ export default class SmallMultiples {
   drawBarChart({ features, data, duration, x, y, hasTooltip}) {
 
     var bars = features.selectAll(".bar").data(data)
-    console.log(data)
+    console.log("domain", y.domain())
+    
     bars
       .enter()
       .append("rect")
@@ -521,7 +574,7 @@ export default class SmallMultiples {
 
   drawLineChart({ features, data, duration, x, y }) {
 
-      console.log("data", data)
+      // console.log("data", data)
       features.selectAll(`.line-path`).remove()
 
       this.dataKeys.forEach((key, i) => {

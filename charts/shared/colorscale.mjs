@@ -44,6 +44,7 @@ class ColorScale {
   /***
   - domain
   - colors: string name of the d3 colour scheme OR array of colours
+  - reference for d3 schemes available here: https://github.com/d3/d3-scale-chromatic
 -------------*/
   set(domain, colors) {
     let colorSet = false

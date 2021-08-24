@@ -42,7 +42,7 @@ export default {
     create a html id to be used as chartId
   *******/
   getId(str) {
-    return str.replace(/ /g, "_")
+    return str.replace(/ |-|\(|\)/g, "_")
   },
 
   /**
