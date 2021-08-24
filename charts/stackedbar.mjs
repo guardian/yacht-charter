@@ -35,6 +35,7 @@ export default class StackedBarChart {
     var options = results.sheets.options
     var hasTooltip =  details[0].tooltip != "" ? true : false
     var hasTrendline = false
+
     
     if (trendline) {
         if (trendline.length > 0) {
@@ -52,6 +53,9 @@ export default class StackedBarChart {
     
     var template
     var keys = Object.keys(data[0])
+
+    console.log("keys")
+    console.log(keys)
 
     if (hasTooltip) {
       template = details[0].tooltip
@@ -207,6 +211,8 @@ export default class StackedBarChart {
 
     var layers = d3.stack().offset(d3.stackOffsetDiverging).keys(keys)(data)
 
+
+
     layers.forEach(function (layer) {
       layer.forEach(function (subLayer) {
         subLayer.group = layer.key
@@ -217,7 +223,9 @@ export default class StackedBarChart {
 
     // Set up for social media views
 
-   
+   console.log("layers")
+
+   console.log(layers)
     // var canvas
   
     function adjustSize() {

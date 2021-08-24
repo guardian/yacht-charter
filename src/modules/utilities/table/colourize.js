@@ -20,7 +20,7 @@ export default async function colourize(headings, userKey, data, ColorScale) {
         return (highlighted.indexOf(headings[index]) > -1) ? formating[highlighted.indexOf(headings[index])] : [""]
     }
 
-	return await values.map((row, i) => row.map((value, index) => { return { value : value, format: getIndex(index), color : colourizer(value, index), contrast : setContrast(colourizer(value, index)) }}))
+	return await values.map((row, i) => row.map((value, index) => { return { value : value, sort : value, format: getIndex(index), color : colourizer(value, index), contrast : setContrast(colourizer(value, index)) }}))
 }
 
 function contains(a, b) {

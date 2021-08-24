@@ -1,5 +1,15 @@
 import dataTools from "./dataTools"
 import ColorScale from "./shared/colorscale"
+import { numberFormat } from '../utilities/numberFormat'
+
+d3.selection.prototype.moveToBack = function() {  
+    return this.each(function() { 
+        var firstChild = this.parentNode.firstChild; 
+        if (firstChild) { 
+            this.parentNode.insertBefore(this, firstChild); 
+        } 
+    });
+};
 
 export default class groupedBar {
 
@@ -37,13 +47,13 @@ export default class groupedBar {
 
     data.map(d => keys.map(key => (+d[key]))).forEach(ob => dataset.push(...ob))
 
-    var isMobile = (windowWidth < 610) ? true : false ;
-
     var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+
+    var isMobile = (windowWidth < 610) ? true : false ;
 
     var width = document.querySelector("#graphicContainer").getBoundingClientRect().width
 
-    var height = 100 * groupKey.length   
+    var height = 60 * groupKey.length   
 
     var margin
 
@@ -102,8 +112,6 @@ export default class groupedBar {
       .domain([0, d3.max(dataset)])
       .rangeRound([margin.left, ( width + margin.left )  - margin.right])
     
-    console.log(dataset)
-
     var color = d3.scaleOrdinal()
 
     color.range(this.userKey.map(item => item.colour))
@@ -111,22 +119,19 @@ export default class groupedBar {
     color.domain(this.userKey.map(item => item.key))
 
     var xAxis = g => g
-      .attr("transform", `translate(0,${height - margin.bottom})`)
-      .call(d3.axisBottom(x).tickSizeOuter(0))
-      .call(g => g.select(".domain").remove())
-      .call(d3.axisBottom(x)) //.ticks(3, "s")
-      .call(g => g.select(".tick:last-of-type text").clone()
-        .attr("x", 15)
-        .attr("text-anchor", "start")
-        .attr("font-weight", "bold"))
-        //.text("test")) //data.y
+      .attr("transform", `translate(0,${0 + margin.top})`)
+      .attr("class", "axisgroup") 
+      .call(d3.axisTop(x).tickSizeOuter(0))
+      .call(d3.axisTop(x)
+            .ticks(3)
+            .tickSize(-height, 0, 0)
+            .tickPadding(10))
       
     var yAxis = g => g
       .attr("transform", `translate(${margin.left},0)`)
-      .call(d3.axisLeft(y0)) //.ticks(null, "s")
-      .call(g => g.select(".domain").remove())
+      .call(d3.axisLeft(y0))
 
-    svg.append("g")
+    var bars = svg.append("g")
       .selectAll("g")
       .data(data)
       .enter()
@@ -134,7 +139,8 @@ export default class groupedBar {
       .attr("transform", d => {
         return `translate(0,${y0(d[[primary]])})`
       })
-      .selectAll("rect")
+
+    bars.selectAll("rect")
       .data(d => keys.map(key => ({key, value: d[key]})))
       .enter()
       .append("rect")
@@ -144,13 +150,37 @@ export default class groupedBar {
       .attr("width", d => x(d.value) - x(0))
       .attr("fill", d => {
         return color(d.key)
-      });
+      })
+
+    bars.selectAll("text")
+      .data(d => keys.map(key => ({key, value: d[key]})))
+      .enter()
+      .append("text")
+      .attr("text-anchor", d => (x(d.value) - x(0) < 100) ? "start" : "end" )
+      .attr("x", d => (x(d.value) - x(0) < 100) ? x(d.value) + 10 : x(d.value) - 10)
+      .attr("y", d => y1(d.key) + ( y1.bandwidth() - 7 ) )
+      .attr("fill", d => (x(d.value) - x(0) < 100) ? "black" : "white")
+      .attr("font-weight","600")
+      .text((d) => numberFormat(d.value));
+
+    bars.selectAll("line")
+      .data(d => keys.map(key => ({key, value: d[key]})))
+      .enter()
+      .append("line")
+      .style("stroke", "#767676")
+      .style("stroke-width", 1)
+      .attr("x1", d => x(0))
+      .attr("y1", y0(0))
+      .attr("x2", d => x(0))
+      .attr("y2", d => y1(d.key) + ( y1.bandwidth() + 2 ) )
 
     svg.append("g")
       .call(xAxis);
 
     svg.append("g")
       .call(yAxis);
+
+    d3.selectAll('.axisgroup').moveToBack()
 
   }
 

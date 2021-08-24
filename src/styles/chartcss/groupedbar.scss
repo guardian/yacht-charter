@@ -1,0 +1,24 @@
+@import "tooltip";
+
+figure {
+  margin: 0;
+}
+
+.interactive-wrapper {
+  margin: 0 !important;
+
+  #graphicContainer {
+    position: relative;
+    max-width: 1200px;
+  }
+}
+
+.axisgroup path,
+.axisgroup line {
+  fill: none;
+  stroke: #dcdcdc;
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
+  stroke-dasharray: 2 2;
+  z-index: 1;
+}
