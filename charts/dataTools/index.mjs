@@ -86,11 +86,10 @@ export default {
     console.log("userDefined", userDefined)
     userDefined.forEach((d) => {
       // key name is "key" in bar charts but "keyName" in line charts
-      keys.push(d.key)
+      keys.push( (d.key) ? d.key : d.keyName )
       colors.push(d.colour)
     })
 
-    console.l
     return {
       keys,
       colors

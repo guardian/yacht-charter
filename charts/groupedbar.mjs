@@ -161,7 +161,7 @@ export default class groupedBar {
       .attr("y", d => y1(d.key) + ( y1.bandwidth() - 7 ) )
       .attr("fill", d => (x(d.value) - x(0) < 100) ? "black" : "white")
       .attr("font-weight","600")
-      .text((d) => numberFormat(d.value));
+      .text((d) => d.value);
 
     bars.selectAll("line")
       .data(d => keys.map(key => ({key, value: d[key]})))
