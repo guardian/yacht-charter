@@ -426,14 +426,20 @@ export default class LineChart {
 		this.y.domain([this.min, this.max])
 
 		// setup x and y axis
-		const xTicks = this.isMobile ? 4 : 6
+		const xTicks = Math.round(this.width / 110)
+		console.log("xTicks", xTicks)
 		const yTicks = this.meta["yScaleType"] === "scaleLog" ? 3 : 5
+
 		this.xAxis = d3.axisBottom(this.x)
 			.ticks(xTicks)
 	
 		if (this.parseTime == null) {
 			this.xAxis.tickFormat(d3.format("d"))
 		}  
+
+		else {
+			this.xAxis.tickFormat(d3.timeFormat("%-d %b %y"))
+		}
 
 		this.yAxis = d3
 			.axisLeft(this.y)
