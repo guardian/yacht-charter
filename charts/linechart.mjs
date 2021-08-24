@@ -217,6 +217,8 @@ export default class LineChart {
 			}
 		}
 
+		console.log("lineLabelling", this.lineLabelling )
+
 		this.parseTime = this.meta["dateFormat"] ? d3.timeParse(this.meta["dateFormat"]) : null
 		this.parsePeriods = this.meta["periodDateFormat"] ? d3.timeParse(this.meta["periodDateFormat"]) : null
 
@@ -310,6 +312,7 @@ export default class LineChart {
 		// make a chart key    
 
 		if (this.isMobile && !this.lineLabelling) {
+			this.$chartKey.html("")
 			this.keys.forEach((key) => {
 				const $keyDiv = this.$chartKey.append("div").attr("class", "keyDiv")
 
@@ -320,6 +323,22 @@ export default class LineChart {
 
 				$keyDiv.append("span").attr("class", "keyText").text(key)
 			})
+		}
+
+		if (this.lineLabelling === false) {
+
+			this.$chartKey.html("")
+			this.keys.forEach((key) => {
+				const $keyDiv = this.$chartKey.append("div").attr("class", "keyDiv")
+
+				$keyDiv
+					.append("span")
+					.attr("class", "keyCircle")
+					.style("background-color", () => this.colors.get(key))
+
+				$keyDiv.append("span").attr("class", "keyText").text(key)
+			})
+
 		}
 
 		this.data.forEach((d) => {
@@ -407,14 +426,20 @@ export default class LineChart {
 		this.y.domain([this.min, this.max])
 
 		// setup x and y axis
-		const xTicks = this.isMobile ? 4 : 6
+		const xTicks = Math.round(this.width / 110)
+		console.log("xTicks", xTicks)
 		const yTicks = this.meta["yScaleType"] === "scaleLog" ? 3 : 5
+
 		this.xAxis = d3.axisBottom(this.x)
 			.ticks(xTicks)
 	
 		if (this.parseTime == null) {
 			this.xAxis.tickFormat(d3.format("d"))
 		}  
+
+		else {
+			this.xAxis.tickFormat(d3.timeFormat("%-d %b %y"))
+		}
 
 		this.yAxis = d3
 			.axisLeft(this.y)

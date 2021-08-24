@@ -8,6 +8,7 @@ var helpers = {
   },
 
   nicedate: function(dte) {
+    console.log(dte)
     var chuncks = this[dte]
     return moment(chuncks).format('MMM D')
   },
