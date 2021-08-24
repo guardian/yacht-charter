@@ -22,8 +22,6 @@ export default class SmallMultiples {
     if (results.sheets.periods) {
       this.periods = results.sheets.periods
     }
-    
-    console.log("periods",this.periods)
 
     this.dataKeys = Object.keys(data[0])
     this.hideNullValues = "yes"
@@ -317,7 +315,6 @@ export default class SmallMultiples {
 
   drawChart({ data, key, details, chartType, isMobile, hasTooltip, index }) {
     var self = this 
-    console.log(self.height, self.width)
     const id = dataTools.getId(key),
       chartId = `#${id}`,
       isBar = chartType === "bar", // use different x scale
@@ -379,15 +376,10 @@ export default class SmallMultiples {
     //   : d3.scaleLinear().range([0, this.width])
 
     const y = d3.scaleLinear().range([self.height, 0])
-    console.log("range",y.range())  
     const duration = 1000
     let yMax = self.showGroupMax
       ? data
       : data.filter((item) => item[self.groupVar] === key)
-
-    console.log("yMax", yMax)  
-
-    console.log("yMax",data.filter((item) => item[this.groupVar] === key))  
 
     if (isBar) {
       x.domain(data.map((d) => d[self.xVar]))
@@ -413,9 +405,6 @@ export default class SmallMultiples {
         y.domain(d3.extent(yMax, (d) => d[self.yVar]))
       }  
     }
-
-    console.log("range",y.range())  
-    console.log("domain",y.domain())
 
     const tickMod = Math.round(x.domain().length / 3)
     // console.log("tickMod", tickMod, "blah", x.domain().length)
@@ -465,7 +454,6 @@ export default class SmallMultiples {
     features.append("g").attr("class", "y")
 
     const update = () => {
-      console.log("update")
       yMax = this.showGroupMax
         ? data
         : data.filter((item) => item[this.groupVar] === key)
@@ -534,7 +522,6 @@ export default class SmallMultiples {
   drawBarChart({ features, data, duration, x, y, hasTooltip}) {
 
     var bars = features.selectAll(".bar").data(data)
-    console.log("domain", y.domain())
     
     bars
       .enter()
@@ -787,22 +774,22 @@ export default class SmallMultiples {
       })
     }
 
-    // $hoverLayerRect
-    //   .on("mousemove touchmove", function (d) {
-    //     const x0 = x.invert(d3.mouse(this)[0])
-    //     const tooltipText = templateRender(d, this)
+    $hoverLayerRect
+      .on("mousemove touchmove", function (d) {
+        const x0 = x.invert(d3.mouse(this)[0])
+        const tooltipText = templateRender(d, this)
 
-    //     self.tooltip.show(
-    //       tooltipText,
-    //       self.width,
-    //       self.height + self.margin.top + self.margin.bottom
-    //     )
-    //     $hoverLine.attr("x1", x(x0)).attr("x2", x(x0)).style("opacity", 0.5)
-    //   })
-    //   .on("mouseout touchend", function () {
-    //     self.tooltip.hide()
-    //     $hoverLine.style("opacity", 0)
-    //   })
+        self.tooltip.show(
+          tooltipText,
+          self.width,
+          self.height + self.margin.top + self.margin.bottom
+        )
+        $hoverLine.attr("x1", x(x0)).attr("x2", x(x0)).style("opacity", 0.5)
+      })
+      .on("mouseout touchend", function () {
+        self.tooltip.hide()
+        $hoverLine.style("opacity", 0)
+      })
   }
 
   drawPeriods({ features, data, x, index }) {
@@ -825,6 +812,7 @@ export default class SmallMultiples {
       .attr("y2", this.height)
       .attr("class", "periodLine mobHide start")
       .attr("stroke", "#bdbdbd")
+      .attr("stroke-dasharray", "2,2") 
       .attr("opacity", (d) => {
         if (d.start < x.domain()[0]) {
           return 0
@@ -849,6 +837,7 @@ export default class SmallMultiples {
       .attr("y2", this.height)
       .attr("class", "periodLine mobHide")
       .attr("stroke", "#bdbdbd")
+      .attr("stroke-dasharray", "2,2") 
       .attr("opacity", (d) => {
         if (d.end > x.domain()[1]) {
           return 0
@@ -859,23 +848,29 @@ export default class SmallMultiples {
       .attr("stroke-width", 1)
 
     if (index === 0) {
-
        features
       .selectAll(".periodLabel")
       .data(this.periods)
       .enter()
       .append("text")
       .attr("x", (d) => {
-        if (d.labelAlign == "start") {
-          return x(d.start) + 5
-        } else {
+
+        if (d.labelPosition) {
+            if (d.labelPosition == "start") {
+               return x(d.start) + 5
+              }
+            else {
+              return x(d.middle)
+          }
+        }
+        else {
           return x(d.middle)
         }
       })
       .attr("y", -5)
       .attr("text-anchor", (d) => {
-        if (d.labelAlign == "start") {
-        return "start"
+        if (d.textAnchor) {
+          return d.textAnchor
         }
         else {
           return "middle"

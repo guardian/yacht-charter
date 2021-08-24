@@ -69,16 +69,16 @@ function numberFormatOG(num) {
                 }
               }
             if (num % 1 != 0) { 
-                return num.toFixed(2) 
+                return num
               }
-            else { return num.toLocaleString() }
+            else { return num }
         }
         if ( num < 0 ) {
             var posNum = num * -1;
             if ( posNum >= 1000000000 ) return [ "-" + String(( posNum / 1000000000 ).toFixed(1)) + 'bn'];
             if ( posNum >= 1000000 ) return ["-" + String(( posNum / 1000000 ).toFixed(1)) + 'm'];
             if ( posNum >= 1000 ) return ["-" + String(( posNum / 1000 ).toFixed(1)) + 'k'];
-            else { return num.toLocaleString() }
+            else { return num }
         }
         return num;
     }
