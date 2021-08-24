@@ -52,8 +52,8 @@ export default class groupedBar {
     var isMobile = (windowWidth < 610) ? true : false ;
 
     var width = document.querySelector("#graphicContainer").getBoundingClientRect().width
-
-    var height = 60 * groupKey.length   
+    
+    var height = (keys.length * 30) * groupKey.length   
 
     var margin
 
@@ -181,6 +181,8 @@ export default class groupedBar {
       .call(yAxis);
 
     d3.selectAll('.axisgroup').moveToBack()
+
+    d3.selectAll('.domain').remove()
 
   }
 

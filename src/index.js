@@ -4,8 +4,8 @@ import {
 } from "./modules/chart"
 import "./main.scss"
 
-const key = getURLParams("key") ? getURLParams("key") : "1vTJNmKMFpk5AgpOKitE0LclgBKR8ht1djvwSdSwxhw8"
-const location = getURLParams("location") ? getURLParams("location") : "docsdata"
+const key = getURLParams("key") ? getURLParams("key") : "oz-dblogs-vax-effectiveness-cases-deaths-bar"
+const location = getURLParams("location") ? getURLParams("location") : "yacht-charter-data"
 const social = getURLParams("social") ? getURLParams("social") : false
 
 new Chart(key, location, social)
