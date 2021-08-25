@@ -413,18 +413,25 @@ export default class SmallMultiples {
     //   .domain()
     //   .filter((d, i) => !(i % tickMod) || i === x.domain().length - 1)
     // }
-    const ticks = x
+
+    let ticks = x
       .domain()
       .filter((d, i) => !(i % tickMod) || i === x.domain().length - 1)
-
-    // console.log("ticks",Math.round(this.width/100))   
     
     var xAxis = d3
       .axisBottom(x)
       .ticks(3)
 
      if (isBar) {
-        xAxis.tickValues(ticks).tickFormat(d3.timeFormat("%b %Y"))
+
+      if (x.domain().length > 9 && self.numCols > 2) {
+
+        ticks = [ x.domain()[3] , x.domain()[x.domain().length - 4]]
+ 
+      }
+
+      xAxis.tickValues(ticks).tickFormat(d3.timeFormat("%b %Y"))
+
      } 
 
      if (self.numCols > 3 && !isBar) {
