@@ -6,6 +6,9 @@ import Tooltip from "./shared/tooltip"
 import ColorScale from "./shared/colorscale"
 import renderCanvas from "../utilities/renderCanvas"
 import dimensions from "./constants/dimensions"
+import * as tone from 'tone'
+const timer = ms => new Promise(res => setTimeout(res, ms)) 
+
 
 /****** Example tooltip template */
 // `
@@ -448,6 +451,11 @@ export default class LineChart {
 			})
 			.ticks(yTicks)
 			.tickSize(-this.width)
+
+
+  
+
+
 	}
 
 	render() {
@@ -570,6 +578,9 @@ export default class LineChart {
 
 		d3.selectAll(".domain").attr("stroke", "#767676")
 
+		this.sonicData = {}
+
+		this.keyOrder = []
 
 		this.keys.forEach((key) => {
 			this.$features
@@ -595,6 +606,10 @@ export default class LineChart {
 			//   lineLabelOffset = -10
 			// }
 			// }
+
+			this.sonicData[key] = tempLabelData
+
+			this.keyOrder.push(key)
 
 			this.$features
 					.append("circle")
@@ -640,7 +655,15 @@ export default class LineChart {
 		})
 
 		if (this.hasTooltipTemplate) {
+
 			this.drawHoverFeature()
+
+		}
+
+		if (true) { // Check for screen reader
+
+			this.sonic()
+
 		}
 
 		this.drawAnnotation()
@@ -722,6 +745,8 @@ export default class LineChart {
 	}
 
 	drawAnnotation() {
+
+		var self = this
 
 		console.log("drawing annotations")
 
@@ -852,5 +877,114 @@ export default class LineChart {
 					return d.text
 				})
 		}
+
+
+
+	}
+
+	sonic() {
+
+		var self = this
+
+		const bpm = 400
+
+		const note = 60 / bpm
+
+		const low = 130.81
+
+		const high = 261.63
+
+		const scale = d3.scaleLinear()
+		      .domain([0, d3.max(self.data, d => d[self.keyOrder[0]])])
+		      .range([low,high])
+
+		this.$svg.append("circle")
+				.attr("r",20)
+				.attr("cx",100)
+				.attr("cy",50)
+				.attr("fill","lightgreen")
+				.style("cursor", "pointer")
+				.attr("id", "playButton")
+				.on("click", noiseLoop)
+
+		this.$svg.append("circle")
+				.attr("r",5)
+				.attr("stroke", "red")
+				.attr("cx",self.x(self.data[0].Date))
+				.attr("cy",self.y(self.data[0][self.keyOrder[0]]))
+				.attr("fill","none")
+				.attr("id", "playHead")
+		      
+		function makeNoise(xVar, yVar) {
+		    
+		    var synth = new tone.Synth({
+		      envelope: {
+		        decay: 0,
+		        sustain:1,
+		        release:0.5
+		      },
+		      oscillator : {
+		        count: 8,
+		        spread: 30,
+		        type : "sawtooth4"
+		      }
+		    }
+		    ).toDestination();
+
+		    self.sonicData[yVar].forEach(function(d,i) {		    	
+
+		      if (i == 0) { 
+		        synth.triggerAttackRelease(scale(d[yVar]), self.sonicData[yVar].length * note).onsilence(clearSynth())
+		        d3.select("#playHead")
+		            .attr("cx",self.x(self.sonicData[yVar][i][xVar]) + self.margin.left)
+		            .attr("cy",self.y(self.sonicData[yVar][i][yVar]) + self.margin.top)
+		      }
+		      else {
+		        tone.Transport.schedule(function(){
+		          d3.select("#playHead").transition().duration(500)
+		            .ease(d3.easeLinear)
+		            .attr("cx",self.x(self.sonicData[yVar][i][xVar]) + self.margin.left)
+		            .attr("cy",self.y(self.sonicData[yVar][i][yVar]) + self.margin.top)
+		          
+		          synth.frequency.rampTo(scale(d[yVar]), note);
+		        }, i * note);
+		      }
+
+		      
+
+		    })
+		  
+		    tone.Transport.position = "0:0:0"
+		    tone.Transport.start()
+		  
+		    function clearSynth () {
+		      console.log("finished")
+		    }
+
+		    
+		}
+
+		async function noiseLoop() {
+
+			for await (const item of self.keyOrder) {
+
+				makeNoise('Date', item)
+
+				await timer(self.sonicData[item].length * note * 1000);
+
+		        d3.select("#playHead")
+					.attr("cx",self.x(self.data[0].Date))
+					.attr("cy",self.y(self.data[0][self.keyOrder[0]]))
+
+					await timer(500);
+			
+			}
+
+		}
 	}
 }
+
+
+
+
+
