@@ -48,6 +48,7 @@ export default class LineChart {
 		const parsed = JSON.parse(JSON.stringify(results))
 
 		console.log(dimensions)
+		this.isPlaying = false
 		this.data = parsed["sheets"]["data"]
 		this.keys = Object.keys(this.data[0])
 		this.xColumn = this.keys[0] // use first key, string or date
@@ -898,20 +899,42 @@ export default class LineChart {
 		      .domain([0, d3.max(self.data, d => d[self.keyOrder[0]])])
 		      .range([low,high])
 
-		this.$svg.append("circle")
-				.attr("r",20)
-				.attr("cx",100)
-				.attr("cy",50)
-				.attr("fill","lightgreen")
-				.style("cursor", "pointer")
-				.attr("id", "playButton")
-				.on("click", noiseLoop)
+		var sonicButton = document.getElementById('sonic');
+		sonicButton.addEventListener('click', noiseLoop);
+		sonicButton.addEventListener('keydown', sonicButtonKeydownHandler);
+		sonicButton.addEventListener('keyup', sonicButtonKeyupHandler);
+
+		function sonicButtonKeydownHandler (event) {
+		  // The action button is activated by space on the keyup event, but the
+		  // default action for space is already triggered on keydown. It needs to be
+		  // prevented to stop scrolling the page before activating the button.
+		  if (event.keyCode === 32) {
+		    event.preventDefault();
+		  }
+		  // If enter is pressed, activate the button
+		  else if (event.keyCode === 13) {
+		    event.preventDefault();
+		    noiseLoop();
+		  }
+		}
+
+		/**
+		 * Activates the action button with the space key.
+		 *
+		 * @param {KeyboardEvent} event
+		 */
+		function sonicButtonKeyupHandler (event) {
+		  if (event.keyCode === 32) {
+		    event.preventDefault();
+		    noiseLoop();
+		  }
+		}
 
 		this.$svg.append("circle")
 				.attr("r",5)
 				.attr("stroke", "red")
-				.attr("cx",self.x(self.data[0].Date))
-				.attr("cy",self.y(self.data[0][self.keyOrder[0]]))
+				.attr("cx",self.x(self.data[0].Date) + self.margin.left)
+				.attr("cy",self.y(self.data[0][self.keyOrder[0]]) + self.margin.top)
 				.attr("fill","none")
 				.attr("id", "playHead")
 		      
@@ -950,8 +973,6 @@ export default class LineChart {
 		        }, i * note);
 		      }
 
-		      
-
 		    })
 		  
 		    tone.Transport.position = "0:0:0"
@@ -961,25 +982,107 @@ export default class LineChart {
 		      console.log("finished")
 		    }
 
-		    
+		}
+
+		function beep(xVar, yVar, index) {
+
+		    var synth = new tone.Synth({
+		      envelope: {
+		        decay: 0,
+		        sustain:1,
+		        release:0.5
+		      },
+		      oscillator : {
+		        count: 8,
+		        spread: 30,
+		        type : "sawtooth4"
+		      }
+		    }
+		    ).toDestination();
+
+		    synth.triggerAttackRelease(scale(self.sonicData[yVar][index][yVar]), 1)
+
+		   	tone.Transport.position = "0:0:0"
+
+		    tone.Transport.start()
+
+		  
+		}
+
+		function speaker(text) {
+
+		    return new Promise( (resolve, reject) => {
+
+				if ('speechSynthesis' in window) {
+				 
+				 	var msg = new SpeechSynthesisUtterance();
+
+				 	msg.text = text
+
+				 	window.speechSynthesis.speak(msg);
+
+				 	msg.onend = function() {
+
+				 		resolve({ status : "success"})
+
+				 	};
+
+				} else {
+
+					resolve({ status : "no txt to speach"})
+
+				}
+
+		    }).catch(function(e) {
+
+			  reject(e);
+
+			});
 		}
 
 		async function noiseLoop() {
 
-			for await (const item of self.keyOrder) {
+			if (!this.isPlaying) {
 
-				makeNoise('Date', item)
+				this.isPlaying = true
 
-				await timer(self.sonicData[item].length * note * 1000);
+				for await (const datastream of self.keyOrder) {
 
-		        d3.select("#playHead")
-					.attr("cx",self.x(self.data[0].Date))
-					.attr("cy",self.y(self.data[0][self.keyOrder[0]]))
+			        d3.select("#playHead")
+		            .attr("cx",self.x(self.sonicData[datastream][0]['Date']) + self.margin.left)
+		            .attr("cy",self.y(self.sonicData[datastream][0][datastream]) + self.margin.top)
 
-					await timer(500);
-			
+					const category = await speaker(datastream)
+
+					const d1 = self.sonicData[datastream][0]['Date']
+
+					const min = await speaker(d1) // Min range date
+
+					//beep('Date', datastream, 0)
+
+					//await timer(1000);
+
+					const d2 = self.sonicData[datastream][self.sonicData[datastream].length - 1]['Date']
+
+					const max = await speaker(d2) // Max range date
+
+					//beep('Date', datastream, self.sonicData[datastream].length - 1)
+
+					//await timer(1000);
+
+					makeNoise('Date', datastream)
+
+					await timer(self.sonicData[datastream].length * note * 1000);
+
+			        d3.select("#playHead")
+		            .attr("cx",self.x(self.sonicData[datastream][0]['Date']) + self.margin.left)
+		            .attr("cy",self.y(self.sonicData[datastream][0][datastream]) + self.margin.top)
+
+				}
+
+				this.isPlaying = false
+
 			}
-
 		}
 	}
 }

@@ -1,1 +1,14 @@
 @import "tooltip";
+
+	#sonic {
+		width:40px;
+		height:40px;
+		text-align: center;
+		background-color:red;
+		color: white;
+		line-height:40px;
+		font-size:11px;
+		border-radius:50%;
+		float:right;
+		margin-right: 10px;
+	}
