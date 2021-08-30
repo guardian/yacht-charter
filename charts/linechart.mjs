@@ -904,6 +904,21 @@ export default class LineChart {
 		      .domain(domain)
 		      .range([low,high])
 
+
+		var button = document.createElement("button")
+
+		button.setAttribute("id", "sonic");
+
+		button.setAttribute("tabindex", "1");
+
+		button.setAttribute("aria-label", "click to hear the chart values");
+
+		button.setAttribute("role", "button");
+
+		var furniture = document.getElementById('furniture');
+
+		furniture.appendChild(button);
+
 		var sonicButton = document.getElementById('sonic');
 		sonicButton.addEventListener('click', noiseLoop);
 		sonicButton.addEventListener('keydown', sonicButtonKeydownHandler);

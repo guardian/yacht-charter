@@ -1,10 +1,9 @@
 <div id="outer-wrapper" class="showcase">
   <link href="chartcss/linechart.css" rel="stylesheet" />
   <div class="row" id="furniture">
-    <div class="chartTitle row" id="chartTitle" tabindex="0" aria-label="{{title}}">{{title}}</div>
-    <div class="subTitle row" id="subTitle" tabindex="1" aria-label="{{subtitle}}">{{subtitle}}</div>
-    <div class="notes" id="chartKey"></div>
-    <button id="sonic" tabindex="2" role="button" aria-label="click to hear the chart values"></button>
+    <div class="chartTitle row" id="chartTitle">{{title}}</div>
+    <div class="subTitle row" id="subTitle" tabindex="0" aria-label="{{subtitle}}">{{subtitle}}</div>
+    <div class="notes" id="chartKey" aria-hidden="true"></div>
   </div>
   <div class="row chartSans" id="graphicContainer" aria-hidden="true"></div>
   <div class="footer offset" id="footer">
