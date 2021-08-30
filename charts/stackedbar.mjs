@@ -515,7 +515,14 @@ export default class StackedBarChart {
         .attr("x", function (d) {
           return x(d.x1) + x.bandwidth() / 2
         })
-        .style("text-anchor", "middle")
+        .attr("text-anchor", (d) => {
+          if (d.align != "") {
+            return d.align
+          }
+          else {
+            return "middle"
+          }
+        })
         .style("opacity", 1)
         .attr("fill", "#FFF")
         .text(function (d, i) {

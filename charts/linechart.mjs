@@ -954,7 +954,7 @@ export default class LineChart {
 		    }
 		    ).toDestination();
 
-		    self.sonicData[yVar].forEach(function(d,i) {		    	
+		    self.sonicData[yVar].forEach(function(d,i) {			    	
 
 		      if (i == 0) { 
 		        synth.triggerAttackRelease(scale(d[yVar]), self.sonicData[yVar].length * note).onsilence(clearSynth())
@@ -1056,7 +1056,7 @@ export default class LineChart {
 
 					const d1 = self.sonicData[datastream][0]['Date']
 
-					const min = await speaker(d1) // Min range date
+					// const min = await speaker(d1)
 
 					//beep('Date', datastream, 0)
 
@@ -1064,7 +1064,7 @@ export default class LineChart {
 
 					const d2 = self.sonicData[datastream][self.sonicData[datastream].length - 1]['Date']
 
-					const max = await speaker(d2) // Max range date
+					// const max = await speaker(d2) // Max range date
 
 					//beep('Date', datastream, self.sonicData[datastream].length - 1)
 
