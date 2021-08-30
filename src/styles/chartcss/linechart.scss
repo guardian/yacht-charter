@@ -1,8 +1,8 @@
 @import "tooltip";
 
 	#sonic {
-		width:40px;
-		height:40px;
+		width:25px;
+		height:25px;
 		text-align: center;
 		background-color:red;
 		color: white;
@@ -10,4 +10,7 @@
 		border-radius:50%;
 		float:left;
 		margin-right: 10px;
+		background-image: url('https://interactive.guim.co.uk/embed/aus/graphics/sonification/audio.svg');
+		background-size: 90%;
+		bacground-position: center middle;
 	}
