@@ -1,53 +1,111 @@
-import tone from "tone"
+import * as tone from 'tone'
+const timer = ms => new Promise(res => setTimeout(res, ms)) 
 
-export default {
+// export default function sonic(sonicData, x, y, keyOrder, margin, domain, svg) {
 
-  create(svg) {
+var sonic = {
 
-    svg.append("circle")
-        .attr("r",20)
-        .attr("cx",100)
-        .attr("cy",50)
-        .attr("fill","lightgreen")
-        .style("cursor", "pointer")
-        .attr("id", "playButton")
-        .on("click", noiseLoop)
+  init: function(sonicData, x, y, keyOrder, margin, domain, svg) {
 
-    svg.append("circle")
+    const bpm = 400
+
+    const note = 60 / bpm
+
+    const low = 130.81
+
+    const high = 261.63
+
+    let isPlaying = false
+
+    const scale = d3.scaleLinear()
+          .domain(domain)
+          .range([low,high])
+
+    var sonicButton = document.getElementById('sonic');
+
+    sonicButton.addEventListener('click', sonic.noiseLoop);
+    sonicButton.addEventListener('keydown', sonic.sonicButtonKeydownHandler);
+    sonicButton.addEventListener('keyup', sonic.sonicButtonKeyupHandler);
+
+    d3.select(`#${svg}`).append("circle")
         .attr("r",5)
         .attr("stroke", "red")
-        .attr("cx",x(this.data[0].Date))
-        .attr("cy",y(this.data[0]['Original goal']))
+        .attr("cx",x(sonicData[keyOrder[0]][0]['Date']) + margin.left)
+        .attr("cy",y(sonicData[keyOrder[0]][0][keyOrder[0]]) + margin.top)
         .attr("fill","none")
         .attr("id", "playHead")
 
-  }
+  },
 
-}
+  sonicButtonKeydownHandler: function(event) {
 
+    if (event.keyCode === 32) {
+      event.preventDefault();
+    }
+    // If enter is pressed, activate the button
+    else if (event.keyCode === 13) {
+      event.preventDefault();
+      noiseLoop();
+    }
+  },
 
-/*
-
-    let bpm = 400
-
-    let note = 60 / bpm
-
-    let low = 130.81
-
-    let high = 261.63
-
-    let scale = d3.scaleLinear()
-          .domain([0, d3.max(this.data, d => d['Original goal'])])
-          .range([low,high])
-
-
-
-
-
-          
-
-    function makeNoise(xVar, yVar) {
+  sonicButtonKeyupHandler: function(event) {
+    if (event.keyCode === 32) {
+      event.preventDefault();
+      noiseLoop();
+    }
+  },
         
+  makeNoise: function(xVar, yVar) {
+      
+      var synth = new tone.Synth({
+        envelope: {
+          decay: 0,
+          sustain:1,
+          release:0.5
+        },
+        oscillator : {
+          count: 8,
+          spread: 30,
+          type : "sawtooth4"
+        }
+      }
+      ).toDestination();
+
+      sonicData[yVar].forEach(function(d,i) {          
+
+        if (i == 0) { 
+          synth.triggerAttackRelease(scale(d[yVar]), sonicData[yVar].length * note).onsilence(clearSynth())
+          d3.select("#playHead")
+              .attr("cx",x(sonicData[yVar][i][xVar]) + margin.left)
+              .attr("cy",y(sonicData[yVar][i][yVar]) + margin.top)
+        }
+        else {
+          tone.Transport.schedule(function(){
+            d3.select("#playHead").transition().duration(500)
+              .ease(d3.easeLinear)
+              .attr("cx",x(sonicData[yVar][i][xVar]) + margin.left)
+              .attr("cy",y(sonicData[yVar][i][yVar]) + margin.top)
+            
+            synth.frequency.rampTo(scale(d[yVar]), note);
+          }, i * note);
+        }
+
+      })
+    
+      tone.Transport.position = "0:0:0"
+      tone.Transport.start()
+    
+      function clearSynth () {
+        console.log("finished")
+      }
+
+  },
+
+  beep : function(key) {
+
+      return new Promise( (resolve, reject) => {
+
         var synth = new tone.Synth({
           envelope: {
             decay: 0,
@@ -61,44 +119,95 @@ export default {
           }
         }
         ).toDestination();
-        console.log("start", yVar)
-      
-        self.tempLabelData[yVar].forEach(function(d,i) {
-          if (i == 0) { 
-            synth.triggerAttackRelease(scale(d[yVar]), self.tempLabelData[yVar].length * note).onsilence(clearSynth())
-            d3.select("#playHead")
-                .attr("cx",x(self.tempLabelData[yVar][i][xVar]))
-                .attr("cy",y(self.tempLabelData[yVar][i][yVar]))
-          }
-          else {
-            tone.Transport.schedule(function(){
-              d3.select("#playHead").transition().duration(500)
-                .ease(d3.easeLinear)
-                .attr("cx",x(self.tempLabelData[yVar][i][xVar]))
-                .attr("cy",y(self.tempLabelData[yVar][i][yVar]))
-              
-              synth.frequency.rampTo(scale(d[yVar]), note);
-            }, i*note);
-          }
-        })
-      
+
+        synth.triggerAttackRelease(key, 1).onend(clearSynth())
+
         tone.Transport.position = "0:0:0"
+
         tone.Transport.start()
-      
+
         function clearSynth () {
-          console.log("finished")
+          resolve({ status : "success"})
         }
+
+
+      }).catch(function(e) {
+
+      reject(e);
+
+    });
+    
+  },
+
+  speaker: function(text) {
+
+      return new Promise( (resolve, reject) => {
+
+      if ('speechSynthesis' in window) {
+       
+        var msg = new SpeechSynthesisUtterance();
+
+        msg.text = text
+
+        window.speechSynthesis.speak(msg);
+
+        msg.onend = function() {
+
+          resolve({ status : "success"})
+
+        };
+
+      } else {
+
+        resolve({ status : "no txt to speach"})
+
+      }
+
+      }).catch(function(e) {
+
+      reject(e);
+
+    });
+  },
+
+  noiseLoop: async function() {
+
+    if (!isPlaying) {
+
+      isPlaying = true
+
+      const text1 = await speaker(`The lowest value on the chart is ${domain[0]}, and it sounds like `)
+
+      const beep1 = await beep(scale(domain[0]))
+
+      await timer(1200);
+
+      const text2 = await speaker(`The highest value on the chart is ${domain[1]}, and it sounds like `)
+
+      const beep2 = await beep(scale(domain[1]))
+
+      await timer(1200);
+
+      for await (const datastream of keyOrder) {
+
+            d3.select("#playHead")
+              .attr("cx",x(sonicData[datastream][0]['Date']) + margin.left)
+              .attr("cy",y(sonicData[datastream][0][datastream]) + margin.top)
+
+        const category = await speaker(datastream)
+
+        makeNoise('Date', datastream)
+
+        await timer(sonicData[datastream].length * note * 1000);
+
+      }
+
+      isPlaying = false
+
     }
 
-    function noiseLoop() {
+  }
 
-      var keyOrder = ['Original goal', 'Revised goal', keys[0]]
-      
-      makeNoise('Date', keyOrder[0])
-      console.log(self.tempLabelData[keyOrder[1]].length * note * 1000)
-      setTimeout(function() { makeNoise('Date', keyOrder[1])}, self.tempLabelData[keyOrder[1]].length * note * 1000 + 2000)
-      setTimeout(function() { makeNoise('Date', keyOrder[2])}, (self.tempLabelData[keyOrder[1]].length * note * 1000) + (self.tempLabelData[keyOrder[2]].length * note * 1000) + 4000)
+}
 
-    }
-
-*/
+export default sonic

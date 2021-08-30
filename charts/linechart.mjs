@@ -8,6 +8,7 @@ import renderCanvas from "../utilities/renderCanvas"
 import dimensions from "./constants/dimensions"
 import * as tone from 'tone'
 const timer = ms => new Promise(res => setTimeout(res, ms)) 
+//import sonic from "./sonic"
 
 
 /****** Example tooltip template */
@@ -665,6 +666,8 @@ export default class LineChart {
 
 			this.sonic()
 
+			//sonic(this.sonicData, this.x, this.y, this.keyOrder, this.margin, this.y.domain(), 'svg')
+
 		}
 
 		this.drawAnnotation()
@@ -920,11 +923,6 @@ export default class LineChart {
 		  }
 		}
 
-		/**
-		 * Activates the action button with the space key.
-		 *
-		 * @param {KeyboardEvent} event
-		 */
 		function sonicButtonKeyupHandler (event) {
 		  if (event.keyCode === 32) {
 		    event.preventDefault();
@@ -935,8 +933,8 @@ export default class LineChart {
 		this.$svg.append("circle")
 				.attr("r",5)
 				.attr("stroke", "red")
-				.attr("cx",self.x(self.data[0].Date) + self.margin.left)
-				.attr("cy",self.y(self.data[0][self.keyOrder[0]]) + self.margin.top)
+				.attr("cx",self.x(self.sonicData[self.keyOrder[0]][0]['Date']) + self.margin.left)
+				.attr("cy",self.y(self.sonicData[self.keyOrder[0]][0][self.keyOrder[0]]) + self.margin.top)
 				.attr("fill","none")
 				.attr("id", "playHead")
 		      

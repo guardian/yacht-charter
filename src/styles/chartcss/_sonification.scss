@@ -1,0 +1,17 @@
+#sonic {
+	width:20px;
+	height:20px;
+	text-align: center;
+	background-color:#767676;
+	color: white;
+	font-size:11px;
+	border-radius:50%;
+	margin-top:0px;
+	display:inline-block;
+	margin-right: 10px;
+	background-image: url('https://interactive.guim.co.uk/embed/aus/graphics/sonification/audio.svg');
+	background-size: 90%;
+	bacground-position: center middle;
+	z-index:99;
+	cursor: pointer;
+}
