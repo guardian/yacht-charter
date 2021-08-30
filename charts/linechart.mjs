@@ -896,7 +896,7 @@ export default class LineChart {
 		const high = 261.63
 
 		const scale = d3.scaleLinear()
-		      .domain([0, d3.max(self.data, d => d[self.keyOrder[0]])])
+		      .domain([this.min, this.max])
 		      .range([low,high])
 
 		var sonicButton = document.getElementById('sonic');
@@ -984,28 +984,40 @@ export default class LineChart {
 
 		}
 
-		function beep(xVar, yVar, index) {
+		function beep(key) {
 
-		    var synth = new tone.Synth({
-		      envelope: {
-		        decay: 0,
-		        sustain:1,
-		        release:0.5
-		      },
-		      oscillator : {
-		        count: 8,
-		        spread: 30,
-		        type : "sawtooth4"
-		      }
-		    }
-		    ).toDestination();
+		    return new Promise( (resolve, reject) => {
 
-		    synth.triggerAttackRelease(scale(self.sonicData[yVar][index][yVar]), 1)
+			    var synth = new tone.Synth({
+			      envelope: {
+			        decay: 0,
+			        sustain:1,
+			        release:0.5
+			      },
+			      oscillator : {
+			        count: 8,
+			        spread: 30,
+			        type : "sawtooth4"
+			      }
+			    }
+			    ).toDestination();
 
-		   	tone.Transport.position = "0:0:0"
+			    synth.triggerAttackRelease(key, 1).onend(clearSynth())
 
-		    tone.Transport.start()
+			   	tone.Transport.position = "0:0:0"
 
+			    tone.Transport.start()
+
+			    function clearSynth () {
+			      resolve({ status : "success"})
+			    }
+
+
+		    }).catch(function(e) {
+
+			  reject(e);
+
+			});
 		  
 		}
 
@@ -1054,7 +1066,7 @@ export default class LineChart {
 
 					const category = await speaker(datastream)
 
-					const d1 = self.sonicData[datastream][0]['Date']
+					// const d1 = self.sonicData[datastream][0]['Date']
 
 					// const min = await speaker(d1)
 
@@ -1062,21 +1074,21 @@ export default class LineChart {
 
 					//await timer(1000);
 
-					const d2 = self.sonicData[datastream][self.sonicData[datastream].length - 1]['Date']
+					const beep1 = await beep(scale(self.sonicData[datastream][0][datastream]))
 
-					// const max = await speaker(d2) // Max range date
+					await timer(2000);
 
-					//beep('Date', datastream, self.sonicData[datastream].length - 1)
+					const beep2 = await beep(scale(self.sonicData[datastream][self.sonicData[datastream].length - 1][datastream]))
 
-					//await timer(1000);
-
-					makeNoise('Date', datastream)
-
-					await timer(self.sonicData[datastream].length * note * 1000);
+					await timer(2000);
 
 			        d3.select("#playHead")
 		            .attr("cx",self.x(self.sonicData[datastream][0]['Date']) + self.margin.left)
 		            .attr("cy",self.y(self.sonicData[datastream][0][datastream]) + self.margin.top)
+					
+					makeNoise('Date', datastream)
+
+					await timer(self.sonicData[datastream].length * note * 1000);
 
 				}
 
