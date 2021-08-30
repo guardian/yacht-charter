@@ -895,8 +895,10 @@ export default class LineChart {
 
 		const high = 261.63
 
+		const domain = this.y.domain()
+
 		const scale = d3.scaleLinear()
-		      .domain([0, d3.max(self.data, d => d[self.keyOrder[0]])])
+		      .domain(domain)
 		      .range([low,high])
 
 		var sonicButton = document.getElementById('sonic');
@@ -1058,6 +1060,18 @@ export default class LineChart {
 
 				this.isPlaying = true
 
+				const text1 = await speaker(`The lowest value on the chart is ${domain[0]}, and it sounds like `)
+
+				const beep1 = await beep(scale(domain[0]))
+
+				await timer(1200);
+
+				const text2 = await speaker(`The highest value on the chart is ${domain[1]}, and it sounds like `)
+
+				const beep2 = await beep(scale(domain[1]))
+
+				await timer(1200);
+
 				for await (const datastream of self.keyOrder) {
 
 			        d3.select("#playHead")
@@ -1066,23 +1080,9 @@ export default class LineChart {
 
 					const category = await speaker(datastream)
 
-					const beep1 = await beep(scale(self.sonicData[datastream][0][datastream]))
-
-					await timer(2000);
-
-					const beep2 = await beep(scale(self.sonicData[datastream][self.sonicData[datastream].length - 1][datastream]))
-
-					await timer(2000);
-
-			        d3.select("#playHead")
-		            .attr("cx",self.x(self.sonicData[datastream][0]['Date']) + self.margin.left)
-		            .attr("cy",self.y(self.sonicData[datastream][0][datastream]) + self.margin.top)
-					
 					makeNoise('Date', datastream)
 
 					await timer(self.sonicData[datastream].length * note * 1000);
-
-
 
 				}
 
