@@ -34,7 +34,11 @@ export class Chart {
     var isMobile = (windowWidth < 610) ? true : false ;
 
     const app = this._initialiseChart(data, type, isMobile)
-    //this._loader(`<%= path %>/assets/modules/${type}.js`, app, document.body)
+
+    if (data.sheets.template[0].title!="") {
+      document.title = `Chart: ${data.sheets.template[0].title}`
+    }
+
   }
 
   _initialiseChart(data, type, isMobile) {

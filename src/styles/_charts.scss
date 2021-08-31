@@ -71,6 +71,9 @@
     font-family: "Guardian Text Sans Web", Arial;
     font-size: 1rem;
     color: #767676;
+    width:calc(100% - 40px);
+    float:left;
+    z-index:89;
   }
 
   .chartSans {

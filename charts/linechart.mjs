@@ -6,8 +6,10 @@ import Tooltip from "./shared/tooltip"
 import ColorScale from "./shared/colorscale"
 import renderCanvas from "../utilities/renderCanvas"
 import dimensions from "./constants/dimensions"
-import * as tone from 'tone'
-const timer = ms => new Promise(res => setTimeout(res, ms)) 
+import templatizer from "./shared/templatizer"
+import template from "./templates/linechart"
+import sonic from "./sonic"
+const Sonic =  new sonic()
 
 
 /****** Example tooltip template */
@@ -45,7 +47,9 @@ function getLongestKeyLength($svg, keys, isMobile, lineLabelling) {
 export default class LineChart {
 	constructor(results, social) {
 
-		const parsed = JSON.parse(JSON.stringify(results))
+		const merged = templatizer(template, results)
+
+		const parsed = JSON.parse(JSON.stringify(merged))
 
 		console.log(dimensions)
 		this.isPlaying = false
@@ -661,9 +665,9 @@ export default class LineChart {
 
 		}
 
-		if (true) { // Check for screen reader
+		if (this.options.aria==='TRUE') {
 
-			this.sonic()
+			Sonic.ification(this.sonicData, this.x, this.y, this.keyOrder, this.margin, this.y.domain(), 'svg')
 
 		}
 
@@ -1091,9 +1095,5 @@ export default class LineChart {
 			}
 		}
 	}
+
 }
-
-
-
-
-
