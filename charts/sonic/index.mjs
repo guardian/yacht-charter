@@ -21,11 +21,24 @@ var sonic = {
           .domain(domain)
           .range([low,high])
 
-    var sonicButton = document.getElementById('sonic');
+    var button = document.createElement("button")
 
-    sonicButton.addEventListener('click', sonic.noiseLoop);
-    sonicButton.addEventListener('keydown', sonic.sonicButtonKeydownHandler);
-    sonicButton.addEventListener('keyup', sonic.sonicButtonKeyupHandler);
+    button.setAttribute("id", "sonic");
+
+    button.setAttribute("tabindex", "1");
+
+    button.setAttribute("aria-label", "click to hear the chart values");
+
+    button.setAttribute("role", "button");
+
+    var furniture = document.getElementById('furniture');
+
+    furniture.appendChild(button);
+
+    var sonicButton = document.getElementById('sonic');
+    sonicButton.addEventListener('click', noiseLoop);
+    sonicButton.addEventListener('keydown', sonicButtonKeydownHandler);
+    sonicButton.addEventListener('keyup', sonicButtonKeyupHandler);
 
     d3.select(`#${svg}`).append("circle")
         .attr("r",5)

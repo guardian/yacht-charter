@@ -36,7 +36,6 @@ export class Chart {
     const app = this._initialiseChart(data, type, isMobile)
 
     if (data.sheets.template[0].title!="") {
-      console.log(`The title is: ${data.sheets.template[0].title}`)
       document.title = `Chart: ${data.sheets.template[0].title}`
     }
 

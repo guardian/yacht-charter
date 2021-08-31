@@ -8,6 +8,9 @@ import renderCanvas from "../utilities/renderCanvas"
 import dimensions from "./constants/dimensions"
 import * as tone from 'tone'
 const timer = ms => new Promise(res => setTimeout(res, ms)) 
+import createElement from "./shared/createElement"
+import templatizer from "./shared/templatizer"
+import template from "./templates/linechart"
 //import sonic from "./sonic"
 
 
@@ -46,7 +49,9 @@ function getLongestKeyLength($svg, keys, isMobile, lineLabelling) {
 export default class LineChart {
 	constructor(results, social) {
 
-		const parsed = JSON.parse(JSON.stringify(results))
+		const merged = templatizer(template, results)
+
+		const parsed = JSON.parse(JSON.stringify(merged))
 
 		console.log(dimensions)
 		this.isPlaying = false
@@ -662,7 +667,7 @@ export default class LineChart {
 
 		}
 
-		if (true) { // Check for screen reader
+		if (this.options.aria==='TRUE') {
 
 			this.sonic()
 
@@ -904,22 +909,13 @@ export default class LineChart {
 		      .domain(domain)
 		      .range([low,high])
 
+		var button = createElement("button",{"id":"sonic", "tabindex" : "1", "tabindex" : "1", "aria-label" : "click to hear the chart values", "role" : "button"})
 
-		var button = document.createElement("button")
-
-		button.setAttribute("id", "sonic");
-
-		button.setAttribute("tabindex", "1");
-
-		button.setAttribute("aria-label", "click to hear the chart values");
-
-		button.setAttribute("role", "button");
-
-		var furniture = document.getElementById('furniture');
+		var furniture = document.querySelector('#furniture');
 
 		furniture.appendChild(button);
 
-		var sonicButton = document.getElementById('sonic');
+		var sonicButton = document.querySelector('#sonic');
 		sonicButton.addEventListener('click', noiseLoop);
 		sonicButton.addEventListener('keydown', sonicButtonKeydownHandler);
 		sonicButton.addEventListener('keyup', sonicButtonKeyupHandler);
@@ -1105,8 +1101,3 @@ export default class LineChart {
 		}
 	}
 }
-
-
-
-
-
