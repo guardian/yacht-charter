@@ -22,7 +22,11 @@ export default {
 
     const bpm = 400
 
-    const note = 60 / bpm
+    const duration = 10
+
+    // const note = 60 / bpm
+
+    const note = duration / self.sonicData[self.keyOrder[0]].length
 
     const low = 130.81
 
@@ -74,6 +78,9 @@ export default {
           
     function makeNoise(xVar, yVar) {
         
+
+        console.log(self.sonicData[yVar].length * note, note)
+
         var synth = new tone.Synth({
           envelope: {
             decay: 0,
@@ -98,7 +105,7 @@ export default {
           }
           else {
             tone.Transport.schedule(function(){
-              d3.select("#playHead").transition().duration(500)
+              d3.select("#playHead").transition().duration(note)
                 .ease(d3.easeLinear)
                 .attr("cx",self.x(self.sonicData[yVar][i][xVar]) + self.margin.left)
                 .attr("cy",self.y(self.sonicData[yVar][i][yVar]) + self.margin.top)

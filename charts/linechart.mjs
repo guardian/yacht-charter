@@ -662,10 +662,15 @@ export default class LineChart {
 		if (this.hasTooltipTemplate) {
 
 			this.drawHoverFeature()
-
+ 
 		}
 
 		if (this.options.aria==='TRUE') {
+			console.log("Setting up sonificiations")
+			console.log(this.sonicData)
+			// const duration = 10000 / this.sonicData[this.keys[0]].length
+
+			// console.log("duration", duration)	
 
 			Sonic.ification(this.sonicData, this.x, this.y, this.keyOrder, this.margin, this.y.domain(), 'svg')
 
@@ -905,6 +910,10 @@ export default class LineChart {
 		      .domain(domain)
 		      .range([low,high])
 
+		const duration = len(self.sonicData) / 10000
+
+		console.log("duration", duration)
+
 		var sonicButton = document.getElementById('sonic');
 		sonicButton.addEventListener('click', noiseLoop);
 		sonicButton.addEventListener('keydown', sonicButtonKeydownHandler);
@@ -946,6 +955,8 @@ export default class LineChart {
 		      
 		function makeNoise(xVar, yVar) {
 		    
+			console.log("note", note)
+
 		    var synth = new tone.Synth({
 		      envelope: {
 		        decay: 0,
