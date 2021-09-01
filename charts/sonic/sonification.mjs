@@ -71,8 +71,8 @@ export default {
     d3.select(`#${svg}`).append("circle")
         .attr("r",5)
         .attr("stroke", "red")
-        .attr("cx",self.x(self.sonicData[self.keyOrder[0]][0]['Date']) + self.margin.left)
-        .attr("cy",self.y(self.sonicData[self.keyOrder[0]][0][self.keyOrder[0]]) + self.margin.top)
+        .attr("cx", -200) // self.x(self.sonicData[self.keyOrder[0]][0]['Date']) + self.margin.left
+        .attr("cy", -200) // self.y(self.sonicData[self.keyOrder[0]][0][self.keyOrder[0]]) + self.margin.top
         .attr("fill","none")
         .attr("id", "playHead")
           
@@ -233,11 +233,20 @@ export default {
 
   },
 
-  update: function(x, y) {
+  update: function(x, y, svg) {
 
     self.x = x
 
     self.y = y
+
+    d3.select(`#${svg}`).append("circle")
+        .attr("r",5)
+        .attr("stroke", "red")
+        .attr("cx",-200)
+        .attr("cy",-200)
+        .attr("fill","none")
+        .attr("id", "playHead")
+
 
   }
 

@@ -65,7 +65,8 @@ export default class LineChart {
 		this.options = parsed["sheets"]["options"][0]
 		
 		this.tooltipTemplate = this.meta.tooltip
-		this.hasTooltipTemplate = this.tooltipTemplate && this.tooltipTemplate != "" ? true : false
+		this.hasTooltipTemplate = this.tooltipTemplate && this.tooltipTemplate != "" ? true : false ;
+		d3.selectAll("#tooltip").remove()
 		this.tooltip = new Tooltip("#graphicContainer")
 
 		this.lineLabelling = null
@@ -468,6 +469,7 @@ export default class LineChart {
 		// Remove
 		d3.selectAll(".periodLine").remove()
 		d3.selectAll(".periodLabel").remove()
+
 
 		this.$features
 			.selectAll(".periodLine .start")
