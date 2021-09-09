@@ -63,7 +63,16 @@ export default class LineChart {
 		this.periods = parsed["sheets"]["periods"]
 		this.userKey = parsed["sheets"]["key"]
 		this.options = parsed["sheets"]["options"][0]
-		
+		this.lines = null 
+
+		if ("lines" in parsed["sheets"]) {
+			if (parsed["sheets"]['lines'][0] != "" ) {
+				this.lines = parsed["sheets"]['lines']
+			}
+		}
+
+		console.log("line", this.lines)
+
 		this.tooltipTemplate = this.meta.tooltip
 		this.hasTooltipTemplate = this.tooltipTemplate && this.tooltipTemplate != "" ? true : false
 		this.tooltip = new Tooltip("#graphicContainer")
@@ -385,6 +394,23 @@ export default class LineChart {
 			}
 		})
 
+		if (this.lines) {
+				this.lines.forEach((d) => {
+				if (this.parseTime && typeof d.x1 == "string") {
+					d.x1 = this.parseTime(d.x1)
+					d.x2 = this.parseTime(d.x2)
+				}
+
+				if (typeof d.y1 == "string") {
+					d.y1 = +d.y1
+					d.y2 = +d.y2
+				}
+
+			})
+		}
+	
+
+
 		this.periods.forEach((d) => {
 			if (typeof d.start == "string") {
 				if (this.parseTime != null) {
@@ -419,7 +445,13 @@ export default class LineChart {
 
 
 		// determine y min/max of the chart
-		this.max = d3.max(this.chartValues)
+		// this.max = d3.max(this.chartValues)
+
+		this.max =
+			this.meta["maxY"] && this.meta["maxY"] !== ""
+				? parseInt(this.meta["maxY"])
+				: d3.max(this.chartValues)
+
 		this.min =
 			this.meta["minY"] && this.meta["minY"] !== ""
 				? parseInt(this.meta["minY"])
@@ -539,6 +571,11 @@ export default class LineChart {
 				return d.label
 			})
 
+
+
+
+
+
 		this.$features.append("g")
 				.attr("class", "y dashed")
 				.call(this.yAxis)
@@ -557,6 +594,9 @@ export default class LineChart {
 			.call(this.xAxis)
 
 	 
+
+
+
 
 		this.$features.select(".y .domain").remove()    
 
@@ -582,6 +622,38 @@ export default class LineChart {
 		d3.selectAll(".tick text").attr("fill", "#767676")
 
 		d3.selectAll(".domain").attr("stroke", "#767676")
+
+			if (this.lines) {
+					this.$features
+			.selectAll(".line")
+			.data(this.lines)
+			.enter()
+			.append("line")
+			.attr("x1", (d) => this.x(d.x1))
+			.attr("y1", (d) => this.y(d.y1))
+			.attr("x2", (d) => this.x(d.x2))
+			.attr("y2", (d) => this.y(d.y1))
+			.attr("class", "line")
+			.attr("stroke", "#767676")
+			.attr("stroke-dasharray", "2,2")
+			.attr("stroke-width", 1)	
+
+		this.$features
+			.selectAll(".lineText")
+			.data(this.lines)
+			.enter()
+			.append("text")
+			.attr("x", (d) => this.x(d.x1))
+			.attr("y", (d) => this.y(d.y1) - 5)
+			// .attr("text-anchor", "start")
+			.attr("class", "lineText")
+			.attr("opacity", 1)
+			.text((d) => {
+				return d.text
+			})	
+
+		}	
+
 
 		this.sonicData = {}
 
