@@ -19,7 +19,7 @@ export default class sonic {
 
     } else {
 
-      sonification.update(x, y)
+      sonification.update(x, y, svg)
 
     }
 
