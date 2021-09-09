@@ -234,7 +234,7 @@ export default class StackedBarChart {
       // document.querySelector("html").style.fontSize = dimensons[self.social].scaling
       var furnitureHeight = furniture.getBoundingClientRect().height
       var footerHeight = footer.getBoundingClientRect().height
-      console.log(furnitureHeight, footerHeight)
+      console.log("furniture heigut", furnitureHeight, "footer height", footerHeight)
       height = dimensons[self.social].height/2 - furniture.getBoundingClientRect().height - footer.getBoundingClientRect().height - 33
       // margin.top = margin.top * 1.5
       // margin.left = margin.left * 1.5

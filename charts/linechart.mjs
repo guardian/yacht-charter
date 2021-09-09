@@ -142,8 +142,6 @@ export default class LineChart {
 			body.classList.add(social);
 			this.isMobile = true
 
-			
-
 			const resizeObserver = new ResizeObserver(entries => {
 				console.log("height changed")
 				adjustSize()
@@ -176,8 +174,9 @@ export default class LineChart {
 		this.$chartKey.html("")
 
 		// titles and source
-		d3.select("#chartTitle").text(this.meta.title)
-		d3.select("#subTitle").text(this.meta.subtitle)
+		d3.select("#chartTitle").html(this.meta.title)
+		d3.select("#subTitle").html(this.meta.subtitle)
+
 		if (this.meta.source != "") {
 			d3.select("#sourceText").html(" | Source: " + this.meta.source)
 		}
@@ -235,7 +234,7 @@ export default class LineChart {
 			}
 		}
 
-		console.log("lineLabelling", this.lineLabelling )
+		// console.log("lineLabelling", this.lineLabelling )
 
 		this.parseTime = this.meta["dateFormat"] ? d3.timeParse(this.meta["dateFormat"]) : null
 		this.parsePeriods = this.meta["periodDateFormat"] ? d3.timeParse(this.meta["periodDateFormat"]) : null
@@ -409,7 +408,6 @@ export default class LineChart {
 
 			})
 		}
-	
 
 
 		this.periods.forEach((d) => {
