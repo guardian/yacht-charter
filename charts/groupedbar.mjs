@@ -19,7 +19,7 @@ export default class groupedBar {
     this.details = results.sheets.template
     this.labels = results.sheets.labels
     this.userKey = results["sheets"]["key"]
-    this.options = results.sheets.options[0]['enableShowMore']
+    this.options = results.sheets.options
 
     this.render()
 
@@ -73,18 +73,8 @@ export default class groupedBar {
       }
     }
     
-    this.userKey.forEach(function (key, i) {
-      var keyDiv = chartKey.append("div").attr("class", "keyDiv")
 
-      keyDiv
-        .append("span")
-        .attr("class", "keyCircle")
-        .style("background-color", function () {
-          return key.colour
-        })
 
-      keyDiv.append("span").attr("class", "keyText").text(key.key)
-    })
 
     width = width - margin.left - margin.right
 
@@ -112,11 +102,29 @@ export default class groupedBar {
       .domain([0, d3.max(dataset)])
       .rangeRound([margin.left, ( width + margin.left )  - margin.right])
     
-    var color = d3.scaleOrdinal()
+    var color = new ColorScale()
+    
+    const keyColor = dataTools.getKeysColors({
+      keys: keys,
+      userKey: this.userKey,
+      option: this.options
+    })
 
-    color.range(this.userKey.map(item => item.colour))
+    color.set(keyColor.keys, keyColor.colors)
 
-    color.domain(this.userKey.map(item => item.key))
+    keys.forEach(function (key, i) {
+      var keyDiv = chartKey.append("div").attr("class", "keyDiv")
+
+      keyDiv
+        .append("span")
+        .attr("class", "keyCircle")
+        .style("background-color", function () {
+          return color.get(key)
+        })
+
+      keyDiv.append("span").attr("class", "keyText").text(key)
+    })
+
 
     var xAxis = g => g
       .attr("transform", `translate(0,${0 + margin.top})`)
@@ -149,7 +157,7 @@ export default class groupedBar {
       .attr("height", y1.bandwidth())
       .attr("width", d => x(d.value) - x(0))
       .attr("fill", d => {
-        return color(d.key)
+        return color.get(d.key)
       })
 
     bars.selectAll("text")
