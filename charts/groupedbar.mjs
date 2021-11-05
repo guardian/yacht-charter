@@ -53,7 +53,7 @@ export default class groupedBar {
 
     var width = document.querySelector("#graphicContainer").getBoundingClientRect().width
     
-    var height = (keys.length * 30) * groupKey.length   
+    var height = (keys.length * 40) * groupKey.length   
 
     var margin
 

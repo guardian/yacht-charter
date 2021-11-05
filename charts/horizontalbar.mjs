@@ -21,7 +21,7 @@ export default class horizontalBar {
     this.keys = Object.keys(this.data[0])
     this.xVar = null
     this.yVar = null
-    this.colors = new ColorScale({ domain: [0] })
+    this.colors = new ColorScale()
     this.suffix = null
 
     if (this.details[0]["suffix"]) {
@@ -49,6 +49,17 @@ export default class horizontalBar {
     }
 
     console.log(this.enableShowMore)
+
+     // var color = new ColorScale()
+    
+    const keyColor = dataTools.getKeysColors({
+      keys: this.keys,
+      userKey: this.userKey,
+      option: this.options
+    })
+
+    this.colors.set(keyColor.keys, keyColor.colors)
+
 
     // exclude bars that are less than this percent of the max value
     // this.cut_off = results.sheets.options[0]["cut_off_pct"]
@@ -176,7 +187,7 @@ export default class horizontalBar {
       .querySelector("#graphicContainer")
       .getBoundingClientRect().width
 
-    var height = this.temp_data.length * 60
+    var height = this.temp_data.length * 75
 
     var margin
 
@@ -247,8 +258,8 @@ export default class horizontalBar {
     var y = d3
       .scaleBand()
       .range([0, this.height])
-      .paddingInner(0.4)
-      .paddingOuter(0.4)
+      .paddingInner(0.45)
+      .paddingOuter(0.45)
 
     y.domain(
       this.temp_data.map((d) => {
@@ -320,7 +331,7 @@ export default class horizontalBar {
         if (d.Color) {
           return d.Color
         } else {
-          return this.colors.get(0)
+          return this.colors.get(d['xVar'])
         }
       })
       .attr("y", (d) => {
