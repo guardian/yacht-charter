@@ -11,7 +11,7 @@ import template from "./templates/linechart"
 import sonic from "./sonic"
 const Sonic =  new sonic()
 
-
+ 
 /****** Example tooltip template */
 // `
 //   <b>{{#formatDate}}{{date}}{{/formatDate}}</b><br/>
@@ -409,14 +409,14 @@ export default class LineChart {
 			})
 		}
 
-
+		console.log(this.periods)
 		this.periods.forEach((d) => {
 			if (typeof d.start == "string") {
-				if (this.parseTime != null) {
+				if (this.parsePeriods != null) {
 
-						d.start = this.parseTime(d.start)
+						d.start = this.parsePeriods(d.start)
 						if (d.end != "") {
-							d.end = this.parseTime(d.end)
+							d.end = this.parsePeriods(d.end)
 							d.middle = new Date((d.start.getTime() + d.end.getTime()) / 2)
 						}
 
@@ -744,7 +744,7 @@ export default class LineChart {
 
 			// console.log("duration", duration)	
 
-			Sonic.ification(this.sonicData, this.x, this.y, this.keyOrder, this.margin, this.y.domain(), 'svg')
+			Sonic.ification(this.sonicData, this.x, this.y, this.xColumn, this.keyOrder, this.margin, this.y.domain(), 'svg')
 
 		}
 
@@ -964,219 +964,220 @@ export default class LineChart {
 
 	}
 
-	sonic() {
+	// sonic() {
 
-		var self = this
+	// 	var self = this
 
-		const bpm = 400
+	// 	const bpm = 400
 
-		const note = 60 / bpm
+	// 	const note = 60 / bpm
 
-		const low = 130.81
+	// 	const low = 130.81
 
-		const high = 261.63
+	// 	const high = 261.63
 
-		const domain = this.y.domain()
+	// 	const domain = this.y.domain()
 
-		const scale = d3.scaleLinear()
-		      .domain(domain)
-		      .range([low,high])
+	// 	const scale = d3.scaleLinear()
+	// 	      .domain(domain)
+	// 	      .range([low,high])
 
-		const duration = len(self.sonicData) / 10000
+	// 	const duration = len(self.sonicData) / 10000
 
-		console.log("duration", duration)
+	// 	console.log(self.sonicData)
+	// 	console.log("duration", duration)
 
-		var sonicButton = document.getElementById('sonic');
-		sonicButton.addEventListener('click', noiseLoop);
-		sonicButton.addEventListener('keydown', sonicButtonKeydownHandler);
-		sonicButton.addEventListener('keyup', sonicButtonKeyupHandler);
+	// 	var sonicButton = document.getElementById('sonic');
+	// 	sonicButton.addEventListener('click', noiseLoop);
+	// 	sonicButton.addEventListener('keydown', sonicButtonKeydownHandler);
+	// 	sonicButton.addEventListener('keyup', sonicButtonKeyupHandler);
 
-		function sonicButtonKeydownHandler (event) {
-		  // The action button is activated by space on the keyup event, but the
-		  // default action for space is already triggered on keydown. It needs to be
-		  // prevented to stop scrolling the page before activating the button.
-		  if (event.keyCode === 32) {
-		    event.preventDefault();
-		  }
-		  // If enter is pressed, activate the button
-		  else if (event.keyCode === 13) {
-		    event.preventDefault();
-		    noiseLoop();
-		  }
-		}
+	// 	function sonicButtonKeydownHandler (event) {
+	// 	  // The action button is activated by space on the keyup event, but the
+	// 	  // default action for space is already triggered on keydown. It needs to be
+	// 	  // prevented to stop scrolling the page before activating the button.
+	// 	  if (event.keyCode === 32) {
+	// 	    event.preventDefault();
+	// 	  }
+	// 	  // If enter is pressed, activate the button
+	// 	  else if (event.keyCode === 13) {
+	// 	    event.preventDefault();
+	// 	    noiseLoop();
+	// 	  }
+	// 	}
 
-		/**
-		 * Activates the action button with the space key.
-		 *
-		 * @param {KeyboardEvent} event
-		 */
-		function sonicButtonKeyupHandler (event) {
-		  if (event.keyCode === 32) {
-		    event.preventDefault();
-		    noiseLoop();
-		  }
-		}
+	// 	/**
+	// 	 * Activates the action button with the space key.
+	// 	 *
+	// 	 * @param {KeyboardEvent} event
+	// 	 */
+	// 	function sonicButtonKeyupHandler (event) {
+	// 	  if (event.keyCode === 32) {
+	// 	    event.preventDefault();
+	// 	    noiseLoop();
+	// 	  }
+	// 	}
 
-		this.$svg.append("circle")
-				.attr("r",5)
-				.attr("stroke", "red")
-				.attr("cx",self.x(self.data[0].Date) + self.margin.left)
-				.attr("cy",self.y(self.data[0][self.keyOrder[0]]) + self.margin.top)
-				.attr("fill","none")
-				.attr("id", "playHead")
+	// 	this.$svg.append("circle")
+	// 			.attr("r",5)
+	// 			.attr("stroke", "red")
+	// 			.attr("cx",self.x(self.data[0].Date) + self.margin.left)
+	// 			.attr("cy",self.y(self.data[0][self.keyOrder[0]]) + self.margin.top)
+	// 			.attr("fill","none")
+	// 			.attr("id", "playHead")
 		      
-		function makeNoise(xVar, yVar) {
+	// 	function makeNoise(xVar, yVar) {
 		    
-			console.log("note", note)
+	// 		console.log("note", note)
 
-		    var synth = new tone.Synth({
-		      envelope: {
-		        decay: 0,
-		        sustain:1,
-		        release:0.5
-		      },
-		      oscillator : {
-		        count: 8,
-		        spread: 30,
-		        type : "sawtooth4"
-		      }
-		    }
-		    ).toDestination();
+	// 	    var synth = new tone.Synth({
+	// 	      envelope: {
+	// 	        decay: 0,
+	// 	        sustain:1,
+	// 	        release:0.5
+	// 	      },
+	// 	      oscillator : {
+	// 	        count: 8,
+	// 	        spread: 30,
+	// 	        type : "sawtooth4"
+	// 	      }
+	// 	    }
+	// 	    ).toDestination();
 
-		    self.sonicData[yVar].forEach(function(d,i) {			    	
+	// 	    self.sonicData[yVar].forEach(function(d,i) {			    	
 
-		      if (i == 0) { 
-		        synth.triggerAttackRelease(scale(d[yVar]), self.sonicData[yVar].length * note).onsilence(clearSynth())
-		        d3.select("#playHead")
-		            .attr("cx",self.x(self.sonicData[yVar][i][xVar]) + self.margin.left)
-		            .attr("cy",self.y(self.sonicData[yVar][i][yVar]) + self.margin.top)
-		      }
-		      else {
-		        tone.Transport.schedule(function(){
-		          d3.select("#playHead").transition().duration(500)
-		            .ease(d3.easeLinear)
-		            .attr("cx",self.x(self.sonicData[yVar][i][xVar]) + self.margin.left)
-		            .attr("cy",self.y(self.sonicData[yVar][i][yVar]) + self.margin.top)
+	// 	      if (i == 0) { 
+	// 	        synth.triggerAttackRelease(scale(d[yVar]), self.sonicData[yVar].length * note).onsilence(clearSynth())
+	// 	        d3.select("#playHead")
+	// 	            .attr("cx",self.x(self.sonicData[yVar][i][xVar]) + self.margin.left)
+	// 	            .attr("cy",self.y(self.sonicData[yVar][i][yVar]) + self.margin.top)
+	// 	      }
+	// 	      else {
+	// 	        tone.Transport.schedule(function(){
+	// 	          d3.select("#playHead").transition().duration(500)
+	// 	            .ease(d3.easeLinear)
+	// 	            .attr("cx",self.x(self.sonicData[yVar][i][xVar]) + self.margin.left)
+	// 	            .attr("cy",self.y(self.sonicData[yVar][i][yVar]) + self.margin.top)
 		          
-		          synth.frequency.rampTo(scale(d[yVar]), note);
-		        }, i * note);
-		      }
+	// 	          synth.frequency.rampTo(scale(d[yVar]), note);
+	// 	        }, i * note);
+	// 	      }
 
-		    })
+	// 	    })
 		  
-		    tone.Transport.position = "0:0:0"
-		    tone.Transport.start()
+	// 	    tone.Transport.position = "0:0:0"
+	// 	    tone.Transport.start()
 		  
-		    function clearSynth () {
-		      console.log("finished")
-		    }
+	// 	    function clearSynth () {
+	// 	      console.log("finished")
+	// 	    }
 
-		}
+	// 	}
 
-		function beep(key) {
+	// 	function beep(key) {
 
-		    return new Promise( (resolve, reject) => {
+	// 	    return new Promise( (resolve, reject) => {
 
-			    var synth = new tone.Synth({
-			      envelope: {
-			        decay: 0,
-			        sustain:1,
-			        release:0.5
-			      },
-			      oscillator : {
-			        count: 8,
-			        spread: 30,
-			        type : "sawtooth4"
-			      }
-			    }
-			    ).toDestination();
+	// 		    var synth = new tone.Synth({
+	// 		      envelope: {
+	// 		        decay: 0,
+	// 		        sustain:1,
+	// 		        release:0.5
+	// 		      },
+	// 		      oscillator : {
+	// 		        count: 8,
+	// 		        spread: 30,
+	// 		        type : "sawtooth4"
+	// 		      }
+	// 		    }
+	// 		    ).toDestination();
 
-			    synth.triggerAttackRelease(key, 1).onend(clearSynth())
+	// 		    synth.triggerAttackRelease(key, 1).onend(clearSynth())
 
-			   	tone.Transport.position = "0:0:0"
+	// 		   	tone.Transport.position = "0:0:0"
 
-			    tone.Transport.start()
+	// 		    tone.Transport.start()
 
-			    function clearSynth () {
-			      resolve({ status : "success"})
-			    }
+	// 		    function clearSynth () {
+	// 		      resolve({ status : "success"})
+	// 		    }
 
 
-		    }).catch(function(e) {
+	// 	    }).catch(function(e) {
 
-			  reject(e);
+	// 		  reject(e);
 
-			});
+	// 		});
 		  
-		}
+	// 	}
 
-		function speaker(text) {
+	// 	function speaker(text) {
 
-		    return new Promise( (resolve, reject) => {
+	// 	    return new Promise( (resolve, reject) => {
 
-				if ('speechSynthesis' in window) {
+	// 			if ('speechSynthesis' in window) {
 				 
-				 	var msg = new SpeechSynthesisUtterance();
+	// 			 	var msg = new SpeechSynthesisUtterance();
 
-				 	msg.text = text
+	// 			 	msg.text = text
 
-				 	window.speechSynthesis.speak(msg);
+	// 			 	window.speechSynthesis.speak(msg);
 
-				 	msg.onend = function() {
+	// 			 	msg.onend = function() {
 
-				 		resolve({ status : "success"})
+	// 			 		resolve({ status : "success"})
 
-				 	};
+	// 			 	};
 
-				} else {
+	// 			} else {
 
-					resolve({ status : "no txt to speach"})
+	// 				resolve({ status : "no txt to speach"})
 
-				}
+	// 			}
 
-		    }).catch(function(e) {
+	// 	    }).catch(function(e) {
 
-			  reject(e);
+	// 		  reject(e);
 
-			});
-		}
+	// 		});
+	// 	}
 
-		async function noiseLoop() {
+	// 	async function noiseLoop() {
 
-			if (!this.isPlaying) {
+	// 		if (!this.isPlaying) {
 
-				this.isPlaying = true
+	// 			this.isPlaying = true
 
-				const text1 = await speaker(`The lowest value on the chart is ${domain[0]}, and it sounds like `)
+	// 			const text1 = await speaker(`The lowest value on the chart is ${domain[0]}, and it sounds like `)
 
-				const beep1 = await beep(scale(domain[0]))
+	// 			const beep1 = await beep(scale(domain[0]))
 
-				await timer(1200);
+	// 			await timer(1200);
 
-				const text2 = await speaker(`The highest value on the chart is ${domain[1]}, and it sounds like `)
+	// 			const text2 = await speaker(`The highest value on the chart is ${domain[1]}, and it sounds like `)
 
-				const beep2 = await beep(scale(domain[1]))
+	// 			const beep2 = await beep(scale(domain[1]))
 
-				await timer(1200);
+	// 			await timer(1200);
 
-				for await (const datastream of self.keyOrder) {
+	// 			for await (const datastream of self.keyOrder) {
+	// 				console.log(datastream)
+	// 		        d3.select("#playHead")
+	// 	            .attr("cx",self.x(self.sonicData[datastream][0][this.xColumn]) + self.margin.left)
+	// 	            .attr("cy",self.y(self.sonicData[datastream][0][datastream]) + self.margin.top)
 
-			        d3.select("#playHead")
-		            .attr("cx",self.x(self.sonicData[datastream][0]['Date']) + self.margin.left)
-		            .attr("cy",self.y(self.sonicData[datastream][0][datastream]) + self.margin.top)
+	// 				const category = await speaker(datastream)
 
-					const category = await speaker(datastream)
+	// 				makeNoise(this.xColumn, datastream)
 
-					makeNoise('Date', datastream)
+	// 				await timer(self.sonicData[datastream].length * note * 1000);
 
-					await timer(self.sonicData[datastream].length * note * 1000);
+	// 			}
 
-				}
+	// 			this.isPlaying = false
 
-				this.isPlaying = false
-
-			}
-		}
-	}
+	// 		}
+	// 	}
+	// }
 
 }
