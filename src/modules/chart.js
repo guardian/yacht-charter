@@ -123,6 +123,13 @@ export class Chart {
           this._addListener(instance, data, type)
         })
       break
+    case "stackedarea":
+      import("./charts/stackedarea")
+        .then((importedChartModule) => {
+          let instance = new importedChartModule.default(data, this.social)
+          this._addListener(instance, data, type, importedChartModule)
+        })
+      break  
 
     default:
       console.log("no valid type selected")
@@ -179,6 +186,9 @@ export class Chart {
     case "stackedbar":
       instance = new importedChartModule.default(data, this.social)
       break
+    case "stackedarea":
+      instance = new importedChartModule.default(data, this.social)
+      break  
     case "smallmultiples":
       instance = new importedChartModule.default(data)
       break

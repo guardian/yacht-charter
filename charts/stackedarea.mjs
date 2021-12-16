@@ -5,15 +5,20 @@ import dataTools from "./dataTools"
 import Tooltip from "./shared/tooltip"
 import ColorScale from "./shared/colorscale"
 import renderCanvas from "../utilities/renderCanvas"
+import templatizer from "./shared/templatizer"
+import template from "./templates/stackedarea"
 
 // import * as rasterizeHTML from 'rasterizehtml'
 
 export default class StackedBarChart {
   constructor(results, social) {
+
+    const merged = templatizer(template, results)
+
     this.tooltip = new Tooltip("#graphicContainer")
     this.colors = new ColorScale()
     this.trendColors = new ColorScale()
-    this.results = results
+    this.results = merged
     this.social = social
     this.render()
     if (social) {
@@ -30,18 +35,9 @@ export default class StackedBarChart {
     var data = results.sheets.data
     var details = results.sheets.template
     var labels = results.sheets.labels
-    var trendline = results.sheets.trendline
-    var userKey = results.sheets.key 
+    var userKey = results.sheets.key
     var options = results.sheets.options
     var hasTooltip =  details[0].tooltip != "" ? true : false
-    var hasTrendline = false
-
-    
-    if (trendline) {
-        if (trendline.length > 0) {
-        hasTrendline = trendline[0].index != "" ? true : false
-      }
-    }
 
      const dimensons = {"twitter": {"width":1200,"height":675, "scaling": 2}, 
         "instagram": {"width":1200,"height":1200, "scaling": 2},
@@ -78,12 +74,23 @@ export default class StackedBarChart {
       .getBoundingClientRect().width
     var height = width * 0.5
 
-    var margin
+    var margin, x, y
     var dateParse = null
     var timeInterval = null
     var xAxisDateFormat = null
     var x_axis_cross_y = null
 
+     function stackMin(serie) {
+      return d3.min(serie, function (d) {
+        return d[0]
+      })
+    }
+
+    function stackMax(serie) {
+      return d3.max(serie, function (d) {
+        return d[1]
+      })
+    }
 
     // Check if margin defined by user
     if (details[0]["margin-top"] != "") {
@@ -110,19 +117,9 @@ export default class StackedBarChart {
         dateParse = null
       }
     }
-    if (typeof details[0]["timeInterval"] != undefined) {
-      if (details[0]["timeInterval"] != "") {
-        timeInterval = details[0]["timeInterval"]
-      }
 
-      else {
-        timeInterval = null
-      }
-    }
     if (typeof details[0]["xAxisDateFormat"] != undefined) {
-      console.log("yep")
       if (details[0]["xAxisDateFormat"] != "") {
-        console.log("yep2")
         xAxisDateFormat = d3.timeFormat(details[0]["xAxisDateFormat"])
       }
       else {
@@ -147,6 +144,7 @@ export default class StackedBarChart {
 
 
     var xVar
+
     if (details[0]["xColumn"]) {
       xVar = details[0]["xColumn"]
       keys.splice(keys.indexOf(xVar), 1)
@@ -154,16 +152,14 @@ export default class StackedBarChart {
       xVar = keys[0]
       keys.splice(0, 1)
     }
-
+    console.log("xVar", xVar)
     const keyColor = dataTools.getKeysColors({ keys: keys, userKey: userKey, option: options[0]})
 
     self.colors.set(keyColor.keys, keyColor.colors)
 
-
     var chartKey = d3.select("#chartKey")
 
     chartKey.html("")
-
 
     keys.forEach((key, i) => {
       var keyDiv = chartKey.append("div").attr("class", "keyDiv")
@@ -196,59 +192,8 @@ export default class StackedBarChart {
       d.y2 = +d.y2
     })
 
-    // Time scales for bar charts are heaps annoying
-    var barWidth
-    var xRange
-
-    function stackMin(serie) {
-      return d3.min(serie, function (d) {
-        return d[0]
-      })
-    }
-
-    function stackMax(serie) {
-      return d3.max(serie, function (d) {
-        return d[1]
-      })
-    }
-
-    if (timeInterval) {
-      if (timeInterval == "year") {
-        xRange = d3.timeYear.range(
-          data[0][xVar],
-          d3.timeYear.offset(data[data.length - 1][xVar], 1)
-        )
-      }
-      if (timeInterval == "day") {
-        xRange = d3.timeDay.range(
-          data[0][xVar],
-          d3.timeDay.offset(data[data.length - 1][xVar], 1)
-        )
-      }
-      if (timeInterval == "month") {
-        xRange = d3.timeMonth.range(
-          data[0][xVar],
-          d3.timeMonth.offset(data[data.length - 1][xVar], 1)
-        )
-      }
-
-      if (timeInterval == "week") {
-        xRange = d3.timeWeek.range(
-          data[0][xVar],
-          d3.timeWeek.offset(data[data.length - 1][xVar], 1)
-        )
-      }
-
-    } else {
-      xRange = data.map(function (d) {
-        return d[xVar]
-      })
-    }
-
-
-    var layers = d3.stack().offset(d3.stackOffsetDiverging).keys(keys)(data)
-
-
+   
+    var layers = d3.stack().keys(keys)(data)
 
     layers.forEach(function (layer) {
       layer.forEach(function (subLayer) {
@@ -257,6 +202,8 @@ export default class StackedBarChart {
         subLayer.total = subLayer.data.Total
       })
     })
+
+
 
     // Set up for social media views
 
@@ -313,60 +260,74 @@ export default class StackedBarChart {
       d3.select("#graphicContainer svg").remove()
 
       var svg = d3
-      .select("#graphicContainer")
-      .append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .attr("id", "svg")
-      .attr("overflow", "hidden")
+        .select("#graphicContainer")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .attr("id", "svg")
+        .attr("overflow", "hidden")
 
     var features = svg
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
-    
-
     // set up color domain/range
     
+    x = d3.scaleTime().range([0, width])
+    console.log("data", data)
 
-    var x = d3.scaleBand().range([0, width]).paddingInner(0.08)
 
-    x.domain(xRange)
+    x.domain(d3.extent(data, d => d[xVar]))
+    
+    y = d3.scaleLinear().range([height, 0])
 
-    var y = d3.scaleLinear().range([height, 0])
-
-   
 
     y.domain([d3.min(layers, stackMin), d3.max(layers, stackMax)])
+    console.log("domain", y.domain())
+
+    var area = d3.area()
+      .x(function(d, i) { 
+        return x(d.data[xVar]); 
+      })
+      .y0(function(d) { 
+        console.log(d)
+        console.log(y(d[0]))
+        return y(d[0]); 
+      })
+      .y1(function(d) { return y(d[1]); });
+
     var xAxis
     var yAxis
     var ticks = 3
 
-    var tickMod = Math.round(x.domain().length / 10)
-    if (isMobile) {
-      tickMod = Math.round(x.domain().length / 5)
-    }
+    // var tickMod = Math.round(x.domain().length / 10)
+    // if (isMobile) {
+    //   tickMod = Math.round(x.domain().length / 5)
+    // }
 
-    var ticks = x.domain().filter(function (d, i) {
-      return !(i % tickMod)
-    })
+    // var ticks = x.domain().filter(function (d, i) {
+    //   return !(i % tickMod)
+    // })
 
-    if (isMobile) {
-      xAxis = d3.axisBottom(x).tickValues(ticks).tickFormat(xAxisDateFormat)
-      yAxis = d3
-        .axisLeft(y)
-        .tickFormat(function (d) {
-          return numberFormat(d)
-        })
-        .ticks(5)
-    } else {
-      xAxis = d3.axisBottom(x).tickValues(ticks).tickFormat(xAxisDateFormat)
-      yAxis = d3.axisLeft(y).tickFormat(function (d) {
+    xAxis = d3.axisBottom(x).tickFormat(xAxisDateFormat)
+     yAxis = d3.axisLeft(y).tickFormat(function (d) {
         return numberFormat(d)
       })
-    }
+    // if (isMobile) {
+    //   xAxis = d3.axisBottom(x).tickValues(ticks).tickFormat(xAxisDateFormat)
+    //   yAxis = d3
+    //     .axisLeft(y)
+    //     .tickFormat(function (d) {
+    //       return numberFormat(d)
+    //     })
+    //     .ticks(5)
+    // } else {
+      
+    //   yAxis = d3.axisLeft(y).tickFormat(function (d) {
+    //     return numberFormat(d)
+    //   })
+    // }
 
-   
 
     features.append("g").attr("class", "y").call(yAxis)
 
@@ -384,19 +345,10 @@ export default class StackedBarChart {
       .append("g")
       .attr("class", (d) => "layer " + d.key)
       .style("fill", (d, i) => self.colors.get(d.key))
-    layer
-      .selectAll("rect")
-      .data((d) => d)
-      .enter()
-      .append("rect")
-      .attr("x", (d) => x(d.data[xVar]))
-      .attr("y", (d) => y(d[1]))
-      .attr("class", "barPart")
-      .attr("title", (d) => d.data[d.key])
-      .attr("data-group", (d) => d.group)
-      .attr("data-count", (d) => d.data[d.key])
-      .attr("height", (d) => y(d[0]) - y(d[1]))
-      .attr("width", x.bandwidth())
+
+    layer.append("path")
+      .attr("class", "area")
+      .attr("d", area);
 
     features
       .append("g")
@@ -420,71 +372,6 @@ export default class StackedBarChart {
         height + margin.top + margin.bottom,
         templateRender
       )
-    }
-
-    if (hasTrendline) {
-      var tkeys = Object.keys(trendline[0]).filter((item) => item != xVar)
-
-      trendline.forEach(function (d) {
-        if (dateParse != null) {
-          if (typeof d[xVar] === "string") {
-            d[xVar] = dateParse(d[xVar])
-          }
-        }
-
-      })
-
-
-      if (options[0].trendColors) {
-        const tColors = options[0].trendColors.split(",")
-        this.trendColors.set(tColors.length, tColors)
-      }
-
-      var colourIndex = 0
-
-      for (const trend of tkeys) {
-
-        let tline = d3.line()
-
-        let offset = x.bandwidth() / 2
-
-        let tdata = trendline.map((item) => [x(item[xVar]) + offset, y(+item[trend])])
-
-        features
-          .append("path")
-          .attr("d", tline(tdata))
-          .attr("stroke", self.trendColors.get(colourIndex))
-          .attr("fill", "none")
-          .attr("stroke-width", "3")
-
-        d3.selectAll(".trendKey").remove()  
-
-        var keyDiv = chartKey.append("div").attr("class", "keyDiv trendKey").style("position", "relative")
-
-        // keyDiv
-        //   .append("span")
-        //   .attr("class", "keyDash")
-        //   .style("border-color", () => this.trendColors.get(colourIndex))
-
-        // THIS IS A HACK TO SUPPORT IMAGE RENDERING
-
-        keyDiv
-          .append("svg")
-           .attr("class", "keyDash")
-          .attr("width", 12)
-          .attr("height", 12)
-          .attr("fill", "none")
-          .append("rect")
-          .attr("x", 0)
-          .attr("y", 6)
-          .attr("width", 12)
-          .attr("height", 2)
-          .attr("fill", () => self.trendColors.get(colourIndex))  
-
-        keyDiv.append("span").attr("class", "keyText").style("margin-left", "18px").text(tkeys[colourIndex])
-
-        colourIndex++
-      }
     }
 
     function textPadding(d) {

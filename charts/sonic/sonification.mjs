@@ -7,7 +7,7 @@ var self = {}
 export default {
 
   init: function(sonicData, x, y, xVar, keyOrder, margin, domain, svg) {
-
+    svg = 'svg'
     self.isPlaying = false
     
     self.sonicData = sonicData
@@ -68,7 +68,7 @@ export default {
       }
     }
 
-    d3.select(`#${svg}`).append("circle")
+    d3.select(`#svg`).append("circle")
         .attr("r",5)
         .attr("stroke", "red")
         .attr("cx", -200) // self.x(self.sonicData[self.keyOrder[0]][0]['Date']) + self.margin.left
@@ -239,7 +239,7 @@ export default {
 
     self.y = y
 
-    d3.select(`#${svg}`).append("circle")
+    d3.select(`#svg`).append("circle")
         .attr("r",5)
         .attr("stroke", "red")
         .attr("cx",-200)
