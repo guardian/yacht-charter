@@ -7,6 +7,8 @@ import ColorScale from "./shared/colorscale"
 import renderCanvas from "../utilities/renderCanvas"
 import templatizer from "./shared/templatizer"
 import template from "./templates/stackedarea"
+import  { addLabel, clickLogging } from './shared/arrows'
+
 
 // import * as rasterizeHTML from 'rasterizehtml'
 
@@ -15,16 +17,31 @@ export default class StackedBarChart {
 
     const merged = templatizer(template, results)
 
-    this.tooltip = new Tooltip("#graphicContainer")
     this.colors = new ColorScale()
     this.trendColors = new ColorScale()
     this.results = merged
     this.social = social
+    
+
+    this.tooltipTemplate = this.results.sheets.template[0].tooltip
+    this.hasTooltipTemplate = false
+
+    if (this.tooltipTemplate) {
+      
+      if (this.tooltipTemplate != "") {
+  
+        d3.selectAll("#tooltip").remove()
+          this.hasTooltipTemplate = true
+         this.tooltip = new Tooltip("#graphicContainer")
+         
+      }
+    }
+    
+   
     this.render()
     if (social) {
        renderCanvas(social)
     }
-   
   }
 
   render() {
@@ -33,11 +50,12 @@ export default class StackedBarChart {
     console.log("social",self.social)
     var results = JSON.parse(JSON.stringify(self.results))
     var data = results.sheets.data
-    var details = results.sheets.template
+    var details = results.sheets.template[0]
+    console.log("details", details)
     var labels = results.sheets.labels
     var userKey = results.sheets.key
     var options = results.sheets.options
-    var hasTooltip =  details[0].tooltip != "" ? true : false
+    // var hasTooltip =  details.tooltip != "" ? true : false
 
      const dimensons = {"twitter": {"width":1200,"height":675, "scaling": 2}, 
         "instagram": {"width":1200,"height":1200, "scaling": 2},
@@ -50,12 +68,12 @@ export default class StackedBarChart {
     var template
     var keys = Object.keys(data[0])
 
-    console.log("keys")
-    console.log(keys)
+    // console.log("keys")
+    // console.log(keys)
 
-    if (hasTooltip) {
-      template = details[0].tooltip
-    }
+    // if (hasTooltip) {
+    //   template = details.tooltip
+    // }
 
     var windowWidth = Math.max(
       document.documentElement.clientWidth,
@@ -93,12 +111,12 @@ export default class StackedBarChart {
     }
 
     // Check if margin defined by user
-    if (details[0]["margin-top"] != "") {
+    if (details["margin-top"] != "") {
       margin = {
-        top: +details[0]["margin-top"],
-        right: +details[0]["margin-right"],
-        bottom: +details[0]["margin-bottom"],
-        left: +details[0]["margin-left"]
+        top: +details["margin-top"],
+        right: +details["margin-right"],
+        bottom: +details["margin-bottom"],
+        left: +details["margin-left"]
       }
     } else {
       margin = {
@@ -109,23 +127,23 @@ export default class StackedBarChart {
       }
     }
 
-    if (typeof details[0]["dateFormat"] != undefined) {
-      if (details[0]["dateFormat"] != "") {
-        dateParse = d3.timeParse(details[0]["dateFormat"])
+    if (typeof details["dateFormat"] != undefined) {
+      if (details["dateFormat"] != "") {
+        dateParse = d3.timeParse(details["dateFormat"])
       }
       else {
         dateParse = null
       }
     }
 
-    if (typeof details[0]["xAxisDateFormat"] != undefined) {
-      if (details[0]["xAxisDateFormat"] != "") {
-        xAxisDateFormat = d3.timeFormat(details[0]["xAxisDateFormat"])
+    if (typeof details["xAxisDateFormat"] != undefined) {
+      if (details["xAxisDateFormat"] != "") {
+        xAxisDateFormat = d3.timeFormat(details["xAxisDateFormat"])
       }
       else {
 
         if (dateParse) {
-          xAxisDateFormat = d3.timeFormat("%d %b '%y")
+          xAxisDateFormat = d3.timeFormat("%e %b '%y")
         }
 
         else {
@@ -136,23 +154,23 @@ export default class StackedBarChart {
       
     }
 
-    if (details[0]["baseline"]) {
-      if (details[0]["baseline"] != "") {
-        x_axis_cross_y = +details[0]["baseline"]
+    if (details["baseline"]) {
+      if (details["baseline"] != "") {
+        x_axis_cross_y = +details["baseline"]
       }
     }
 
 
     var xVar
 
-    if (details[0]["xColumn"]) {
-      xVar = details[0]["xColumn"]
+    if (details["xColumn"]) {
+      xVar = details["xColumn"]
       keys.splice(keys.indexOf(xVar), 1)
     } else {
       xVar = keys[0]
       keys.splice(0, 1)
     }
-    console.log("xVar", xVar)
+    // console.log("xVar", xVar)
     const keyColor = dataTools.getKeysColors({ keys: keys, userKey: userKey, option: options[0]})
 
     self.colors.set(keyColor.keys, keyColor.colors)
@@ -207,9 +225,9 @@ export default class StackedBarChart {
 
     // Set up for social media views
 
-   console.log("layers")
+   // console.log("layers")
 
-   console.log(layers)
+   // console.log(layers)
     // var canvas
   
     function adjustSize() {
@@ -218,7 +236,7 @@ export default class StackedBarChart {
       // document.querySelector("html").style.fontSize = dimensons[self.social].scaling
       var furnitureHeight = furniture.getBoundingClientRect().height
       var footerHeight = footer.getBoundingClientRect().height
-      console.log("furniture heigut", furnitureHeight, "footer height", footerHeight)
+      // console.log("furniture heigut", furnitureHeight, "footer height", footerHeight)
       height = dimensons[self.social].height/2 - furniture.getBoundingClientRect().height - footer.getBoundingClientRect().height - 33
       // margin.top = margin.top * 1.5
       // margin.left = margin.left * 1.5
@@ -255,7 +273,7 @@ export default class StackedBarChart {
   
     function makeChart() {
 
-     console.log("height", height, "width", width)
+     // console.log("height", height, "width", width)
 
       d3.select("#graphicContainer svg").remove()
 
@@ -274,7 +292,7 @@ export default class StackedBarChart {
     // set up color domain/range
     
     x = d3.scaleTime().range([0, width])
-    console.log("data", data)
+    // console.log("data", data)
 
 
     x.domain(d3.extent(data, d => d[xVar]))
@@ -283,15 +301,15 @@ export default class StackedBarChart {
 
 
     y.domain([d3.min(layers, stackMin), d3.max(layers, stackMax)])
-    console.log("domain", y.domain())
+    // console.log("domain", y.domain())
 
     var area = d3.area()
       .x(function(d, i) { 
         return x(d.data[xVar]); 
       })
       .y0(function(d) { 
-        console.log(d)
-        console.log(y(d[0]))
+        // console.log(d)
+        // console.log(y(d[0]))
         return y(d[0]); 
       })
       .y1(function(d) { return y(d[1]); });
@@ -309,24 +327,24 @@ export default class StackedBarChart {
     //   return !(i % tickMod)
     // })
 
-    xAxis = d3.axisBottom(x).tickFormat(xAxisDateFormat)
-     yAxis = d3.axisLeft(y).tickFormat(function (d) {
+    
+     // yAxis = d3.axisLeft(y).tickFormat(function (d) {
+     //    return numberFormat(d)
+     //  })
+    if (isMobile) {
+      xAxis = d3.axisBottom(x).tickFormat(xAxisDateFormat).ticks(4)
+      yAxis = d3
+        .axisLeft(y)
+        .tickFormat(function (d) {
+          return numberFormat(d)
+        })
+        .ticks(5)
+    } else {
+      xAxis = d3.axisBottom(x).tickFormat(xAxisDateFormat)
+      yAxis = d3.axisLeft(y).tickFormat(function (d) {
         return numberFormat(d)
       })
-    // if (isMobile) {
-    //   xAxis = d3.axisBottom(x).tickValues(ticks).tickFormat(xAxisDateFormat)
-    //   yAxis = d3
-    //     .axisLeft(y)
-    //     .tickFormat(function (d) {
-    //       return numberFormat(d)
-    //     })
-    //     .ticks(5)
-    // } else {
-      
-    //   yAxis = d3.axisLeft(y).tickFormat(function (d) {
-    //     return numberFormat(d)
-    //   })
-    // }
+    }
 
 
     features.append("g").attr("class", "y").call(yAxis)
@@ -362,17 +380,35 @@ export default class StackedBarChart {
       })
       .call(xAxis)
 
-    if (hasTooltip) {
-      const templateRender = (d) => {
-        return mustache(template, { ...helpers, ...d })
-      }
-      self.tooltip.bindEvents(
-        d3.selectAll(".barPart"),
-        width,
-        height + margin.top + margin.bottom,
-        templateRender
-      )
-    }
+
+    features
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("fill", "#767676")
+      .attr("text-anchor", "end")
+      .text(details.yAxisLabel)
+
+    features
+      .append("text")
+      .attr("x", width)
+      .attr("y", height - 6)
+      .attr("fill", "#767676")
+      .attr("text-anchor", "end")
+      .text(details.xAxisLabel)  
+
+    // if (hasTooltip) {
+    //   const templateRender = (d) => {
+    //     return mustache(template, { ...helpers, ...d })
+    //   }
+    //   self.tooltip.bindEvents(
+    //     d3.selectAll(".barPart"),
+    //     width,
+    //     height + margin.top + margin.bottom,
+    //     templateRender
+    //   )
+    // }
 
     function textPadding(d) {
       if (d.y2 > 0) {
@@ -390,121 +426,229 @@ export default class StackedBarChart {
       }
     }
 
-    features
-      .selectAll(".annotationLine")
-      .data(labels)
-      .enter()
-      .append("line")
-      .attr("class", "annotationLine")
-      .attr("x1", function (d) {
-        return x(d.x1) + x.bandwidth() / 2
-      })
-      .attr("y1", function (d) {
-        return y(d.y1)
-      })
-      .attr("x2", function (d) {
-        return x(d.x1) + x.bandwidth() / 2
-      })
-      .attr("y2", function (d) {
-        return y(d.y2)
-      })
-      .style("opacity", 1)
+    // features
+    //   .selectAll(".annotationLine")
+    //   .data(labels)
+    //   .enter()
+    //   .append("line")
+    //   .attr("class", "annotationLine")
+    //   .attr("x1", function (d) {
+    //     return x(d.x1) + x.bandwidth() / 2
+    //   })
+    //   .attr("y1", function (d) {
+    //     return y(d.y1)
+    //   })
+    //   .attr("x2", function (d) {
+    //     return x(d.x1) + x.bandwidth() / 2
+    //   })
+    //   .attr("y2", function (d) {
+    //     return y(d.y2)
+    //   })
+    //   .style("opacity", 1)
 
-    var footerAnnotations = d3.select("#footerAnnotations")
+    // var footerAnnotations = d3.select("#footerAnnotations")
 
-    footerAnnotations.html("")
+    // footerAnnotations.html("")
 
-    if (isMobile) {
-      features
-        .selectAll(".annotationCircles")
-        .data(labels)
-        .enter()
-        .append("circle")
-        .attr("class", "annotationCircle")
-        .attr("cy", function (d) {
-          return y(d.y2) + textPadding(d) / 2
-        })
-        .attr("cx", function (d) {
-          return x(d.x1) + x.bandwidth() / 2
-        })
-        .attr("r", 8)
-        .attr("fill", "#000")
-      features
-        .selectAll(".annotationTextMobile")
-        .data(labels)
-        .enter()
-        .append("text")
-        .attr("class", "annotationTextMobile")
-        .attr("y", function (d) {
-          return y(d.y2) + textPaddingMobile(d)
-        })
-        .attr("x", function (d) {
-          return x(d.x1) + x.bandwidth() / 2
-        })
-        .attr("text-anchor", (d) => {
-          if (d.align != "") {
-            return d.align
-          }
-          else {
-            return "middle"
-          }
-        })
-        .style("opacity", 1)
-        .attr("fill", "#FFF")
-        .text(function (d, i) {
-          return i + 1
-        })
+    // if (isMobile) {
+    //   features
+    //     .selectAll(".annotationCircles")
+    //     .data(labels)
+    //     .enter()
+    //     .append("circle")
+    //     .attr("class", "annotationCircle")
+    //     .attr("cy", function (d) {
+    //       return y(d.y2) + textPadding(d) / 2
+    //     })
+    //     .attr("cx", function (d) {
+    //       return x(d.x1) + x.bandwidth() / 2
+    //     })
+    //     .attr("r", 8)
+    //     .attr("fill", "#000")
+    //   features
+    //     .selectAll(".annotationTextMobile")
+    //     .data(labels)
+    //     .enter()
+    //     .append("text")
+    //     .attr("class", "annotationTextMobile")
+    //     .attr("y", function (d) {
+    //       return y(d.y2) + textPaddingMobile(d)
+    //     })
+    //     .attr("x", function (d) {
+    //       return x(d.x1) + x.bandwidth() / 2
+    //     })
+    //     .attr("text-anchor", (d) => {
+    //       if (d.align != "") {
+    //         return d.align
+    //       }
+    //       else {
+    //         return "middle"
+    //       }
+    //     })
+    //     .style("opacity", 1)
+    //     .attr("fill", "#FFF")
+    //     .text(function (d, i) {
+    //       return i + 1
+    //     })
 
-      if (labels.length > 0) {
-        footerAnnotations
-          .append("span")
-          .attr("class", "annotationFooterHeader")
-          .text("Notes: ")
-      }
-      labels.forEach(function (d, i) {
-        footerAnnotations
-          .append("span")
-          .attr("class", "annotationFooterNumber")
-          .text(i + 1 + " - ")
-        if (i < labels.length - 1) {
-          footerAnnotations
-            .append("span")
-            .attr("class", "annotationFooterText")
-            .text(d.text + ", ")
-        } else {
-          footerAnnotations
-            .append("span")
-            .attr("class", "annotationFooterText")
-            .text(d.text)
-        }
-      })
-    } else {
-      features
-        .selectAll(".annotationText")
-        .data(labels)
-        .enter()
-        .append("text")
-        .attr("class", "annotationText")
-        .attr("y", function (d) {
-          return y(d.y2) - 4
-        })
-        .attr("x", function (d) {
-          return x(d.x1) + x.bandwidth() / 2
-        })
-        .attr("text-anchor", function (d) {
-          return d.align
-        })
-        .style("opacity", 1)
-        .text(function (d) {
-          return d.text
-        })
-    }
+    //   if (labels.length > 0) {
+    //     footerAnnotations
+    //       .append("span")
+    //       .attr("class", "annotationFooterHeader")
+    //       .text("Notes: ")
+    //   }
+    //   labels.forEach(function (d, i) {
+    //     footerAnnotations
+    //       .append("span")
+    //       .attr("class", "annotationFooterNumber")
+    //       .text(i + 1 + " - ")
+    //     if (i < labels.length - 1) {
+    //       footerAnnotations
+    //         .append("span")
+    //         .attr("class", "annotationFooterText")
+    //         .text(d.text + ", ")
+    //     } else {
+    //       footerAnnotations
+    //         .append("span")
+    //         .attr("class", "annotationFooterText")
+    //         .text(d.text)
+    //     }
+    //   })
+    // } else {
+    //   features
+    //     .selectAll(".annotationText")
+    //     .data(labels)
+    //     .enter()
+    //     .append("text")
+    //     .attr("class", "annotationText")
+    //     .attr("y", function (d) {
+    //       return y(d.y2) - 4
+    //     })
+    //     .attr("x", function (d) {
+    //       return x(d.x1) + x.bandwidth() / 2
+    //     })
+    //     .attr("text-anchor", function (d) {
+    //       return d.align
+    //     })
+    //     .style("opacity", 1)
+    //     .text(function (d) {
+    //       return d.text
+    //     })
+    // } // end is mobile
   
+    // thing
+
+
+      labels.forEach((config) => {
+        addLabel(svg, config, width + margin.left + margin.right, height + margin.top + margin.bottom,margin, false)
+    })
+
+
+
+    if (self.hasTooltipTemplate) {
+        drawHoverFeature(self.tooltipTemplate, self.tooltip)
+       // console.log("drawing hover yeahhhh")
     }
+
+
+    function drawHoverFeature(template, tooltip) {
+   
+    const self = this
+    
+    const hoverLine = features
+      .append("line")
+      .attr("x1", 0)
+      .attr("y1", 0)
+      .attr("x2", 0)
+      .attr("y2", height)
+      .style("opacity", 0)
+      .style("stroke", "#333")
+      .style("stroke-dasharray", 4)
+
+    const hoverLayerRect = features
+      .append("rect")
+      .attr("width", width)
+      .attr("height", height)
+      .style("opacity", 0)
+
+    // Handle mouse hover event
+    // Find the data based on mouse position
+    const getTooltipData = (d) => {
+      // console.log(event)
+      d3.pointer(event)[0]
+      const bisectX = d3.bisector((d) => d[xVar]).left,
+        x0 = x.invert(d3.pointer(event)[0]),
+        i = bisectX(data, x0, 1)
+
+      // console.log(x0, i)  
+      // console.log(data, xVar)
+      
+      // var tooltipData = data.filter(d => d[xVar] === x0)
+
+      // keys.forEach((key) => {
+      //   const data = chartKeyData[key],
+      //     d0 = data[i - 1],
+      //     d1 = data[i]
+
+      //   if (d0 && d1) {
+      //     d = x0 - d0[xVar] > d1[xVar] - x0 ? d1 : d0
+      //   } else {
+      //     d = d0
+      //   }
+
+      //   tooltipData[xVar] = d[xVar]
+      //   tooltipData[key] = d[key]
+      // })
+      return data[i]
+    }
+
+    // Render tooltip data
+
+    // console.log("asasa", self)
+    const templateRender = (data) => {
+      return mustache(template, {
+        ...helpers,
+        ...data
+      })
+    }
+
+    hoverLayerRect
+      .on("mousemove touchmove", function (d) {
+        const tooltipData = getTooltipData(d, this)
+        var tooltipText = `<b>${xAxisDateFormat(tooltipData[xVar])}</b><br>` 
+
+        keys.forEach((key) => {
+           var keyText = `${key}: ${tooltipData[key]}<br>`
+           tooltipText = tooltipText + keyText
+        })
+
+        tooltip.show(
+          tooltipText,
+          width,
+          height + margin.top + margin.bottom
+        )
+
+        hoverLine
+          .attr("x1", x(tooltipData[xVar]))
+          .attr("x2", x(tooltipData[xVar]))
+          .style("opacity", 0.5)
+      })
+      .on("mouseout touchend", function () {
+        tooltip.hide()
+        hoverLine.style("opacity", 0)
+      })
+    } // end drawHoverFeature
+
+
+    
+    } // end makeChart
     
 
-    
+   
 
-  }
+  } // end render?
 
-}
+
+
+
+} // end class

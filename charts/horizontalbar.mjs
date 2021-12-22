@@ -3,6 +3,7 @@ import dataTools from "./dataTools"
 import Dropdown from "./shared/dropdown"
 import ColorScale from "./shared/colorscale"
 import { ISO_8601 } from "moment"
+import colorPresets from "./constants/colors"
 
 export default class horizontalBar {
   constructor(results) {
@@ -19,6 +20,7 @@ export default class horizontalBar {
     this.maxXticks = results.sheets.options[0]['maxXticks']
 
     this.keys = Object.keys(this.data[0])
+
     this.xVar = null
     this.yVar = null
     this.colors = new ColorScale()
@@ -331,7 +333,7 @@ export default class horizontalBar {
         if (d.Color) {
           return d.Color
         } else {
-          return this.colors.get(d['xVar'])
+          return colorPresets["guardian"][0]
         }
       })
       .attr("y", (d) => {

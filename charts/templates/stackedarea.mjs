@@ -13,7 +13,7 @@ export default {
                 "tooltip": "",
                 "baseline": "",
                 "periodDateFormat": "",
-                "xAxisDateFormat": "%d %b, '%y",
+                "xAxisDateFormat": "%e %b, '%y",
                 "margin-left": "35",
                 "margin-top": "20",
                 "margin-bottom": "20",

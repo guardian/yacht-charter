@@ -486,13 +486,9 @@ export default class LineChart {
 				return numberFormat(d)
 			})
 			.ticks(yTicks)
-			.tickSize(-this.width)
+			.tickSize(-this.width)  
 
-
-  
-
-
-	}
+	} // end setup
 
 	render() {
 
@@ -750,7 +746,7 @@ export default class LineChart {
 
 		this.drawAnnotation()
 
-	}
+	} // end render?
 
 	drawHoverFeature() {
 		const self = this

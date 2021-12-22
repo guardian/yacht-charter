@@ -290,8 +290,6 @@ export default class Sankey {
 				.style("opacity", 0)
 				.style("pointer-events", "none")
 
-		
-
 		var linkCircles = linkContainers
 			.append("circle")
 			.attr("class", "linkCircle")
