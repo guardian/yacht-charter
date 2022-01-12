@@ -39,17 +39,17 @@ class Tooltip {
 
     const tipWidth = this.$el.node().getBoundingClientRect().width
     const tipHeight = this.$el.node().getBoundingClientRect().height
-    const left = pos && pos.left ? pos.left : d3.event.pageX
-    const top = pos && pos.top ? pos.top : d3.event.pageY - this.parentOffset
+    const left = pos && pos.left ? pos.left : d3.pointer(event)[0]
+    const top = pos && pos.top ? pos.top : d3.pointer(event)[1] - this.parentOffset
     const leftOffset = pos && pos.leftOffset ? pos.leftOffset : 0
     const topOffset = pos && pos.topOffset ? pos.topOffset : 0
 
     // console.log(tipHeight)
     // console.log("containerWidth:", containerWidth, "containerHeight:", containerHeight, "pageX", d3.event.pageX, "pageY", d3.event.pageY, "top", top, "parentOffset", this.parentOffset)
 
-    if (d3.event.pageX < containerWidth / 2) {
-      this.$el.style("left", `${left + leftOffset + 10}px`)
-    } else if (d3.event.pageX >= containerWidth / 2) {
+    if (d3.pointer(event)[0] < containerWidth / 2) {
+      this.$el.style("left", `${d3.pointer(event)[0] + tipWidth/2 + 10}px`)
+    } else if (d3.pointer(event)[0] >= containerWidth / 2) {
       this.$el.style("left", `${left - tipWidth - 10}px`)
     }
 

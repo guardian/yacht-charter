@@ -82,6 +82,9 @@ export default class StackedBarChart {
     var dateParse = null
     var timeInterval = null
     var xAxisDateFormat = null
+    var x_axis_cross_y = null
+
+
     // Check if margin defined by user
     if (details[0]["margin-top"] != "") {
       margin = {
@@ -100,14 +103,48 @@ export default class StackedBarChart {
     }
 
     if (typeof details[0]["dateFormat"] != undefined) {
-      dateParse = d3.timeParse(details[0]["dateFormat"])
+      if (details[0]["dateFormat"] != "") {
+        dateParse = d3.timeParse(details[0]["dateFormat"])
+      }
+      else {
+        dateParse = null
+      }
     }
     if (typeof details[0]["timeInterval"] != undefined) {
-      timeInterval = details[0]["timeInterval"]
+      if (details[0]["timeInterval"] != "") {
+        timeInterval = details[0]["timeInterval"]
+      }
+
+      else {
+        timeInterval = null
+      }
     }
     if (typeof details[0]["xAxisDateFormat"] != undefined) {
-      xAxisDateFormat = d3.timeFormat(details[0]["xAxisDateFormat"])
+      console.log("yep")
+      if (details[0]["xAxisDateFormat"] != "") {
+        console.log("yep2")
+        xAxisDateFormat = d3.timeFormat(details[0]["xAxisDateFormat"])
+      }
+      else {
+
+        if (dateParse) {
+          xAxisDateFormat = d3.timeFormat("%d %b '%y")
+        }
+
+        else {
+          xAxisDateFormat = null
+        }
+        
+      } 
+      
     }
+
+    if (details[0]["baseline"]) {
+      if (details[0]["baseline"] != "") {
+        x_axis_cross_y = +details[0]["baseline"]
+      }
+    }
+
 
     var xVar
     if (details[0]["xColumn"]) {
@@ -234,7 +271,7 @@ export default class StackedBarChart {
       // document.querySelector("html").style.fontSize = dimensons[self.social].scaling
       var furnitureHeight = furniture.getBoundingClientRect().height
       var footerHeight = footer.getBoundingClientRect().height
-      console.log(furnitureHeight, footerHeight)
+      console.log("furniture heigut", furnitureHeight, "footer height", footerHeight)
       height = dimensons[self.social].height/2 - furniture.getBoundingClientRect().height - footer.getBoundingClientRect().height - 33
       // margin.top = margin.top * 1.5
       // margin.left = margin.left * 1.5
@@ -329,11 +366,7 @@ export default class StackedBarChart {
       })
     }
 
-    features
-      .append("g")
-      .attr("class", "x")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis)
+   
 
     features.append("g").attr("class", "y").call(yAxis)
 
@@ -368,7 +401,13 @@ export default class StackedBarChart {
     features
       .append("g")
       .attr("class", "x")
-      .attr("transform", "translate(0," + height + ")")
+      .attr("transform", () => {
+        if (x_axis_cross_y != null) {
+          return "translate(0," + y(x_axis_cross_y) + ")"
+        } else {
+          return "translate(0," + height + ")"
+        }
+      })
       .call(xAxis)
 
     if (hasTooltip) {
@@ -397,8 +436,9 @@ export default class StackedBarChart {
 
 
       if (options[0].trendColors) {
+        console.log("trendColors",options[0].trendColors)
         const tColors = options[0].trendColors.split(",")
-        this.trendColors.set(tColors.length, tColors)
+        self.trendColors.set(tColors.length, tColors)
       }
 
       var colourIndex = 0

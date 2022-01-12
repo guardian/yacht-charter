@@ -6,12 +6,12 @@ var self = {}
 
 export default {
 
-  init: function(sonicData, x, y, keyOrder, margin, domain, svg) {
-
+  init: function(sonicData, x, y, xVar, keyOrder, margin, domain, svg) {
+    svg = 'svg'
     self.isPlaying = false
-
+    
     self.sonicData = sonicData
-
+    console.log("xVar",sonicData)
     self.x = x
 
     self.y = y
@@ -68,7 +68,7 @@ export default {
       }
     }
 
-    d3.select(`#${svg}`).append("circle")
+    d3.select(`#svg`).append("circle")
         .attr("r",5)
         .attr("stroke", "red")
         .attr("cx", -200) // self.x(self.sonicData[self.keyOrder[0]][0]['Date']) + self.margin.left
@@ -214,12 +214,12 @@ export default {
         for await (const datastream of self.keyOrder) {
 
               d3.select("#playHead")
-                .attr("cx",self.x(self.sonicData[datastream][0]['Date']) + self.margin.left)
+                .attr("cx",self.x(self.sonicData[datastream][0][xVar]) + self.margin.left)
                 .attr("cy",self.y(self.sonicData[datastream][0][datastream]) + self.margin.top)
 
           const category = await speaker(datastream)
 
-          makeNoise('Date', datastream)
+          makeNoise(xVar, datastream)
 
           await timer(self.sonicData[datastream].length * note * 1000);
 
@@ -239,7 +239,7 @@ export default {
 
     self.y = y
 
-    d3.select(`#${svg}`).append("circle")
+    d3.select(`#svg`).append("circle")
         .attr("r",5)
         .attr("stroke", "red")
         .attr("cx",-200)

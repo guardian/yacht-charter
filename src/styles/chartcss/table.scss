@@ -97,9 +97,13 @@
           }
 
         }
+
+
         
         
       }
+
+     
       }
 
       tr td {
@@ -179,7 +183,9 @@
       &:nth-of-type(1) {
       padding: 6px 20px 8px 10px;
       }
-     
+      .header-prefix {
+          padding-left: 5px;
+        }
   }
 
   tr {
