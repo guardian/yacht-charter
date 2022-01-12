@@ -14,7 +14,7 @@ var helpers = {
   },
 
   nicerdate: function(value='Date') {
-    return new Date(this.data['Date']).toDateString()
+    return new Date(this.data[value]).toDateString()
   },
 
   // format date as month day (i.e. Jan 30)
