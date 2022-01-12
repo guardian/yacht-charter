@@ -13,8 +13,8 @@ var helpers = {
     return moment(chuncks).format('MMM D')
   },
   
-  nicerdate: function() {
-    return moment(this.data.index).format('MMM D')
+  nicerdate: function(value='Date') {
+    return new Date(this.data['Date']).toDateString()
   },
 
   // format date as month day (i.e. Jan 30)
@@ -36,5 +36,11 @@ var helpers = {
   }
 
 }
+
+// Was this...
+// "<strong>{{#nicerdate}}{{data.Date}}{{/nicerdate}}</strong><br><strong>{{group}}</strong>: {{groupValue}}"
+
+// Should be this
+// "<strong>{{#nicerdate}}Date{{/nicerdate}}</strong><br><strong>{{group}}</strong>: {{groupValue}}"
 
 export default helpers
