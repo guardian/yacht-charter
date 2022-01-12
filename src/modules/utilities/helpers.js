@@ -13,8 +13,11 @@ var helpers = {
     return moment(chuncks).format('MMM D')
   },
   
-  nicerdate: function() {
-    return moment(this.data.index).format('MMM D')
+  nicerdate: function(value, render) {
+    var date = new Date(render(value));
+    console.log(date)
+    // var xVar = Object.keys(this.data[0])[0]
+    // return moment(this.data[xVar]).format('MMM D')
   },
 
   // format date as month day (i.e. Jan 30)
