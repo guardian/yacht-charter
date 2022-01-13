@@ -425,8 +425,8 @@ export default class StackedBarChart {
     
     d3.selectAll(".y path").style("stroke-width", "0") 
     
-
-    features
+    if (periods) {
+      features
       .selectAll(".periodLine .start")
       .data(periods)
       .enter()
@@ -496,6 +496,8 @@ export default class StackedBarChart {
       .text((d) => {
         return d.label
       })
+    }
+    
 
     var layer = features
       .selectAll("layer")
@@ -645,7 +647,7 @@ export default class StackedBarChart {
       .style("opacity", 1)
 
     var footerAnnotations = d3.select("#footerAnnotations")
-
+  
     footerAnnotations.html("")
 
     // if (isMobile) {
@@ -713,7 +715,7 @@ export default class StackedBarChart {
     //     }
     //   })
     // } else {
-      
+
       features
         .selectAll(".annotationText")
         .data(labels)
