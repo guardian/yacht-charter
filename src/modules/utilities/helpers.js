@@ -7,28 +7,15 @@ var helpers = {
     return parseFloat(this[nums[0]]).toFixed(nums[1]);
   },
 
-  nicedate: function(dte) {
-    console.log(dte)
-    var chuncks = this[dte]
-    return moment(chuncks).format('MMM D')
+  nicerdate: function(value='Date', render) {
+    return new Date(this[render(value)]).toDateString()
   },
 
-  nicerdate: function(value='Date') {
-    return new Date(this[value]).toDateString()
-  },
-
-  // format date as month day (i.e. Jan 30)
-  // - value should be a valid date string
-  formatDate: function (value, render) {
-    var date = new Date(render(value));
-    return moment(date).format("MMM D");
-  },
-
-  // In future, make helper functions do specific date formats, and name accordingly
-
-  dateYear: function (value, render) {
-    var date = new Date(render(value));
-    return moment(date).format("Y");
+  formatDate: function (values="Date,MMM D 'YY", render) {
+    let value = values.split(",")
+    let date = new Date(this[render(value[0])])
+    let format = (value[1]) ? value[1] : "MMM D 'YY"
+    return moment(date).format(format);
   },
 
   roundZero: function (value, render) {
@@ -36,11 +23,5 @@ var helpers = {
   }
 
 }
-
-// Was this...
-// "<strong>{{#nicerdate}}{{data.Date}}{{/nicerdate}}</strong><br><strong>{{group}}</strong>: {{groupValue}}"
-
-// Should be this
-// "<strong>{{#nicerdate}}{{/nicerdate}}</strong><br><strong>{{group}}</strong>: {{groupValue}}"
 
 export default helpers
