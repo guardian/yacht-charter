@@ -35,8 +35,11 @@ export default class StackedBarChart {
     var options = results.sheets.options
     var hasTooltip =  details[0].tooltip != "" ? true : false
     var hasTrendline = false
-
-    
+    var periods = null
+    if (results.sheets.periods) {
+      periods = results.sheets.periods
+    }
+    console.log("periods", periods)
     if (trendline) {
         if (trendline.length > 0) {
         hasTrendline = trendline[0].index != "" ? true : false
@@ -139,6 +142,11 @@ export default class StackedBarChart {
       
     }
 
+
+   
+
+
+
     if (details[0]["baseline"]) {
       if (details[0]["baseline"] != "") {
         x_axis_cross_y = +details[0]["baseline"]
@@ -187,6 +195,46 @@ export default class StackedBarChart {
       })
       d.Total = d3.sum(keys, (k) => +d[k])
     })
+
+
+    if (periods) {
+
+      periods.forEach((d) => {
+        if (typeof d.start == "string") {
+          if (dateParse != null) {
+
+              d.start = dateParse(d.start)
+              if (d.end) {
+                  if (d.end != "") {
+                  d.end = dateParse(d.end)
+                  d.middle = new Date((d.start.getTime() + d.end.getTime()) / 2)
+                }
+              }
+              
+              else {
+                d.middle = d.start
+              }
+              
+          }
+
+          else {
+            d.start = +d.start
+
+            if (d.end != "") {
+              d.end = +d.end
+              d.middle = (d.end + d.start) / 2
+            }
+
+            else {
+                d.middle = d.start
+              }
+          }
+          
+        }
+    })
+
+    }
+ 
 
     labels.forEach(function (d) {
       if (dateParse != null) {
@@ -377,6 +425,80 @@ export default class StackedBarChart {
     
     d3.selectAll(".y path").style("stroke-width", "0") 
     
+    if (periods) {
+      features
+      .selectAll(".periodLine .start")
+      .data(periods)
+      .enter()
+      .append("line")
+      .attr("x1", (d) => {
+        return x(d.start)
+      })
+      .attr("y1", 0)
+      .attr("x2", (d) => {
+        return x(d.start)
+      })
+      .attr("y2", height)
+      .attr("class", "periodLine mobHide start")
+      .attr("stroke", "#bdbdbd")
+      .attr("opacity", (d) => {
+        if (d.start < x.domain()[0]) {
+          return 0
+        } else {
+          return 1
+        }
+      })
+      .attr("stroke-width", 1)
+
+    features
+      .selectAll(".periodLine .end")
+      .data(periods.filter(b => b.end != ""))
+      .enter()
+      .append("line")
+      .attr("x1", (d) => {
+        return x(d.end)
+      })
+      .attr("y1", 0)
+      .attr("x2", (d) => {
+        return x(d.end)
+      })
+      .attr("y2", height)
+      .attr("class", "periodLine mobHide end")
+      .attr("stroke", "#bdbdbd")
+      .attr("opacity", (d) => {
+        if (d.end > x.domain()[1]) {
+          return 0
+        } else {
+          return 1
+        }
+      })
+      .attr("stroke-width", 1)
+
+    features
+      .selectAll(".periodLabel")
+      .data(periods)
+      .enter()
+      .append("text")
+      .attr("x", (d) => {
+        console.log("blah",d.labelAlign)
+        if (d.labelAlign == "middle") {
+          return x(d.middle)
+        } else if (d.labelAlign == "start" || d.labelAlign == "end") {
+          return x(d.start) + 5
+        }
+      })
+      .attr("y", -5)
+      .attr("text-anchor", (d) => {
+        return d.labelAlign
+      })
+      .attr("class", "periodLabel mobHide")
+      .attr("opacity", 1)
+      .text((d) => {
+        return d.label
+      })
+    }
+    
+
     var layer = features
       .selectAll("layer")
       .data(layers, (d) => d.key)
@@ -525,74 +647,75 @@ export default class StackedBarChart {
       .style("opacity", 1)
 
     var footerAnnotations = d3.select("#footerAnnotations")
-
+  
     footerAnnotations.html("")
 
-    if (isMobile) {
-      features
-        .selectAll(".annotationCircles")
-        .data(labels)
-        .enter()
-        .append("circle")
-        .attr("class", "annotationCircle")
-        .attr("cy", function (d) {
-          return y(d.y2) + textPadding(d) / 2
-        })
-        .attr("cx", function (d) {
-          return x(d.x1) + x.bandwidth() / 2
-        })
-        .attr("r", 8)
-        .attr("fill", "#000")
-      features
-        .selectAll(".annotationTextMobile")
-        .data(labels)
-        .enter()
-        .append("text")
-        .attr("class", "annotationTextMobile")
-        .attr("y", function (d) {
-          return y(d.y2) + textPaddingMobile(d)
-        })
-        .attr("x", function (d) {
-          return x(d.x1) + x.bandwidth() / 2
-        })
-        .attr("text-anchor", (d) => {
-          if (d.align != "") {
-            return d.align
-          }
-          else {
-            return "middle"
-          }
-        })
-        .style("opacity", 1)
-        .attr("fill", "#FFF")
-        .text(function (d, i) {
-          return i + 1
-        })
+    // if (isMobile) {
+    //   features
+    //     .selectAll(".annotationCircles")
+    //     .data(labels)
+    //     .enter()
+    //     .append("circle")
+    //     .attr("class", "annotationCircle")
+    //     .attr("cy", function (d) {
+    //       return y(d.y2) + textPadding(d) / 2
+    //     })
+    //     .attr("cx", function (d) {
+    //       return x(d.x1) + x.bandwidth() / 2
+    //     })
+    //     .attr("r", 8)
+    //     .attr("fill", "#000")
+    //   features
+    //     .selectAll(".annotationTextMobile")
+    //     .data(labels)
+    //     .enter()
+    //     .append("text")
+    //     .attr("class", "annotationTextMobile")
+    //     .attr("y", function (d) {
+    //       return y(d.y2) + textPaddingMobile(d)
+    //     })
+    //     .attr("x", function (d) {
+    //       return x(d.x1) + x.bandwidth() / 2
+    //     })
+    //     .attr("text-anchor", (d) => {
+    //       if (d.align != "") {
+    //         return d.align
+    //       }
+    //       else {
+    //         return "middle"
+    //       }
+    //     })
+    //     .style("opacity", 1)
+    //     .attr("fill", "#FFF")
+    //     .text(function (d, i) {
+    //       return i + 1
+    //     })
 
-      if (labels.length > 0) {
-        footerAnnotations
-          .append("span")
-          .attr("class", "annotationFooterHeader")
-          .text("Notes: ")
-      }
-      labels.forEach(function (d, i) {
-        footerAnnotations
-          .append("span")
-          .attr("class", "annotationFooterNumber")
-          .text(i + 1 + " - ")
-        if (i < labels.length - 1) {
-          footerAnnotations
-            .append("span")
-            .attr("class", "annotationFooterText")
-            .text(d.text + ", ")
-        } else {
-          footerAnnotations
-            .append("span")
-            .attr("class", "annotationFooterText")
-            .text(d.text)
-        }
-      })
-    } else {
+    //   if (labels.length > 0) {
+    //     footerAnnotations
+    //       .append("span")
+    //       .attr("class", "annotationFooterHeader")
+    //       .text("Notes: ")
+    //   }
+    //   labels.forEach(function (d, i) {
+    //     footerAnnotations
+    //       .append("span")
+    //       .attr("class", "annotationFooterNumber")
+    //       .text(i + 1 + " - ")
+    //     if (i < labels.length - 1) {
+    //       footerAnnotations
+    //         .append("span")
+    //         .attr("class", "annotationFooterText")
+    //         .text(d.text + ", ")
+    //     } else {
+    //       footerAnnotations
+    //         .append("span")
+    //         .attr("class", "annotationFooterText")
+    //         .text(d.text)
+    //     }
+    //   })
+    // } else {
+
       features
         .selectAll(".annotationText")
         .data(labels)
@@ -612,7 +735,7 @@ export default class StackedBarChart {
         .text(function (d) {
           return d.text
         })
-    }
+    // }
   
     }
     
