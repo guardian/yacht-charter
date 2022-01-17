@@ -14,7 +14,7 @@ var helpers = {
   },
 
   nicerdate: function(value='Date') {
-    return new Date(this.data[value]).toDateString()
+    return new Date(this[value]).toDateString()
   },
 
   // format date as month day (i.e. Jan 30)
@@ -41,6 +41,6 @@ var helpers = {
 // "<strong>{{#nicerdate}}{{data.Date}}{{/nicerdate}}</strong><br><strong>{{group}}</strong>: {{groupValue}}"
 
 // Should be this
-// "<strong>{{#nicerdate}}Date{{/nicerdate}}</strong><br><strong>{{group}}</strong>: {{groupValue}}"
+// "<strong>{{#nicerdate}}{{/nicerdate}}</strong><br><strong>{{group}}</strong>: {{groupValue}}"
 
 export default helpers

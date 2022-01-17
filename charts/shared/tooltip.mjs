@@ -89,10 +89,10 @@ class Tooltip {
     const self = this
     $bindEls
       .on("mouseover", function (d) {
-        // console.log(d)
+        let data = d3.select(this).datum().data
         const html =
           typeof templateRender === "function"
-            ? templateRender(d, this)
+            ? templateRender(data)
             : templateRender
         self.show(html, containerWidth, containerHeight, pos)
       })
