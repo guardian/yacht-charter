@@ -1,43 +1,45 @@
-import loadJson from '../modules/load-json/'
-import ajax from "../modules/ajax"
-import Ractive from 'ractive'
-
-//import * as d3 from "d3"
+import mustache from "../modules/utilities/mustache"
+import { getJson, getTemplate } from '../modules/utilities/toolbelt';
 
 export class Chart {
 
   constructor(key, location, social) {
-    let configure = this._configure.bind(this)
+
+    var self = this
+
     this.social = social
-    console.log(this.social)
+
     if (key != null) {
-      loadJson(`https://interactive.guim.co.uk/${location}/${key}.json`)
-        .then((data) => {
-          const type = data.sheets.chartId[0].type
-          ajax(`./templates/${type}.html`).then((templateHtml) => {
-            Ractive.DEBUG = false;
-            new Ractive({
-              target: "#app",
-              template: templateHtml,
-              data: (data.sheets.template[0]) ? data.sheets.template[0] : []
-            })
-            configure(data, type)
-          })
-        })
+
+      this.getData(location, key)
+
     }
+
   }
 
-  _configure(data, type) {
+  async getData(location, key) {
 
-    var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    this.data = await getJson(`https://interactive.guim.co.uk/${location}/${key}.json`)
 
-    var isMobile = (windowWidth < 610) ? true : false ;
+    this.type = this.data.sheets.chartId[0].type
 
-    const app = this._initialiseChart(data, type, isMobile)
+    if (this.data.sheets.template[0].title!="") {
 
-    if (data.sheets.template[0].title!="") {
-      document.title = `Chart: ${data.sheets.template[0].title}`
+      document.title = `Chart: ${this.data.sheets.template[0].title}`
+
     }
+
+    this.loadTemplate()
+
+  }
+
+  async loadTemplate() {
+
+    const templateHtml = await getTemplate(`./templates/${this.type}.html`)
+
+    document.querySelector("#app").innerHTML = mustache(templateHtml, this.data.sheets.template[0])
+
+    this._initialiseChart(this.data, this.type)
 
   }
 
@@ -202,5 +204,4 @@ export class Chart {
       instance = new importedChartModule.default(data)
     }
   }
-
 }
