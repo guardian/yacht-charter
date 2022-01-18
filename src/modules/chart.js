@@ -43,7 +43,7 @@ export class Chart {
 
   }
 
-  _initialiseChart(data, type, isMobile) {
+  _initialiseChart(data, type) {
     
     switch (type) {
     case "animated":
