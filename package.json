@@ -23,7 +23,6 @@
     "fs": "0.0.1-security",
     "node-sass": "^4.14.1",
     "postcss-loader": "^3.0.0",
-    "s3": "^4.4.0",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
     "webpack": "^4.37.0",
@@ -31,6 +30,7 @@
     "webpack-dev-server": "^3.7.2"
   },
   "dependencies": {
+    "aws-sdk": "^2.1058.0",
     "compile": "^0.0.2",
     "compile-sass": "^1.1.0",
     "concat-map": "^0.0.1",
