@@ -6,7 +6,7 @@ const path = require('path');
 
 var config = require("../config.json")
 
-var cacheControl = "max-age=30"
+var cacheControl = "max-age=90"
 
 AWS.config.update({
   accessKeyId: process.env.accessKeyId,
@@ -40,8 +40,10 @@ const uploadToS3 = (dir, origin) => {
 
     const params = {
       Bucket: bucketName,
+      ACL: "public-read", 
       Key: key,
       Body: fs.readFileSync(origin),
+      CacheControl: cacheControl,
     };
 
     s3.putObject(params, (err) => {
