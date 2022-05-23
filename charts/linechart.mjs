@@ -477,7 +477,14 @@ export default class LineChart {
 		}  
 
 		else {
-			this.xAxis.tickFormat(d3.timeFormat("%-d %b %y"))
+
+			if (this.meta["dateFormat"] == "%Y") {
+				this.xAxis.tickFormat(d3.timeFormat("%Y"))
+			}
+			else {
+				this.xAxis.tickFormat(d3.timeFormat("%-d %b %y"))
+			}
+			
 		}
 
 		this.yAxis = d3
@@ -862,74 +869,74 @@ export default class LineChart {
 			.style("opacity", 1)
 			.attr("stroke", "#000")
 
-		if (this.isMobile) {
-			this.$features
-				.selectAll(".annotationCircles")
-				.data(this.labels)
-				.enter()
-				.append("circle")
-				.attr("class", "annotationCircle")
-				.attr("cy", (d) => {
-					return this.y(d.y) - d.offset - 4
-				})
-				.attr("cx", (d) => {
-					return this.x(d.x)
-				})
-				.attr("r", 8)
-				.attr("fill", "#000")
+		// if (this.isMobile) {
+		// 	this.$features
+		// 		.selectAll(".annotationCircles")
+		// 		.data(this.labels)
+		// 		.enter()
+		// 		.append("circle")
+		// 		.attr("class", "annotationCircle")
+		// 		.attr("cy", (d) => {
+		// 			return this.y(d.y) - d.offset - 4
+		// 		})
+		// 		.attr("cx", (d) => {
+		// 			return this.x(d.x)
+		// 		})
+		// 		.attr("r", 8)
+		// 		.attr("fill", "#000")
 
-			this.$features
-				.selectAll(".annotationTextMobile")
-				.data(this.labels)
-				.enter()
-				.append("text")
-				.attr("class", "annotationTextMobile")
-				.attr("y", (d) => {
-					return this.y(d.y) - d.offset
-				})
-				.attr("x", (d) => {
-					return this.x(d.x)
-				})
-				.attr("text-anchor", (d) => {
-					if (d.align != "") {
-						return d.align
-					}
-					else {
-						return "start"
-					}
-				})
-				.style("opacity", 1)
-				.attr("fill", "white")
-				.text((d, i) => {
-					return i + 1
-				})
+		// 	this.$features
+		// 		.selectAll(".annotationTextMobile")
+		// 		.data(this.labels)
+		// 		.enter()
+		// 		.append("text")
+		// 		.attr("class", "annotationTextMobile")
+		// 		.attr("y", (d) => {
+		// 			return this.y(d.y) - d.offset
+		// 		})
+		// 		.attr("x", (d) => {
+		// 			return this.x(d.x)
+		// 		})
+		// 		.attr("text-anchor", (d) => {
+		// 			if (d.align != "") {
+		// 				return d.align
+		// 			}
+		// 			else {
+		// 				return "start"
+		// 			}
+		// 		})
+		// 		.style("opacity", 1)
+		// 		.attr("fill", "white")
+		// 		.text((d, i) => {
+		// 			return i + 1
+		// 		})
 
-			if (this.labels.length > 0) {
-				$footerAnnotations
-					.append("span")
-					.attr("class", "annotationFooterHeader")
-					.text("Notes: ")
-			}
+		// 	if (this.labels.length > 0) {
+		// 		$footerAnnotations
+		// 			.append("span")
+		// 			.attr("class", "annotationFooterHeader")
+		// 			.text("Notes: ")
+		// 	}
 
-			this.labels.forEach((d, i) => {
-				$footerAnnotations
-					.append("span")
-					.attr("class", "annotationFooterNumber")
-					.text(i + 1 + " - ")
+		// 	this.labels.forEach((d, i) => {
+		// 		$footerAnnotations
+		// 			.append("span")
+		// 			.attr("class", "annotationFooterNumber")
+		// 			.text(i + 1 + " - ")
 
-				if (i < this.labels.length - 1) {
-					$footerAnnotations
-						.append("span")
-						.attr("class", "annotationFooterText")
-						.text(d.text + ", ")
-				} else {
-					$footerAnnotations
-						.append("span")
-						.attr("class", "annotationFooterText")
-						.text(d.text)
-				}
-			})
-		} else {
+		// 		if (i < this.labels.length - 1) {
+		// 			$footerAnnotations
+		// 				.append("span")
+		// 				.attr("class", "annotationFooterText")
+		// 				.text(d.text + ", ")
+		// 		} else {
+		// 			$footerAnnotations
+		// 				.append("span")
+		// 				.attr("class", "annotationFooterText")
+		// 				.text(d.text)
+		// 		}
+		// 	})
+		// } else {
 			this.$features
 				.selectAll(".annotationText2")
 				.data(this.labels)
@@ -954,7 +961,7 @@ export default class LineChart {
 				.text((d) => {
 					return d.text
 				})
-		}
+		// }
 
 
 

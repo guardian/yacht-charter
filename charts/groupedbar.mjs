@@ -133,8 +133,12 @@ export default class groupedBar {
       .call(d3.axisTop(x)
             .ticks(3)
             .tickSize(-height, 0, 0)
-            .tickPadding(10))
-      
+            .tickPadding(10)
+            .tickFormat(function (d) {
+          return numberFormat(d)
+          }))
+    
+
     var yAxis = g => g
       .attr("transform", `translate(${margin.left},0)`)
       .call(d3.axisLeft(y0))
@@ -169,7 +173,7 @@ export default class groupedBar {
       .attr("y", d => y1(d.key) + ( y1.bandwidth() - 7 ) )
       .attr("fill", d => (x(d.value) - x(0) < 100) ? "black" : "white")
       .attr("font-weight","600")
-      .text((d) => d.value);
+      .text((d) => numberFormat(d.value));
 
     bars.selectAll("line")
       .data(d => keys.map(key => ({key, value: d[key]})))

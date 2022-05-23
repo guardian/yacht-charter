@@ -53,6 +53,7 @@ export default class StackedBarChart {
     var details = results.sheets.template[0]
     console.log("details", details)
     var labels = results.sheets.labels
+    console.log(labels)
     var userKey = results.sheets.key
     var options = results.sheets.options
     // var hasTooltip =  details.tooltip != "" ? true : false
@@ -202,13 +203,13 @@ export default class StackedBarChart {
       d.Total = d3.sum(keys, (k) => +d[k])
     })
 
-    labels.forEach(function (d) {
-      if (dateParse != null) {
-        d.x1 = dateParse(d.x1)
-      }
-      d.y1 = +d.y1
-      d.y2 = +d.y2
-    })
+    // labels.forEach(function (d) {
+    //   if (dateParse != null) {
+    //     d.x1 = dateParse(d.x1)
+    //   }
+    //   d.y1 = +d.y1
+    //   d.y2 = +d.y2
+    // })
 
    
     var layers = d3.stack().keys(keys)(data)
@@ -539,7 +540,7 @@ export default class StackedBarChart {
     // thing
 
 
-      labels.forEach((config) => {
+    labels.forEach((config) => {
         addLabel(svg, config, width + margin.left + margin.right, height + margin.top + margin.bottom,margin, false)
     })
 

@@ -68,8 +68,10 @@ export default class StackedBarChart {
       document.documentElement.clientWidth,
       window.innerWidth || 0
     )
-    var isMobile = windowWidth < 610 ? true : false
     
+    var isMobile = windowWidth < 610 ? true : false
+    var isSmall = windowWidth < 640 ? true : false
+
     if (self.social) {
       body.classList.add(self.social);
       isMobile = true
@@ -143,7 +145,6 @@ export default class StackedBarChart {
     }
 
 
-   
 
 
 
@@ -390,8 +391,8 @@ export default class StackedBarChart {
     var yAxis
     var ticks = 3
 
-    var tickMod = Math.round(x.domain().length / 10)
-    if (isMobile) {
+    var tickMod = Math.round(x.domain().length / 8)
+    if (isSmall) {
       tickMod = Math.round(x.domain().length / 5)
     }
 
@@ -399,7 +400,7 @@ export default class StackedBarChart {
       return !(i % tickMod)
     })
 
-    if (isMobile) {
+    if (isSmall) {
       xAxis = d3.axisBottom(x).tickValues(ticks).tickFormat(xAxisDateFormat)
       yAxis = d3
         .axisLeft(y)

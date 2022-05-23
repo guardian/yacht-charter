@@ -4,6 +4,8 @@ import Dropdown from "./shared/dropdown"
 import ColorScale from "./shared/colorscale"
 import { ISO_8601 } from "moment"
 import colorPresets from "./constants/colors"
+import  { addLabel, clickLogging } from './shared/arrows'
+
 
 export default class horizontalBar {
   constructor(results) {
@@ -399,113 +401,123 @@ export default class horizontalBar {
       }
     }
 
-    features
-      .selectAll(".annotationLine")
-      .data(this.labels)
-      .enter()
-      .append("line")
-      .attr("class", "annotationLine")
-      .attr("x1", function (d) {
-        return x(d.x) + x.bandwidth() / 2
-      })
-      .attr("y1", function (d) {
-        return y(d.y)
-      })
-      .attr("x2", function (d) {
-        return x(d.x) + x.bandwidth() / 2
-      })
-      .attr("y2", function (d) {
-        return y(d.y2)
-      })
-      .style("opacity", 1)
-      .attr("stroke", "#000")
+    // features
+    //   .selectAll(".annotationLine")
+    //   .data(this.labels)
+    //   .enter()
+    //   .append("line")
+    //   .attr("class", "annotationLine")
+    //   .attr("x1", function (d) {
+    //     return x(d.x) + x.bandwidth() / 2
+    //   })
+    //   .attr("y1", function (d) {
+    //     return y(d.y)
+    //   })
+    //   .attr("x2", function (d) {
+    //     return x(d.x) + x.bandwidth() / 2
+    //   })
+    //   .attr("y2", function (d) {
+    //     return y(d.y2)
+    //   })
+    //   .style("opacity", 1)
+    //   .attr("stroke", "#000")
 
-    var footerAnnotations = d3.select("#footerAnnotations")
+    // var footerAnnotations = d3.select("#footerAnnotations")
 
-    footerAnnotations.html("")
+    // footerAnnotations.html("")
 
-    if (this.isMobile) {
-      features
-        .selectAll(".annotationCircles")
-        .data(this.labels)
-        .enter()
-        .append("circle")
-        .attr("class", "annotationCircle")
-        .attr("cy", function (d) {
-          return y(d.y2) + textPadding(d) / 2
-        })
-        .attr("cx", function (d) {
-          return x(d.x) + x.bandwidth() / 2
-        })
-        .attr("r", 8)
-        .attr("fill", "#000")
+    // if (this.isMobile) {
+    //   features
+    //     .selectAll(".annotationCircles")
+    //     .data(this.labels)
+    //     .enter()
+    //     .append("circle")
+    //     .attr("class", "annotationCircle")
+    //     .attr("cy", function (d) {
+    //       return y(d.y2) + textPadding(d) / 2
+    //     })
+    //     .attr("cx", function (d) {
+    //       return x(d.x) + x.bandwidth() / 2
+    //     })
+    //     .attr("r", 8)
+    //     .attr("fill", "#000")
 
-      features
-        .selectAll(".annotationTextMobile")
-        .data(this.labels)
-        .enter()
-        .append("text")
-        .attr("class", "annotationTextMobile")
-        .attr("y", function (d) {
-          return y(d.y2) + textPaddingMobile(d)
-        })
-        .attr("x", function (d) {
-          return x(d.x) + x.bandwidth() / 2
-        })
-        .style("text-anchor", "middle")
-        .style("opacity", 1)
-        .attr("fill", "#FFF")
-        .text(function (d, i) {
-          return i + 1
-        })
-      // console.log(this.labels.length)
+    //   features
+    //     .selectAll(".annotationTextMobile")
+    //     .data(this.labels)
+    //     .enter()
+    //     .append("text")
+    //     .attr("class", "annotationTextMobile")
+    //     .attr("y", function (d) {
+    //       return y(d.y2) + textPaddingMobile(d)
+    //     })
+    //     .attr("x", function (d) {
+    //       return x(d.x) + x.bandwidth() / 2
+    //     })
+    //     .style("text-anchor", "middle")
+    //     .style("opacity", 1)
+    //     .attr("fill", "#FFF")
+    //     .text(function (d, i) {
+    //       return i + 1
+    //     })
+    //   // console.log(this.labels.length)
 
-      if (this.labels.length > 0) {
-        footerAnnotations
-          .append("span")
-          .attr("class", "annotationFooterHeader")
-          .text("Notes: ")
-      }
+    //   if (this.labels.length > 0) {
+    //     footerAnnotations
+    //       .append("span")
+    //       .attr("class", "annotationFooterHeader")
+    //       .text("Notes: ")
+    //   }
 
-      this.labels.forEach(function (d, i) {
-        footerAnnotations
-          .append("span")
-          .attr("class", "annotationFooterNumber")
-          .text(i + 1 + " - ")
+    //   this.labels.forEach(function (d, i) {
+    //     footerAnnotations
+    //       .append("span")
+    //       .attr("class", "annotationFooterNumber")
+    //       .text(i + 1 + " - ")
 
-        if (i < this.labels.length - 1) {
-          footerAnnotations
-            .append("span")
-            .attr("class", "annotationFooterText")
-            .text(d.text + ", ")
-        } else {
-          footerAnnotations
-            .append("span")
-            .attr("class", "annotationFooterText")
-            .text(d.text)
+    //     if (i < this.labels.length - 1) {
+    //       footerAnnotations
+    //         .append("span")
+    //         .attr("class", "annotationFooterText")
+    //         .text(d.text + ", ")
+    //     } else {
+    //       footerAnnotations
+    //         .append("span")
+    //         .attr("class", "annotationFooterText")
+    //         .text(d.text)
+    //     }
+    //   })
+    // } else {
+    //   features
+    //     .selectAll(".annotationText")
+    //     .data(this.labels)
+    //     .enter()
+    //     .append("text")
+    //     .attr("class", "annotationText")
+    //     .attr("y", function (d) {
+    //       return y(d.y2)
+    //     })
+    //     .attr("x", function (d) {
+    //       return x(d.x) + x.bandwidth() / 2
+    //     })
+    //     .style("text-anchor", function (d) {
+    //       return d.align
+    //     })
+    //     .style("opacity", 1)
+    //     .text(function (d) {
+    //       return d.text
+    //     })
+    // }
+
+    this.labels.forEach((config) => {
+        // console.log(typeof config)
+        if (typeof config.coords === "string") {
+        config.coords = JSON.parse(config.coords)
         }
-      })
-    } else {
-      features
-        .selectAll(".annotationText")
-        .data(this.labels)
-        .enter()
-        .append("text")
-        .attr("class", "annotationText")
-        .attr("y", function (d) {
-          return y(d.y2)
-        })
-        .attr("x", function (d) {
-          return x(d.x) + x.bandwidth() / 2
-        })
-        .style("text-anchor", function (d) {
-          return d.align
-        })
-        .style("opacity", 1)
-        .text(function (d) {
-          return d.text
-        })
-    }
+        addLabel(svg, config, this.width + this.margin.left + this.margin.right, this.height + this.margin.top + this.margin.bottom, this.margin, true)
+    })
+
+
   }
 
   drawShowMore() {

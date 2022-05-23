@@ -22,7 +22,7 @@ export default class SmallMultiples {
     if (results.sheets.periods) {
       this.periods = results.sheets.periods
     }
-
+  
     this.dataKeys = Object.keys(data[0])
     this.hideNullValues = "yes"
     this.$chartKey = d3.select("#chartKey")
@@ -282,7 +282,7 @@ export default class SmallMultiples {
 
     d3.select("#graphicContainer").selectAll(".chart-grid").remove()
     
-
+    
     this.keys.forEach((key, index) => {
       this.drawChart({
         data: this.data,
@@ -315,6 +315,7 @@ export default class SmallMultiples {
 
   drawChart({ data, key, details, chartType, isMobile, hasTooltip, index }) {
     var self = this 
+    console.log("key", key)
     const id = dataTools.getId(key),
       chartId = `#${id}`,
       isBar = chartType === "bar", // use different x scale
@@ -576,7 +577,7 @@ export default class SmallMultiples {
           // const $line = features.selectAll(`.${key}.line-path`).data([data])  
           
         
-          console.log(key)
+          console.log("key", key)
 
           const line = d3
             .line()
