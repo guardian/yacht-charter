@@ -43,7 +43,7 @@ const uploadToS3 = (dir, origin) => {
       ACL: "public-read", 
       Key: key,
       Body: fs.readFileSync(origin),
-      CacheControl: cacheControl,
+      CacheControl: cacheControl
     };
 
     s3.putObject(params, (err) => {
