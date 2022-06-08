@@ -1,42 +1,37 @@
-require("dotenv").config()
-
+//require("dotenv").config()
+const { getFilePaths, uploadToS3 } = require('./uploader.js')
 const AWS = require('aws-sdk');
-const fs = require('fs');
 const path = require('path');
-
+var mime = require('mime-types')
 var config = require("../config.json")
+const credentials = new AWS.SharedIniFileCredentials({profile: 'interactives'});
+const timer = ms => new Promise(res => setTimeout(res, ms)) 
+const fs = require('fs').promises;
 
 var cacheControl = "max-age=90"
 
+AWS.config.credentials = credentials
+
+/*
 AWS.config.update({
   accessKeyId: process.env.accessKeyId,
   secretAccessKey: process.env.secretAccessKey
 });
+*/
 
 const s3 = new AWS.S3();
 
-const directoryName = './dist/'
-const bucketName = "gdn-cdn";
+(async ()=>{
 
-const filePaths = [];
-const getFilePaths = async (dir) => {
+  let filepaths = await getFilePaths(`./dist/`)
 
-  fs.readdirSync(dir).forEach(function (name) {
-    const filePath = path.join(dir, name);
-    const stat = fs.statSync(filePath);
-    if (stat.isFile()) {
-      filePaths.push(filePath);
-    } else if (stat.isDirectory()) {
-      getFilePaths(filePath);
-    }
-  });
+  for await (const filepath of filepaths) {
 
-};
+    let extension = checkFile(filepath)
 
-const uploadToS3 = (dir, origin) => {
-  return new Promise((resolve, reject) => {
+    let mimeType = mime.lookup(extension)
 
-    let key = `${dir}/${origin.split(`dist/`)[1]}`
+    let url = await uploadToS3(config.path, filepath, mimeType)
 
     const params = {
       Bucket: bucketName,
@@ -45,30 +40,13 @@ const uploadToS3 = (dir, origin) => {
       Body: fs.readFileSync(origin),
       CacheControl: cacheControl
     };
+    // console.log(url)
+  
+  }
 
-    s3.putObject(params, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        console.log(`uploaded ${params.Key} to ${params.Bucket}`);
-        resolve(origin);
-      }
-    });
+})()
 
-  });
-};
-
-getFilePaths(directoryName).then( () => {
-
-  const uploadPromises = filePaths.map((path) =>
-    uploadToS3(config.path, path)
-  );
-
-  Promise.all(uploadPromises)
-    .then((result) => {
-      console.log('Knight riders');
-      console.log(result);
-    })
-    .catch((err) => console.error(err));
-
-})
+function checkFile(file) {
+  var extension = file.substr((file.lastIndexOf('.') +1));
+  return extension //(!/(pdf|zip|doc|jpg|jpeg|png|js|css|html)$/ig.test(extension)) ? true : false
+}

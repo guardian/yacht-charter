@@ -53,6 +53,7 @@
     "d3": "^5.15.0",
     "d3-sankey": "^0.12.3",
     "html2canvas": "^1.1.4",
+    "mime-types": "^2.1.35",
     "moment": "^2.24.0",
     "nouislider": "^14.1.1",
     "promise-polyfill": "^8.1.3",
