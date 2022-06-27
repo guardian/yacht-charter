@@ -546,8 +546,11 @@ export default class StackedBarChart {
     }
 
     if (hasTrendline) {
-      var tkeys = Object.keys(trendline[0]).filter((item) => item != xVar)
 
+      d3.selectAll(".trendKey").remove()    
+
+      var tkeys = Object.keys(trendline[0]).filter((item) => item != xVar)
+      console.log("tKeys", tkeys)
       trendline.forEach(function (d) {
         if (dateParse != null) {
           if (typeof d[xVar] === "string") {
@@ -557,7 +560,7 @@ export default class StackedBarChart {
 
       })
 
-
+      console.log(options)
       if (options[0].trendColors) {
         console.log("trendColors",options[0].trendColors)
         const tColors = options[0].trendColors.split(",")
@@ -567,7 +570,7 @@ export default class StackedBarChart {
       var colourIndex = 0
 
       for (const trend of tkeys) {
-
+        console.log(colourIndex)
         let tline = d3.line()
 
         let offset = x.bandwidth() / 2
@@ -581,7 +584,7 @@ export default class StackedBarChart {
           .attr("fill", "none")
           .attr("stroke-width", "3")
 
-        d3.selectAll(".trendKey").remove()  
+       
 
         var keyDiv = chartKey.append("div").attr("class", "keyDiv trendKey").style("position", "relative")
 
