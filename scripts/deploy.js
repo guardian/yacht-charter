@@ -33,13 +33,13 @@ const s3 = new AWS.S3();
 
     let url = await uploadToS3(config.path, filepath, mimeType)
 
-    const params = {
-      Bucket: bucketName,
-      ACL: "public-read", 
-      Key: key,
-      Body: fs.readFileSync(origin),
-      CacheControl: cacheControl
-    };
+    // const params = {
+    //   Bucket: bucketName,
+    //   ACL: "public-read", 
+    //   Key: key,
+    //   Body: fs.readFileSync(origin),
+    //   CacheControl: cacheControl
+    // };
     // console.log(url)
   
   }
