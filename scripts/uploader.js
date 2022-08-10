@@ -4,7 +4,6 @@ const path = require('path');
 const credentials = new AWS.SharedIniFileCredentials({profile: 'interactives'});
 const timer = ms => new Promise(res => setTimeout(res, ms))
 
-
 AWS.config.credentials = credentials
 
 const s3 = new AWS.S3();
