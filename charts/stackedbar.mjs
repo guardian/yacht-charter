@@ -25,7 +25,6 @@ export default class StackedBarChart {
   render() {
 
     var self = this
-    console.log("social",self.social)
     var results = JSON.parse(JSON.stringify(self.results))
     var data = results.sheets.data
     var details = results.sheets.template
@@ -39,7 +38,6 @@ export default class StackedBarChart {
     if (results.sheets.periods) {
       periods = results.sheets.periods
     }
-    console.log("periods", periods)
     if (trendline) {
         if (trendline.length > 0) {
         hasTrendline = trendline[0].index != "" ? true : false
@@ -56,7 +54,7 @@ export default class StackedBarChart {
     
     var template
     var keys = Object.keys(data[0])
-
+    
     console.log("keys")
     console.log(keys)
 
@@ -125,9 +123,9 @@ export default class StackedBarChart {
       }
     }
     if (typeof details[0]["xAxisDateFormat"] != undefined) {
-      console.log("yep")
+
       if (details[0]["xAxisDateFormat"] != "") {
-        console.log("yep2")
+
         xAxisDateFormat = d3.timeFormat(details[0]["xAxisDateFormat"])
       }
       else {
@@ -297,13 +295,25 @@ export default class StackedBarChart {
 
     var layers = d3.stack().offset(d3.stackOffsetDiverging).keys(keys)(data)
 
+    console.log(layers)
+    
+    // layers[0][0].data.blah = 'thing'
+    // console.log(layers)
+    // keys.forEach(function (key,i) {
+    //   console.log(key)
+    //   console.log(layers[i])
 
-
+    // })
     layers.forEach(function (layer) {
+      var layerKey = layer.key
+      console.log("layer",layer.key)
       layer.forEach(function (subLayer) {
-        subLayer.group = layer.key
-        subLayer.groupValue = subLayer.data[layer.key]
-        subLayer.total = subLayer.data.Total
+        console.log(subLayer)
+        console.log(layer.key)
+        subLayer.data = structuredClone(subLayer.data);
+        subLayer.data.group = layer.key
+        subLayer.data.groupValue = subLayer.data[layer.key]
+        // subLayer.total = subLayer.data.Total
       })
     })
 
@@ -311,16 +321,16 @@ export default class StackedBarChart {
 
    console.log("layers")
 
-   console.log(layers)
+  //  console.log(layers)
     // var canvas
   
     function adjustSize() {
 
-      console.log("setting up social stuff")
+      // console.log("setting up social stuff")
       // document.querySelector("html").style.fontSize = dimensons[self.social].scaling
       var furnitureHeight = furniture.getBoundingClientRect().height
       var footerHeight = footer.getBoundingClientRect().height
-      console.log("furniture heigut", furnitureHeight, "footer height", footerHeight)
+      // console.log("furniture heigut", furnitureHeight, "footer height", footerHeight)
       height = dimensons[self.social].height/2 - furniture.getBoundingClientRect().height - footer.getBoundingClientRect().height - 33
       // margin.top = margin.top * 1.5
       // margin.left = margin.left * 1.5
@@ -481,7 +491,6 @@ export default class StackedBarChart {
       .enter()
       .append("text")
       .attr("x", (d) => {
-        console.log("blah",d.labelAlign)
         if (d.labelAlign == "middle") {
           return x(d.middle)
         } else if (d.labelAlign == "start" || d.labelAlign == "end") {
@@ -550,7 +559,7 @@ export default class StackedBarChart {
       d3.selectAll(".trendKey").remove()    
 
       var tkeys = Object.keys(trendline[0]).filter((item) => item != xVar)
-      console.log("tKeys", tkeys)
+ 
       trendline.forEach(function (d) {
         if (dateParse != null) {
           if (typeof d[xVar] === "string") {
@@ -560,9 +569,8 @@ export default class StackedBarChart {
 
       })
 
-      console.log(options)
+     
       if (options[0].trendColors) {
-        console.log("trendColors",options[0].trendColors)
         const tColors = options[0].trendColors.split(",")
         self.trendColors.set(tColors.length, tColors)
       }
@@ -570,7 +578,6 @@ export default class StackedBarChart {
       var colourIndex = 0
 
       for (const trend of tkeys) {
-        console.log(colourIndex)
         let tline = d3.line()
 
         let offset = x.bandwidth() / 2
