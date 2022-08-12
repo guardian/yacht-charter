@@ -407,6 +407,30 @@ export default class LineChart {
 					d[this.areaXColumn] = this.parseTime(d[this.areaXColumn])
 				}
 			})
+
+			this.areaKeys.forEach((key) => {
+				this.areaData.forEach((d) => {
+					if (typeof d[key] == "string") {
+						if (d[key].includes(",")) {
+							if (!isNaN(d[key].replace(/,/g, ""))) {
+								d[key] = +d[key].replace(/,/g, "")
+								this.chartValues.push(d[key])
+							}
+						} else if (d[key] != "") {
+							if (!isNaN(d[key])) {
+								d[key] = +d[key]
+								this.chartValues.push(d[key])
+							}
+						} else if (d[key] == "") {
+							d[key] = null
+						}
+					} else {
+						this.chartValues.push(d[key])
+					}
+				})
+			})
+
+		
 		}
 
 		this.keys.forEach((key) => {
@@ -536,7 +560,6 @@ export default class LineChart {
 					this.xAxis.tickFormat(d3.timeFormat("%-d %b %y"))
 				}
 			}
-			
 			
 		}
 
