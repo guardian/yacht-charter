@@ -44,6 +44,20 @@ function getLongestKeyLength($svg, keys, isMobile, lineLabelling) {
 	return 0
 }
 
+function commonWords(string1, string2) {
+	var list1 = string1.split(" ")
+	var list2 = string2.split(" ")
+	var result = []
+	list1.forEach(function(s) {
+		if (list2.includes(s)) {
+			result.push(s)
+		}
+	})
+	console.log(result)
+	return result.join(" ")
+  };
+
+
 export default class LineChart {
 	constructor(results, social) {
 
@@ -51,9 +65,20 @@ export default class LineChart {
 
 		const parsed = JSON.parse(JSON.stringify(merged))
 
-		console.log(dimensions)
+		// console.log(dimensions)
 		this.isPlaying = false
 		this.data = parsed["sheets"]["data"]
+		this.areaData = null
+		this.areaKeys = null
+		this.areaXColumn = null
+
+		if ("areas" in parsed["sheets"]) {
+			this.areaData = parsed["sheets"]["areas"]
+			this.areaKeys = Object.keys(this.areaData[0])
+			this.areaXColumn = this.areaKeys[0] // use first key, string or date
+			this.areaKeys.splice(0, 1) // remove the first key
+		}
+
 		this.keys = Object.keys(this.data[0])
 		this.xColumn = this.keys[0] // use first key, string or date
 		this.keys.splice(0, 1) // remove the first key
@@ -64,6 +89,7 @@ export default class LineChart {
 		this.userKey = parsed["sheets"]["key"]
 		this.options = parsed["sheets"]["options"][0]
 		this.lines = null 
+		this.xAxisDateFormat = null
 
 		if ("lines" in parsed["sheets"]) {
 			if (parsed["sheets"]['lines'][0] != "" ) {
@@ -71,7 +97,7 @@ export default class LineChart {
 			}
 		}
 
-		console.log("line", this.lines)
+		// console.log("line", this.lines)
 
 		this.tooltipTemplate = this.meta.tooltip
 		this.hasTooltipTemplate = this.tooltipTemplate && this.tooltipTemplate != "" ? true : false ;
@@ -92,7 +118,7 @@ export default class LineChart {
 			window.innerWidth || 0
 		)
 		this.isMobile = windowWidth < 610 ? true : false
-		console.log("mobile", this.isMobile)
+		// console.log("mobile", this.isMobile)
 		
 		this.containerWidth = document
 			.querySelector("#graphicContainer")
@@ -128,7 +154,7 @@ export default class LineChart {
 	 	var self = this
 
 		function adjustSize() {
-			console.log("setting up social stuff")
+			// console.log("setting up social stuff")
 			var furnitureHeight = furniture.getBoundingClientRect().height
 			var footerHeight = footer.getBoundingClientRect().height
 			self.height = dimensions[social].height/2 - furniture.getBoundingClientRect().height - footer.getBoundingClientRect().height - 33
@@ -181,9 +207,26 @@ export default class LineChart {
 			d3.select("#sourceText").html(" | Source: " + this.meta.source)
 		}
 
+		var addAreaKey = []
+
+		if (this.areaData) {
+			var areaLen = this.areaKeys.length/2
+			console.log("areaLen", areaLen)
+			for (let i = 0; i < areaLen; i++) {
+				var lowerI = i * 2 
+				var upperI = i * 2 + 2
+				console.log(lowerI, upperI)
+				var currentAreaKeys = this.areaKeys.slice(lowerI,upperI)
+				console.log(currentAreaKeys)
+				addAreaKey.push(commonWords(currentAreaKeys[0], currentAreaKeys[1]))
+			}
+
+		}
+		
+		const combinedKey = [...this.keys, ...addAreaKey]
 		// set up color domain/range
 		const keyColor = dataTools.getKeysColors({
-			keys: this.keys,
+			keys: combinedKey,
 			userKey: this.userKey,
 			option: this.options
 		})
@@ -238,6 +281,7 @@ export default class LineChart {
 
 		this.parseTime = this.meta["dateFormat"] ? d3.timeParse(this.meta["dateFormat"]) : null
 		this.parsePeriods = this.meta["periodDateFormat"] ? d3.timeParse(this.meta["periodDateFormat"]) : null
+		this.xAxisDateFormat = this.meta["xAxisDateFormat"] ? d3.timeFormat(this.meta["xAxisDateFormat"]) : null
 
 		// create svg
 		this.$svg = d3
@@ -260,17 +304,17 @@ export default class LineChart {
 		// update x scale based on scale type
 
 		if (this.parseTime && typeof this.data[0][this.xColumn] == "string") {
-			console.log("parsing")
+			// console.log("parsing")
 			this.x = d3.scaleTime().rangeRound([0, this.width])
 		}
 
 		else if (!(this.data[0][this.xColumn] instanceof Date)) {
-			console.log("linear scale")
+			// console.log("linear scale")
 			this.x = d3.scaleLinear().rangeRound([0, this.width])
 		}
 
 		else {
-			console.log("already a date")
+			// console.log("already a date")
 		}
 
 		// group for chart features
@@ -328,9 +372,9 @@ export default class LineChart {
 
 		// make a chart key    
 
-		if (this.isMobile && !this.lineLabelling) {
+		this.makeKey = function makeKey() {
 			this.$chartKey.html("")
-			this.keys.forEach((key) => {
+			combinedKey.forEach((key) => {
 				const $keyDiv = this.$chartKey.append("div").attr("class", "keyDiv")
 
 				$keyDiv
@@ -342,20 +386,13 @@ export default class LineChart {
 			})
 		}
 
+
+		if (this.isMobile && !this.lineLabelling) {
+			this.makeKey()
+		}
+
 		if (this.lineLabelling === false) {
-
-			this.$chartKey.html("")
-			this.keys.forEach((key) => {
-				const $keyDiv = this.$chartKey.append("div").attr("class", "keyDiv")
-
-				$keyDiv
-					.append("span")
-					.attr("class", "keyCircle")
-					.style("background-color", () => this.colors.get(key))
-
-				$keyDiv.append("span").attr("class", "keyText").text(key)
-			})
-
+			this.makeKey()
 		}
 
 		this.data.forEach((d) => {
@@ -363,6 +400,14 @@ export default class LineChart {
 				d[this.xColumn] = this.parseTime(d[this.xColumn])
 			}
 		})
+
+		if (this.areaData) {
+			this.areaData.forEach((d) => {
+				if (this.parseTime && typeof d[this.areaXColumn] == "string") {
+					d[this.areaXColumn] = this.parseTime(d[this.areaXColumn])
+				}
+			})
+		}
 
 		this.keys.forEach((key) => {
 			this.chartKeyData[key] = []
@@ -409,7 +454,7 @@ export default class LineChart {
 			})
 		}
 
-		console.log(this.periods)
+		// console.log(this.periods)
 		this.periods.forEach((d) => {
 			if (typeof d.start == "string") {
 				if (this.parsePeriods != null) {
@@ -466,7 +511,7 @@ export default class LineChart {
 
 		// setup x and y axis
 		const xTicks = Math.round(this.width / 110)
-		console.log("xTicks", xTicks)
+		// console.log("xTicks", xTicks)
 		const yTicks = this.meta["yScaleType"] === "scaleLog" ? 3 : 5
 
 		this.xAxis = d3.axisBottom(this.x)
@@ -478,12 +523,20 @@ export default class LineChart {
 
 		else {
 
-			if (this.meta["dateFormat"] == "%Y") {
-				this.xAxis.tickFormat(d3.timeFormat("%Y"))
+			// check if user has set x axis date format	
+			if (this.xAxisDateFormat) {
+				this.xAxis.tickFormat(this.xAxisDateFormat)
 			}
+
 			else {
-				this.xAxis.tickFormat(d3.timeFormat("%-d %b %y"))
+				if (this.meta["dateFormat"] == "%Y") {
+					this.xAxis.tickFormat(d3.timeFormat("%Y"))
+				}
+				else {
+					this.xAxis.tickFormat(d3.timeFormat("%-d %b %y"))
+				}
 			}
+			
 			
 		}
 
@@ -596,11 +649,6 @@ export default class LineChart {
 			})
 			.call(this.xAxis)
 
-	 
-
-
-
-
 		this.$features.select(".y .domain").remove()    
 
 		this.$features
@@ -661,6 +709,40 @@ export default class LineChart {
 		this.sonicData = {}
 
 		this.keyOrder = []
+
+		// draw filled areas
+
+		if (this.areaData) {
+			var areaLen = this.areaKeys.length/2
+			console.log("areaLen", areaLen)
+			for (let i = 0; i < areaLen; i++) {
+				var lowerI = i * 2 
+				var upperI = i * 2 + 2
+				console.log(lowerI, upperI)
+				var currentAreaKeys = this.areaKeys.slice(lowerI,upperI)
+				console.log(currentAreaKeys)
+			
+
+				var currentKey = commonWords(currentAreaKeys[0], currentAreaKeys[1])
+				let area = d3.area()
+					.x((d) => this.x((d[this.areaXColumn])))
+					.y0((d) =>  this.y(d[currentAreaKeys[0]]))
+					.y1((d) => this.y(d[currentAreaKeys[1]]))
+
+				this.$features.append("path")
+					.datum(this.areaData)
+					.attr("class", "areaPath")
+					.attr("fill", this.colors.get(currentKey))
+					.attr("opacity", 0.6)
+					.attr("stroke", "none")
+					.attr("d", area)	
+
+			}
+
+		}
+
+
+		// Draw the lines
 
 		this.keys.forEach((key) => {
 			this.$features
@@ -732,7 +814,11 @@ export default class LineChart {
 			}
 
 
-		})
+		}) // end drawing lines
+
+	
+
+
 
 		if (this.hasTooltipTemplate) {
 
@@ -833,7 +919,7 @@ export default class LineChart {
 
 		var self = this
 
-		console.log("drawing annotations")
+		// console.log("drawing annotations")
 
 		function textPadding(d) {
 			return d.offset > 0 ? 6 : -2
