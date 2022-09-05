@@ -236,12 +236,15 @@ export default class StackedBarChart {
  
 
     labels.forEach(function (d) {
+      console.log(dateParse)
       if (dateParse != null) {
         d.x1 = dateParse(d.x1)
       }
       d.y1 = +d.y1
       d.y2 = +d.y2
     })
+
+    console.log(labels)
 
     // Time scales for bar charts are heaps annoying
     var barWidth
@@ -295,7 +298,7 @@ export default class StackedBarChart {
 
     var layers = d3.stack().offset(d3.stackOffsetDiverging).keys(keys)(data)
 
-    console.log(layers)
+    // console.log(layers)
     
     // layers[0][0].data.blah = 'thing'
     // console.log(layers)
@@ -306,11 +309,11 @@ export default class StackedBarChart {
     // })
     layers.forEach(function (layer) {
       var layerKey = layer.key
-      console.log("layer",layer.key)
+      // console.log("layer",layer.key)
       layer.forEach(function (subLayer) {
-        console.log(subLayer)
-        console.log(layer.key)
-        subLayer.data = structuredClone(subLayer.data);
+        // console.log(subLayer)
+        // console.log(layer.key)?key=1n2PAOeTOgWNCChXnR_AXXW_WzCoxU3s9TO3XGhJCGTk&location=docsdata
+        subLayer.data = { ...subLayer.data }
         subLayer.data.group = layer.key
         subLayer.data.groupValue = subLayer.data[layer.key]
         // subLayer.total = subLayer.data.Total
@@ -319,7 +322,7 @@ export default class StackedBarChart {
 
     // Set up for social media views
 
-   console.log("layers")
+  //  console.log("layers")
 
   //  console.log(layers)
     // var canvas

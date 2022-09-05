@@ -11,7 +11,6 @@ import template from "./templates/linechart"
 import sonic from "./sonic"
 const Sonic =  new sonic()
 
- 
 /****** Example tooltip template */
 // `
 //   <b>{{#formatDate}}{{date}}{{/formatDate}}</b><br/>

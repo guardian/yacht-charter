@@ -39,6 +39,10 @@ export class Chart {
 
     document.querySelector("#app").innerHTML = mustache(templateHtml, this.data.sheets.template[0])
 
+    // var parentArticle = parent.window.document.querySelector("article")
+    
+    // console.log("parentArticle",parentArticle)
+
     this._initialiseChart(this.data, this.type)
 
   }
