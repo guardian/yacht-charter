@@ -7,7 +7,7 @@ export default {
                 "subtitle": "",
                 "footnote": "",
                 "source": "",
-                "dateFormat": "%Y-%m-%d",
+                "dateFormat": "",
                 "yScaleType": "",
                 "xAxisLabel": "",
                 "yAxisLabel": "",

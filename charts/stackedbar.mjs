@@ -162,6 +162,17 @@ export default class StackedBarChart {
       keys.splice(0, 1)
     }
 
+    let rotateLabels = false
+
+    if (typeof options[0]["rotateAxisLabels"] != undefined) {
+      if (options[0]["rotateAxisLabels"] != "") {
+        options[0]["rotateAxisLabels"] == "TRUE" ? rotateLabels = true : rotateLabels = false;
+        rotateLabels = true
+      }
+    }  
+
+    console.log("rotateLabels", rotateLabels)
+
     const keyColor = dataTools.getKeysColors({ keys: keys, userKey: userKey, option: options[0]})
 
     self.colors.set(keyColor.keys, keyColor.colors)
@@ -545,6 +556,13 @@ export default class StackedBarChart {
       })
       .call(xAxis)
 
+    d3.selectAll(".x text")  
+      .attr("y", 0)
+      .attr("dx", -8)
+      .attr("transform", "rotate(320)")
+      .style("text-anchor", "end");  
+
+
     if (hasTooltip) {
       const templateRender = (d) => {
         return mustache(template, { ...helpers, ...d })
@@ -571,7 +589,6 @@ export default class StackedBarChart {
         }
 
       })
-
      
       if (options[0].trendColors) {
         const tColors = options[0].trendColors.split(",")

@@ -1,6 +1,7 @@
 import Tooltip from "./shared/tooltip"
 import helpers from "../utilities/helpers"
 import mustache from "../utilities/mustache"
+import  { addLabel, clickLogging } from './shared/arrows'
 
 export default class ScatterPlot {
   constructor(data) {
@@ -23,17 +24,12 @@ export default class ScatterPlot {
     this.y_axis_cross_x = null
     this.x_label = null
     this.y_label = null
-    this.colours = [
-      "#a6cee3",
-      "#1f78b4",
-      "#b2df8a",
-      "#33a02c",
-      "#fb9a99",
-      "#e31a1c",
-      "#fdbf6f",
-      "#ff7f00",
-      "#cab2d6"
-    ]
+    this.xMax = null
+    this.xMin = null
+    this.yMax = null
+    this.yMin = null
+    this.hideKey = null
+    this.colours = ["#4e79a7","#f28e2c","#e15759","#76b7b2","#59a14f","#edc949","#af7aa1","#ff9da7","#9c755f","#bab0ab"]
     this.greyScale = [
       "#bdbdbd",
       "#bdbdbd",
@@ -69,6 +65,7 @@ export default class ScatterPlot {
     this.categories = null
     this.label_col = null
     var labels = []
+    this.colourGenerator = d3.scaleOrdinal(this.colours)
 
     // Assign
     this.template = data.sheets.template
@@ -136,6 +133,17 @@ export default class ScatterPlot {
       }
     }
 
+    if (this.template[0].hideKey && this.template[0].hideKey !== "") {
+      if (this.template[0].hideKey == "TRUE") {
+        this.hideKey = true
+        console.log("hideKey", this.hideKey)
+      }
+
+      else {
+        this.hideKey = false
+      }
+    }
+
     if (this.template[0].categories != "") {
       this._createCats(d3)
     }
@@ -152,6 +160,27 @@ export default class ScatterPlot {
       this.trendline = true
       this.trendlines = data.sheets.trendline
     }
+
+    if (this.template[0].yMin && this.template[0].yMin !== "") {
+      this.yMin = +this.template[0].yMin
+    }
+
+    if (this.template[0].yMax && this.template[0].yMax !== "") {
+      this.yMax = +this.template[0].yMax
+    }
+
+    if (this.template[0].xMax && this.template[0].xMax !== "") {
+      this.xMax = +this.template[0].xMax
+    }
+
+    if (this.template[0].xMin && this.template[0].xMin !== "") {
+      this.xMin = +this.template[0].xMin
+    }
+
+  
+
+
+    console.log("yMin", this.yMin)  
 
     // Set the tooltip text
     if (this.template[0].tooltip != "") {
@@ -182,6 +211,9 @@ export default class ScatterPlot {
     } else {
       this.x_label = data.sheets.template[0].x
     }
+
+
+
 
     if (this.template[0]["y_label"] != "") {
       this.y_label = this.template[0].y_label
@@ -300,7 +332,7 @@ export default class ScatterPlot {
     } else {
       for (var i = 0; i < categories.length; i++) {
         colourDomain.push(categories[i])
-        colourRange.push(self.colours[i])
+        colourRange.push(self.colourGenerator(i))
       }
 
       this.colourKey.domain(colourDomain).range(colourRange)
@@ -338,8 +370,15 @@ export default class ScatterPlot {
 
       html += "</div>"
     }
+    console.log("eyp",this.hideKey)
+    if (this.hideKey) {
+      console.log("hiding key")
+    }
 
-    d3.select("#key").html(html)
+    else {
+      d3.select("#key").html(html)
+    }
+   
   }
 
   labelizer(text) {
@@ -428,7 +467,8 @@ export default class ScatterPlot {
         }`
       )
       .classed("svg-content", true)
-      .append("g")
+
+    var features = svg.append("g")
       .attr(
         "transform",
         "translate(" + self.margin.left + "," + self.margin.top + ")"
@@ -439,11 +479,23 @@ export default class ScatterPlot {
       return parseFloat(d.x)
     })
 
-    // Set the X axis min value
-    var xMin = d3.min(xRange)
+    var xMax =
+			self.xMax
+				? parseInt(self.xMax)
+				: d3.max(xRange)
 
-    // Set the X axis max value
-    var xMax = d3.max(xRange)
+		var xMin =
+			self.xMin
+				? parseInt(self.xMin)
+				: d3.min(xRange)
+
+
+
+    // // Set the X axis min value
+    // var xMin = d3.min(xRange)
+
+    // // Set the X axis max value
+    // var xMax = d3.max(xRange)
 
     // Get the full range
     var yRange = self.database.map(function (d) {
@@ -458,11 +510,22 @@ export default class ScatterPlot {
       return parseFloat(d.y)
     })
 
+    if (self.yMin) {
+      yMin = parseInt(self.yMin)
+    }
+
     // Set the Y axis max value
     var yMax = d3.max(self.database, function (d) {
       return parseFloat(d.y)
     })
-    console.log(yMin, yMax)
+
+    if (self.yMax) {
+      yMax = parseInt(self.yMax)
+    }
+
+
+
+    console.log(yMin, yMax, xMin, xMax)
     // Add a 5% buffer on either side of the Y axis min max values
     var yLabels = self.bufferize(yMin, yMax)
 
@@ -473,7 +536,7 @@ export default class ScatterPlot {
     this.tooltip = new Tooltip("#graphicContainer", "tipster")
 
     // x-axis
-    svg
+    features
       .append("g")
       .attr("class", "x axis")
       .attr("transform", function () {
@@ -492,7 +555,7 @@ export default class ScatterPlot {
       .text(self.x_label)
 
     // y-axis
-    svg
+    features
       .append("g")
       .attr("class", "y axis")
       .attr("transform", function () {
@@ -510,7 +573,7 @@ export default class ScatterPlot {
       .text(self.y_label)
 
     if (self.zero_line_x) {
-      svg
+      features
         .append("line")
         .attr("class", "zeroline")
         .attr("x1", function () {
@@ -531,7 +594,7 @@ export default class ScatterPlot {
     }
 
     if (self.zero_line_y) {
-      svg
+      features
         .append("line")
         .attr("class", "zeroline")
         .attr("x1", function () {
@@ -551,7 +614,7 @@ export default class ScatterPlot {
         .style("opacity", 1)
     }
 
-    svg
+    features
       .selectAll(".dot-label")
       .data(self.labels)
       .enter()
@@ -566,12 +629,14 @@ export default class ScatterPlot {
       })
 
     let $dots = null
+
     const templateRender = (d) => {
+      console.log(d)
       return mustache(this.tiptext, { ...helpers, ...d })
     }
 
     if (self.colourBlindUser) {
-      $dots = svg
+      $dots = features
         .selectAll(".dot")
         .data(self.target)
         .enter()
@@ -593,7 +658,7 @@ export default class ScatterPlot {
           return self.symbolKey(d[self.cats])
         })
     } else {
-      $dots = svg
+      $dots = features
         .selectAll(".dot")
         .data(self.target)
         .enter()
@@ -603,6 +668,7 @@ export default class ScatterPlot {
         })
         .attr("r", 3.5)
         .attr("cx", xMap)
+        .style("opacity", 0.7)
         .attr("cy", yMap)
         .style("fill", function (d) {
           return self.cats == null ? "#4bc6df" : self.colourKey(d[self.cats])
@@ -644,6 +710,7 @@ export default class ScatterPlot {
 
     // Add the trendline if it has been specified
     if (self.trendline) {
+      console.log("blah",self.trendline)
       var trendline = self.trendlines.filter(function (value) {
         return value.trendline == self.default
       })
@@ -660,55 +727,88 @@ export default class ScatterPlot {
       var x2 = parseFloat(trendline[0].max_x)
       var y2 = parseFloat(trendline[0].max_y)
 
-      var trendData = [[x1, y1, x2, y2]]
-      var trendline = svg.selectAll(".trendline").data(trendData)
+      var trendData = [[x1, y1], [x2, y2]]
+      // var trendlines = svg.selectAll(".trendline").data(trendData)
 
-      trendline
-        .enter()
-        .append("line")
+      var lineGenerator = d3.line().x((d) => {       
+              return x(d[0])
+            })
+            .y((d) => {
+              return y(d[1])
+            })
+
+            features
+        .append("path")
         .attr("class", "trendline")
-        .attr("x1", function (d) {
-          return x(d[0])
-        })
-        .attr("y1", function (d) {
-          return y(d[1])
-        })
-        .attr("x2", function (d) {
-          return x(d[2])
-        })
-        .attr("y2", function (d) {
-          return y(d[3])
-        })
+        .attr("id", 'trendline')
+        .attr("d", lineGenerator(trendData))
         .attr("stroke", "black")
         .attr("stroke-width", 1)
         .style("opacity", 1)
         .style("stroke-dasharray", "3, 3")
+
+      if (trendline[0].label && trendline[0].label != "") {
+        console.log("labelling trendline")
+        console.log("yep", trendline)
+        
+        features.selectAll(".trendlineLabel").data(trendline)
+          .enter()
+          .append("text")
+          .attr("font-size",12)
+          .style("text-anchor","middle")
+          .attr("dy", -6)
+          .append("textPath")
+          .attr("xlink:href",'#trendline')
+          .attr("startOffset",function(d,i){return "50%";})
+          .text(function(d){return d.label})
+
+
+      }  
+
     }
 
-    if (self.hasAnnotations) {
-      for (var i = 0; i < self.annotations.length; i++) {
-        let scaled_x = self.annotations[i].scaled_x === "TRUE" ? true : false
-        let position_x = scaled_x
-          ? x(+self.annotations[i].x)
-          : +self.annotations[i].x
-        let scaled_y = self.annotations[i].scaled_y === "TRUE" ? true : false
-        let position_y = scaled_y
-          ? y(+self.annotations[i].y)
-          : +self.annotations[i].y
-        let rotation =
-          self.annotations[i].rotation === "" ? 0 : self.annotations[i].rotation
 
-        svg
-          .append("text")
-          .attr("class", "annotations mobHide")
-          .attr("x", position_x)
-          .attr("y", position_y)
-          .style("text-anchor", self.annotations[i]["text-anchor"])
-          .text(self.annotations[i].text)
-          .attr("transform", function (d) {
-            return `rotate(${rotation},${position_x},${position_y})`
-          })
+
+
+    if (self.hasAnnotations) {
+    
+      if (typeof self.annotations[0].coords  === 'string') {
+        self.annotations.forEach(function(d) {
+          d.coords = JSON.parse(d.coords)
+          d.sweepFlag = +d.sweepFlag
+          d.largeArcFlag = +d.largeArcFlag
+          d.radius = +d.radius
+        })
       }
+     
+      console.log("annotations", self.annotations)
+      self.annotations.forEach((config) => {
+        addLabel(svg, config, width + self.margin.left + self.margin.right, height + self.margin.top + self.margin.bottom, self.margin, true)
+      })
+
+      // for (var i = 0; i < self.annotations.length; i++) {
+      //   let scaled_x = self.annotations[i].scaled_x === "TRUE" ? true : false
+      //   let position_x = scaled_x
+      //     ? x(+self.annotations[i].x)
+      //     : +self.annotations[i].x
+      //   let scaled_y = self.annotations[i].scaled_y === "TRUE" ? true : false
+      //   let position_y = scaled_y
+      //     ? y(+self.annotations[i].y)
+      //     : +self.annotations[i].y
+      //   let rotation =
+      //     self.annotations[i].rotation === "" ? 0 : self.annotations[i].rotation
+
+      //   svg
+      //     .append("text")
+      //     .attr("class", "annotations mobHide")
+      //     .attr("x", position_x)
+      //     .attr("y", position_y)
+      //     .style("text-anchor", self.annotations[i]["text-anchor"])
+      //     .text(self.annotations[i].text)
+      //     .attr("transform", function (d) {
+      //       return `rotate(${rotation},${position_x},${position_y})`
+      //     })
+      // }
     }
   }
 

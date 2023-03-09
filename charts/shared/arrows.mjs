@@ -81,7 +81,7 @@ function clickLogging(el, width, height, margin, clickLoggingOn) {
 		labelTexts.on("click", function(e) {
 			clickNo = clickNo - 1
 			id = d3.select(this).attr("data-id")
-			// console.log(id)
+			console.log(id)
 			d3.select(this).transition().attr("opacity",0.2)
 			clickType = "label" 
 		})
@@ -270,6 +270,7 @@ function addLabel(el, config, width, height, margin, clickLoggingOn) {
 		el.selectAll(`#${config.id} text`).each(insertLinebreaks);		
 
 		if (clickLoggingOn) {
+			console.log(el)
 			clickLogging(el, width, height, margin, clickLoggingOn)
 		}
 

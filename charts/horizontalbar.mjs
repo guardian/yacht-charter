@@ -52,7 +52,7 @@ export default class horizontalBar {
         this.autoSort = this.options["autoSort"]
     }
 
-    console.log(this.enableShowMore)
+    // console.log(this.enableShowMore)
 
      // var color = new ColorScale()
     
@@ -113,7 +113,7 @@ export default class horizontalBar {
 
   setup() {
 
-    console.log("data", this.data)
+    // console.log("data", this.data)
 
     var isMobile
     var windowWidth = Math.max(
@@ -128,6 +128,8 @@ export default class horizontalBar {
     if (windowWidth >= 610) {
       isMobile = false
     }
+
+    console.log("windowWidth",windowWidth)
 
     // console.log("xVar", this.xVar, "yVar", this.yVar)
 
@@ -152,7 +154,7 @@ export default class horizontalBar {
       }
       
        for (let i = 1; i < this.keys.length; i++) {
-        console.log(this.keys[i])
+        // console.log(this.keys[i])
         allValues.push(d[this.keys[i]])
       
       }
@@ -178,7 +180,7 @@ export default class horizontalBar {
       }
 
       else {
-        console.log("Not sorting")
+        // console.log("Not sorting")
       }
     }
 
@@ -193,6 +195,7 @@ export default class horizontalBar {
 
     var height = this.temp_data.length * 75
 
+    console.log("width", width, "height", height)
     var margin
 
     if (this.details[0]["margin-top"]) {
@@ -237,7 +240,7 @@ export default class horizontalBar {
       .attr("height", this.height + this.margin.top + this.margin.bottom)
       .attr("id", "svg")
       .attr("overflow", "hidden")
-
+  
     var features = svg
       .append("g")
       .attr(

@@ -83,6 +83,7 @@ export default class LineChart {
 		this.keys.splice(0, 1) // remove the first key
 		this.template = parsed["sheets"]["template"]
 		this.meta = this.template[0]
+		console.log("meta", this.meta)
 		this.labels = parsed["sheets"]["labels"]
 		this.periods = parsed["sheets"]["periods"]
 		this.userKey = parsed["sheets"]["key"]
@@ -210,7 +211,7 @@ export default class LineChart {
 
 		if (this.areaData) {
 			var areaLen = this.areaKeys.length/2
-			console.log("areaLen", areaLen)
+			// console.log("areaLen", areaLen)
 			for (let i = 0; i < areaLen; i++) {
 				var lowerI = i * 2 
 				var upperI = i * 2 + 2
@@ -276,9 +277,10 @@ export default class LineChart {
 			}
 		}
 
-		// console.log("lineLabelling", this.lineLabelling )
+		// console.log("dateformat", this.meta["dateFormat"] )
 
 		this.parseTime = this.meta["dateFormat"] ? d3.timeParse(this.meta["dateFormat"]) : null
+		// console.log("parseTime", this.parseTime)
 		this.parsePeriods = this.meta["periodDateFormat"] ? d3.timeParse(this.meta["periodDateFormat"]) : null
 		this.xAxisDateFormat = this.meta["xAxisDateFormat"] ? d3.timeFormat(this.meta["xAxisDateFormat"]) : null
 
@@ -303,17 +305,17 @@ export default class LineChart {
 		// update x scale based on scale type
 
 		if (this.parseTime && typeof this.data[0][this.xColumn] == "string") {
-			// console.log("parsing")
+			console.log("parsing")
 			this.x = d3.scaleTime().rangeRound([0, this.width])
 		}
 
 		else if (!(this.data[0][this.xColumn] instanceof Date)) {
-			// console.log("linear scale")
+			console.log("linear scale")
 			this.x = d3.scaleLinear().rangeRound([0, this.width])
 		}
 
 		else {
-			// console.log("already a date")
+			console.log("already a date")
 		}
 
 		// group for chart features
@@ -533,14 +535,19 @@ export default class LineChart {
 		this.y.domain([this.min, this.max])
 
 		// setup x and y axis
-		const xTicks = Math.round(this.width / 110)
+		// const xTicks = Math.round(this.width / 110)
+
+		const xTicks = 5 
 		// console.log("xTicks", xTicks)
 		const yTicks = this.meta["yScaleType"] === "scaleLog" ? 3 : 5
 
 		this.xAxis = d3.axisBottom(this.x)
 			.ticks(xTicks)
 	
-		if (this.parseTime == null) {
+		// console.log("parseTime2", this.parseTime)	
+
+		if (!this.parseTime) {
+			console.log("yiiieeew")
 			this.xAxis.tickFormat(d3.format("d"))
 		}  
 
@@ -651,9 +658,6 @@ export default class LineChart {
 
 
 
-
-
-
 		this.$features.append("g")
 				.attr("class", "y dashed")
 				.call(this.yAxis)
@@ -736,13 +740,13 @@ export default class LineChart {
 
 		if (this.areaData) {
 			var areaLen = this.areaKeys.length/2
-			console.log("areaLen", areaLen)
+			// console.log("areaLen", areaLen)
 			for (let i = 0; i < areaLen; i++) {
 				var lowerI = i * 2 
 				var upperI = i * 2 + 2
-				console.log(lowerI, upperI)
+				// console.log(lowerI, upperI)
 				var currentAreaKeys = this.areaKeys.slice(lowerI,upperI)
-				console.log(currentAreaKeys)
+				// console.log(currentAreaKeys)
 			
 
 				var currentKey = commonWords(currentAreaKeys[0], currentAreaKeys[1])
