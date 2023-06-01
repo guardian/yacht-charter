@@ -90,12 +90,40 @@ export default class LineChart {
 		this.options = parsed["sheets"]["options"][0]
 		this.lines = null 
 		this.xAxisDateFormat = null
+		this.credit = true
+		this.borderTop = true
+		this.borderBottom = true
+
+		if ("credit" in this.options) {
+			if (this.options.credit != "") {
+				if (this.options.credit == "FALSE") {
+					this.credit = false
+				}
+				else {
+					this.credit = true
+				}
+			}
+			console.log("height",this.meta.height)
+		}
 
 		if ("lines" in parsed["sheets"]) {
 			if (parsed["sheets"]['lines'][0] != "" ) {
 				this.lines = parsed["sheets"]['lines']
 			}
 		}
+
+		if ("borderTop" in this.meta) {
+			if (this.meta.borderTop == "FALSE") {
+				this.borderTop = false
+			}
+		}
+
+		if ("borderBottom" in this.meta) {
+			if (this.meta.borderBottom == "FALSE") {
+				this.borderBottom = false
+			}
+		}
+
 
 		// console.log("line", this.lines)
 
@@ -130,9 +158,18 @@ export default class LineChart {
 			bottom: 20,
 			left: 40
 		}
+		
+		this.height = this.containerWidth * 0.6 - this.margin.top - this.margin.bottom
+
+		if ("height" in this.meta) {
+			if (this.meta.height != "") {
+				this.height = +this.meta.height - this.margin.top - this.margin.bottom
+			}
+			console.log("height",this.meta.height)
+		}
 
 		this.width = this.containerWidth - this.margin.left - this.margin.right
-		this.height = this.containerWidth * 0.6 - this.margin.top - this.margin.bottom
+		
 
 		this.y = d3.scaleLinear().rangeRound([this.height, 0])
 		this.xAxis = null
@@ -205,6 +242,10 @@ export default class LineChart {
 
 		if (this.meta.source != "") {
 			d3.select("#sourceText").html(" | Source: " + this.meta.source)
+		}
+
+		if (this.credit) {
+			d3.select("#credit").html("Guardian graphic")
 		}
 
 		var addAreaKey = []
@@ -301,6 +342,15 @@ export default class LineChart {
 		
 		this.width = document.querySelector("#graphicContainer").getBoundingClientRect().width - this.margin.left - this.margin.right
 		this.$svg.attr("width", this.width + this.margin.left + this.margin.right)
+
+
+		if (!this.borderBottom) {
+			d3.select(".interactive-wrapper").classed("borderBottom", false)
+		}
+
+		if (!this.borderTop) {
+			d3.select(".interactive-wrapper").classed("borderTop", false)
+		}
 
 		// update x scale based on scale type
 

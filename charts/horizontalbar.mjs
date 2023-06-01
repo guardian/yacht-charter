@@ -517,7 +517,7 @@ export default class horizontalBar {
         if (typeof config.coords === "string") {
         config.coords = JSON.parse(config.coords)
         }
-        addLabel(svg, config, this.width + this.margin.left + this.margin.right, this.height + this.margin.top + this.margin.bottom, this.margin, true)
+        addLabel(svg, config, this.width + this.margin.left + this.margin.right, this.height + this.margin.top + this.margin.bottom, this.margin, false)
     })
 
 

@@ -64,6 +64,14 @@ figure {
   left: -2000px;
 }
 
+.borderTop {
+  border-top: 1px solid #dcdcdc;
+}
+
+.borderBottom {
+  border-bottom: 1px solid #dcdcdc;
+}
+
 .interactive-wrapper {
   overflow: hidden;
   padding: none;
@@ -72,8 +80,7 @@ figure {
   margin: 0 !important;
   max-width: 1200px;
   // padding: 20px;
-  border-top: 1px solid #dcdcdc;
-  border-bottom: 1px solid #dcdcdc;
+
 
   #graphicContainer {
     position: relative;
